@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Login Page</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+    }
+    .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        width: 300px;
+    }
+    h2 {
+        text-align: center;
+        color: #333;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+    }
+    input[type="text"], input[type="password"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    button {
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    .signup-link {
+        text-align: center;
+        margin-top: 15px;
+    }
+    .signup-link a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .signup-link a:hover {
+        text-decoration: underline;
+    }
+    .error-message {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+        display: none;
+    }
+    .input-error {
+        border-color: #dc3545 !important;
+    }
+    .success-message {
+        color: #28a745;
+        font-size: 14px;
+        margin-top: 5px;
+        display: none;
+    }
+    .validation-info {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>Login</h2>
+    <form action="Loginservlet" method="post" id="loginForm" onsubmit="return validateForm()">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required onblur="validateUsername()" oninput="clearError('username')">
+            <div class="error-message" id="usernameError"></div>
+            <div class="validation-info" id="usernameInfo">Username must be 3-20 characters, letters and numbers only</div>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required onblur="validatePassword()" oninput="clearError('password')">
+            <div class="error-message" id="passwordError"></div>
+            <div class="validation-info" id="passwordInfo">Password must be 6-20 characters</div>
+        </div>
+        <input type="hidden" id="userRole" name="role" value="user">
+        <button type="submit">Login</button>
+    </form>
+    <div class="signup-link">
+        <p>Don't have an account? <a href="Signup.html">Sign up here</a></p>
+    </div>
+</div>
+
+<script>
+function validateForm() {
+    let isValid = true;
+    
+    // Validate username
+    if (!validateUsername()) {
+        isValid = false;
+    }
+    
+    // Validate password
+    if (!validatePassword()) {
+        isValid = false;
+    }
+    
+    // Check for admin credentials
+    if (isValid) {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const userRole = document.getElementById('userRole');
+        
+        if (username === 'Rakshith' && password === 'rak1234') {
+            userRole.value = 'admin';
+            console.log('Admin role assigned');
+        } else {
+            userRole.value = 'user';
+            console.log('User role assigned');
+        }
+    }
+    
+    return isValid;
+}
+
+function validateUsername() {
+    const username = document.getElementById('username').value.trim();
+    const usernameError = document.getElementById('usernameError');
+    const usernameInput = document.getElementById('username');
+    
+    // Clear previous error
+    usernameError.style.display = 'none';
+    usernameInput.classList.remove('input-error');
+    
+    // Validation rules
+    if (username.length === 0) {
+        showError('usernameError', 'Username is required');
+        usernameInput.classList.add('input-error');
+        return false;
+    }
+    
+    if (username.length < 3 || username.length > 20) {
+        showError('usernameError', 'Username must be 3-20 characters');
+        usernameInput.classList.add('input-error');
+        return false;
+    }
+    
+    // Allow letters, numbers, and underscores
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!usernameRegex.test(username)) {
+        showError('usernameError', 'Username can only contain letters, numbers, and underscores');
+        usernameInput.classList.add('input-error');
+        return false;
+    }
+    
+    return true;
+}
+
+function validatePassword() {
+    const password = document.getElementById('password').value;
+    const passwordError = document.getElementById('passwordError');
+    const passwordInput = document.getElementById('password');
+    
+    // Clear previous error
+    passwordError.style.display = 'none';
+    passwordInput.classList.remove('input-error');
+    
+    // Validation rules
+    if (password.length === 0) {
+        showError('passwordError', 'Password is required');
+        passwordInput.classList.add('input-error');
+        return false;
+    }
+    
+    if (password.length < 6 || password.length > 20) {
+        showError('passwordError', 'Password must be 6-20 characters');
+        passwordInput.classList.add('input-error');
+        return false;
+    }
+    
+    // Check for at least one letter and one number
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    
+    if (!hasLetter || !hasNumber) {
+        showError('passwordError', 'Password must contain at least one letter and one number');
+        passwordInput.classList.add('input-error');
+        return false;
+    }
+    
+    return true;
+}
+
+function showError(elementId, message) {
+    const errorElement = document.getElementById(elementId);
+    errorElement.textContent = message;
+    errorElement.style.display = 'block';
+}
+
+function clearError(inputId) {
+    const inputElement = document.getElementById(inputId);
+    const errorElement = document.getElementById(inputId + 'Error');
+    
+    inputElement.classList.remove('input-error');
+    errorElement.style.display = 'none';
+}
+
+// Add enter key support for form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loginForm');
+    form.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (validateForm()) {
+                form.submit();
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>
