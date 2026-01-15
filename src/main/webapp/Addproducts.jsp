@@ -7,7 +7,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Add Product - YummyHub</title>
+<title>Add Product - Mini Shopping cart</title>
 <style>
     * {
         margin: 0;
@@ -165,7 +165,11 @@
                     <input type="number" id="price" name="price" placeholder="0.00" step="0.01" min="0" required><br><br>
                 </div>
                 
-               
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" placeholder="Enter product description" rows="4" style="width: 100%; padding: 12px 16px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1rem; font-family: inherit; resize: vertical; background: #f8f9fa;"></textarea><br><br>
+                </div>
+                
                 <div class="form-group">
                     <label for="img">Product Image</label>
                     <input type="file" id="img" name="img" accept="image/*" required><br><br>

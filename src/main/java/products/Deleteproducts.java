@@ -40,14 +40,14 @@ public class Deleteproducts extends HttpServlet {
             Dbase db = new Dbase();
             Connection con = db.initailizeDatabase();
             
-            String getImageSql = "SELECT image FROM product WHERE id = ?";
+            String getImageSql = "SELECT name FROM product WHERE id = ?";
             PreparedStatement getImagePs = con.prepareStatement(getImageSql);
             getImagePs.setString(1, id);
             ResultSet imageRs = getImagePs.executeQuery();
             
             String imageToDelete = null;
             if (imageRs.next()) {
-                imageToDelete = imageRs.getString("image");
+                imageToDelete = imageRs.getString("name");
             }
             imageRs.close();
             getImagePs.close();
@@ -74,7 +74,7 @@ public class Deleteproducts extends HttpServlet {
             
             if (rowsAffected > 0) {
                 // Redirect back to showItems.jsp
-                response.sendRedirect("showproducts.jsp");
+                response.sendRedirect("Showproducts.jsp");
             } else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
             }

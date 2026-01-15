@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
+import products.Dbase;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,7 +13,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
-import products.Dbase;
 
 @WebServlet("/Uploadproducts")
 @MultipartConfig(maxFileSize = 1600000) // 1.6 MB
@@ -25,6 +25,7 @@ public class Uploadproducts extends HttpServlet {
         String name = request.getParameter("pname");
         String priceStr = request.getParameter("price");
         String idStr = request.getParameter("pid");
+        String description = request.getParameter("description");
         Part filePart = request.getPart("img");
 
         if (name == null || name.trim().isEmpty()) {
@@ -74,12 +75,13 @@ public class Uploadproducts extends HttpServlet {
             Dbase db = new Dbase();
             Connection con = db.initailizeDatabase();
 
-            String sql = "INSERT INTO product(id, name, price, image) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO product(id, name, price, description, image) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, id);
             ps.setString(2, name);
             ps.setDouble(3, price);
-            ps.setString(4, fileName);
+            ps.setString(4, description != null ? description : "");
+            ps.setString(5, fileName);
 
             ps.executeUpdate();
 
@@ -92,11 +94,12 @@ public class Uploadproducts extends HttpServlet {
             out.println("<p>ID: " + id + "</p>");
             out.println("<p>Name: " + name + "</p>");
             out.println("<p>Price: ₹" + price + "</p>");
-            out.println("<p><a href='showItems.jsp'>View Products</a></p>");
-            out.println("<p><a href='AddItems.jsp'>Add Another Product</a></p>");
+            if (description != null && !description.trim().isEmpty()) {
+                out.println("<p>Description: " + description + "</p>");
+            }
+            out.println("<p><a href='Showproducts.jsp'>View Products</a></p>");
+            out.println("<p><a href='Addproducts.jsp'>Add Another Product</a></p>");
             out.println("</body></html>");
-            ps.close();
-            con.close();
 
         } catch (Exception e) {
             e.printStackTrace();
