@@ -253,6 +253,8 @@ String username = (String) sessionObg.getAttribute("username");
         <header>
             <h1>🛍️ Mini Shopping cart</h1>
             <p class="subtitle">Browse our amazing cuisine</p>
+            
+           
             <div style="margin-bottom: 20px;">
                 <a href="Addproducts.jsp" class="add-product-btn">➕ Add New Product</a>
 <% if ("admin".equals(userRole)) { %>
@@ -268,10 +270,26 @@ String username = (String) sessionObg.getAttribute("username");
         <main>
             <div class="products-grid">
 <%
+// Get category parameter from URL
+String category = request.getParameter("category");
+
 try {
 	Dbase db = new Dbase();
     Connection con = db.initailizeDatabase();
-    PreparedStatement ps = con.prepareStatement("SELECT id, name, price, image, description FROM product ORDER BY id DESC");
+    PreparedStatement ps;
+    String sql;
+    
+    if (category != null && !category.trim().isEmpty()) {
+        // Filter by category
+        sql = "SELECT id, name, price, image, description FROM product WHERE category_id = ? ORDER BY id DESC";
+        ps = con.prepareStatement(sql);
+        ps.setString(1, category);
+    } else {
+        // Show all products
+        sql = "SELECT id, name, price, image, description FROM product ORDER BY id DESC";
+        ps = con.prepareStatement(sql);
+    }
+    
     ResultSet rs = ps.executeQuery();
     
     boolean hasProducts = false;

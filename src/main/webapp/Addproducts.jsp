@@ -183,6 +183,19 @@ String username = (String) sessionObg.getAttribute("username");
                 </div>
                 
                 <div class="form-group">
+                    <label for="category_id">Category</label>
+                    <select id="category_id" name="category_id" required style="width: 100%; padding: 12px 16px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1rem; background: #f8f9fa;">
+                        <option value="">Select Category</option>
+                        <option value="Mo">📱 Mobile</option>
+                        <option value="Ms">👞 Men Shoe</option>
+                        <option value="Lp">💻 Laptop</option>
+                        <option value="Wt">⌚ Watch</option>
+                        <option value="Hp">🎧 Headphones</option>
+                        <option value="Ca">📷 Camera</option>
+                    </select><br><br>
+                </div>
+                
+                <div class="form-group">
                     <label for="price">Price (₹)</label>
                     <input type="number" id="price" name="price" placeholder="0.00" step="0.01" min="0" required><br><br>
                 </div>

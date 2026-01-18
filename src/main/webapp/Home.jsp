@@ -391,13 +391,13 @@ String username = (String) sessionObg.getAttribute("username");
 
 <section class="products">
     <div class="product-card">
-        <button href="Showproducts.jsp" onclick="window.location.href='Showproducts.jsp'">
+        <button href="Showproducts.jsp?category=Mo" onclick="window.location.href='Showproducts.jsp?category=Mo'">
             <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=120&h=120&fit=crop" alt="Mobile">
             <h3>Mobile</h3>
         </button>
     </div>
     <div class="product-card">
-        <button href="Showproducts.jsp" onclick="window.location.href='Showproducts.jsp'">
+        <button href="Showproducts.jsp?category=Ms" onclick="window.location.href='Showproducts.jsp?category=Ms'">
             <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=120&h=120&fit=crop" alt="Men Shoe">
             <h3>Men Shoe</h3>
         </button>

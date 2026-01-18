@@ -27,6 +27,7 @@ public class Uploadproducts extends HttpServlet {
         String priceStr = request.getParameter("price");
         String idStr = request.getParameter("pid");
         String description = request.getParameter("description");
+        String category_id = request.getParameter("category_id");
         Part filePart = request.getPart("img");
 
         if (name == null || name.trim().isEmpty()) {
@@ -46,6 +47,11 @@ public class Uploadproducts extends HttpServlet {
 
         if (filePart == null || filePart.getSize() == 0) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Image required");
+            return;
+        }
+
+        if (category_id == null || category_id.trim().isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Category required");
             return;
         }
 
@@ -76,13 +82,14 @@ public class Uploadproducts extends HttpServlet {
             Dbase db = new Dbase();
             Connection con = db.initailizeDatabase();
 
-            String sql = "INSERT INTO product(id, name, price, description, image) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO product(id, name, price, description, image, category_id) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, id);
             ps.setString(2, name);
             ps.setDouble(3, price);
             ps.setString(4, description != null ? description : "");
             ps.setString(5, fileName);
+            ps.setString(6, category_id);
 
             ps.executeUpdate();
 
