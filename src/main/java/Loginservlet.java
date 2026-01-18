@@ -11,6 +11,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/Loginservlet")
 public class Loginservlet extends HttpServlet {
@@ -34,16 +35,18 @@ public class Loginservlet extends HttpServlet {
 			{
 				String userRole = rs.getString("role");
 				
-				// Set role in session for future use
-				request.setAttribute("userRole", userRole);
-				request.setAttribute("username", n);
+				// Create session and store user data
+				HttpSession session = request.getSession();
+				session.setAttribute("userRole", userRole);
+				session.setAttribute("username", n);
+				session.setAttribute("isLoggedIn", true);
 				
 				// Redirect based on role
 				if ("admin".equals(userRole)) {
-					RequestDispatcher rd=request.getRequestDispatcher("Home.html");
+					RequestDispatcher rd=request.getRequestDispatcher("Home.jsp");
 					rd.forward(request,response);
 				} else {
-					RequestDispatcher rd=request.getRequestDispatcher("users.html");
+					RequestDispatcher rd=request.getRequestDispatcher("Home.jsp");
 					rd.forward(request,response);
 				}
 			}

@@ -2,6 +2,25 @@
     pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
 <%@ page import="products.*"%>
+<%@ page import="jakarta.servlet.http.HttpSession" %>
+<%
+// Check if user is logged in
+HttpSession sessionObg = request.getSession(false);
+if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null || 
+    !(Boolean) sessionObg.getAttribute("isLoggedIn")) {
+    response.sendRedirect("Login.html");
+    return;
+}
+
+// Check if user has admin role
+String userRole = (String) sessionObg.getAttribute("userRole");
+if (!"admin".equals(userRole)) {
+    response.sendRedirect("users.html");
+    return;
+}
+
+String username = (String) sessionObg.getAttribute("username");
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -141,7 +160,10 @@
     <div class="container">
         <header>
             <h1>🍽️ Add New Product</h1>
-            <p class="subtitle">Add to menu</p>
+            <p class="subtitle">Welcome, <%= username != null ? username : "Admin" %>! Add to menu</p>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <a href="LogoutServlet" class="admin-btn" style="background: #f44336; text-decoration: none; padding: 10px 20px; border-radius: 5px; color: white;">🚪 Logout</a>
+            </div>
         </header>
         
         <div class="form-container">

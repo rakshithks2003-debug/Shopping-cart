@@ -1,3 +1,18 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page import="jakarta.servlet.http.HttpSession" %>
+<%
+// Check if user is logged in
+HttpSession sessionObg = request.getSession(false);
+if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null || 
+    !(Boolean) sessionObg.getAttribute("isLoggedIn")) {
+    response.sendRedirect("Login.html");
+    return;
+}
+
+String userRole = (String) sessionObg.getAttribute("userRole");
+String username = (String) sessionObg.getAttribute("username");
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -327,14 +342,20 @@
 <body>
 
 <header>
+    <div style="position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.9); padding: 10px 20px; border-radius: 25px; font-weight: 600; color: #333; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+        👤 <%= username != null ? username : "User" %> (<%= userRole != null ? userRole : "Guest" %>)
+    </div>
     <h1>Mini Shopping Cart</h1>
-    <p>Shop Smart, Shop Easy</p>
+    <p>Welcome, <%= username != null ? username : "User" %>! Shop Smart, Shop Easy</p>
 </header>
 
 <nav>
-    <a href="#">Cart</a>
-    <a href="login.html">Logout</a>
-    <a href="Addproducts.jsp">Admin</a>
+    <a href="Showproducts.jsp">🛍️ Products</a>
+<% if ("admin".equals(userRole)) { %>
+  
+    <a href="Dashboard.jsp">🔧 Admin Panel</a>
+<% } %>
+    <a href="LogoutServlet">🚪 Logout</a>
 </nav>
 
 <div class="hero">
@@ -376,7 +397,7 @@
         </button>
     </div>
     <div class="product-card">
-        <button onclick="window.location.href='Products.html'">
+        <button href="Showproducts.jsp" onclick="window.location.href='Showproducts.jsp'">
             <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=120&h=120&fit=crop" alt="Men Shoe">
             <h3>Men Shoe</h3>
         </button>
