@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
+es<%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
 <%@ page import="products.*"%>
@@ -272,6 +272,19 @@ String username = (String) session.getAttribute("username");
             <h2 style="color: #2196F3; margin-bottom: 20px;">🔄 Update Product Items</h2>
             
             <div class="form-group">
+                <label for="categoryFilter">Filter by Category:</label>
+                <select id="categoryFilter" onchange="filterProducts()">
+                    <option value="">All Categories</option>
+                    <option value="Mo">📱 Mobile</option>
+                    <option value="Ms">👞 Men Shoe</option>
+                    <option value="Lp">💻 Laptop</option>
+                    <option value="Wt">⌚ Watch</option>
+                    <option value="Hp">🎧 Headphones</option>
+                    <option value="Ca">📷 Camera</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
                 <label for="productSelect">Select Product to Update:</label>
                 <select id="productSelect" onchange="loadProductDetails()">
                     <option value="">-- Choose a product --</option>
@@ -279,12 +292,12 @@ String username = (String) session.getAttribute("username");
 try {
     Dbase db = new Dbase();
     Connection con = db.initailizeDatabase();
-    PreparedStatement ps = con.prepareStatement("SELECT id, name, price, description FROM product ORDER BY name");
+    PreparedStatement ps = con.prepareStatement("SELECT id, name, price, description, category_id FROM product ORDER BY name");
     ResultSet rs = ps.executeQuery();
     
     while(rs.next()) {
 %>
-                    <option value="<%=rs.getString("id")%>"><%=rs.getString("name")%> (ID: <%=rs.getString("id")%>)</option>
+                    <option value="<%=rs.getString("id")%>" data-category="<%=rs.getString("category_id")%>"><%=rs.getString("name")%> (ID: <%=rs.getString("id")%>)</option>
 <%
     }
     
@@ -340,6 +353,27 @@ try {
     </div>
     
     <script>
+        function filterProducts() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const productSelect = document.getElementById('productSelect');
+            const options = productSelect.getElementsByTagName('option');
+            
+            // Reset product selection when category changes
+            productSelect.value = '';
+            document.getElementById('updateForm').style.display = 'none';
+            
+            for (let i = 1; i < options.length; i++) { // Skip first option (placeholder)
+                const option = options[i];
+                const optionCategory = option.getAttribute('data-category');
+                
+                if (categoryFilter === '' || optionCategory === categoryFilter) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+        }
+        
         function loadProductDetails() {
             const select = document.getElementById('productSelect');
             const form = document.getElementById('updateForm');
