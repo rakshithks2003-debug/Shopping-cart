@@ -1,4 +1,4 @@
-es<%@ page language="java" contentType="text/html; charset=UTF-8"
+<%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
 <%@ page import="products.*"%>
@@ -353,27 +353,6 @@ try {
     </div>
     
     <script>
-        function filterProducts() {
-            const categoryFilter = document.getElementById('categoryFilter').value;
-            const productSelect = document.getElementById('productSelect');
-            const options = productSelect.getElementsByTagName('option');
-            
-            // Reset product selection when category changes
-            productSelect.value = '';
-            document.getElementById('updateForm').style.display = 'none';
-            
-            for (let i = 1; i < options.length; i++) { // Skip first option (placeholder)
-                const option = options[i];
-                const optionCategory = option.getAttribute('data-category');
-                
-                if (categoryFilter === '' || optionCategory === categoryFilter) {
-                    option.style.display = 'block';
-                } else {
-                    option.style.display = 'none';
-                }
-            }
-        }
-        
         function loadProductDetails() {
             const select = document.getElementById('productSelect');
             const form = document.getElementById('updateForm');

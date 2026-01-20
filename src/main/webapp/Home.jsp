@@ -350,7 +350,7 @@ String username = (String) sessionObg.getAttribute("username");
 </header>
 
 <nav>
-    <a href="Showproducts.jsp">🛍️ Products</a>
+    <a href=".jsp">cart</a>
 <% if ("admin".equals(userRole)) { %>
   
     <a href="Dashboard.jsp">🔧 Admin Panel</a>
