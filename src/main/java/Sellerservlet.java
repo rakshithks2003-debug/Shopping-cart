@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 /**
  * Servlet implementation class Sellerservlet
  */
+@SuppressWarnings("serial")
 @WebServlet("/SellerServlet")
 public class Sellerservlet extends HttpServlet {
 protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -22,14 +23,14 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
     try {
         Class.forName("com.mysql.cj.jdbc.Driver");
         Connection con = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/shopping","root","password");
+            "jdbc:mysql://localhost:3306/mscart","root","password");
 
         PreparedStatement ps = con.prepareStatement(
-            "UPDATE sellers SET status='Approved' WHERE seller_id=?");
+            "UPDATE seller SET status='Approved' WHERE id=?");
         ps.setInt(1, id);
         ps.executeUpdate();
 
-        response.sendRedirect("sellers.jsp");
+        response.sendRedirect("seller.jsp");
     } catch (Exception e) {
         e.printStackTrace();
     }

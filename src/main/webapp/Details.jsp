@@ -10,6 +10,9 @@ if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null ||
     response.sendRedirect("Login.html");
     return;
 }
+String SessionId = session.getId();
+out.println("Session ID: " +
+SessionId);
 
 String userRole = (String) sessionObg.getAttribute("userRole");
 String username = (String) sessionObg.getAttribute("username");
@@ -259,10 +262,9 @@ try {
             flex-grow: 1;
             font-size: 1.15rem;
             white-space: pre-wrap;
-            background: rgba(236, 240, 241, 0.5);
+          
             padding: 25px;
-            border-radius: 15px;
-            border-left: 4px solid #667eea;
+            
             position: relative;
         }
         

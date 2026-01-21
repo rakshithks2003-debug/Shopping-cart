@@ -11,7 +11,9 @@ if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null ||
     response.sendRedirect("Login.html");
     return;
 }
-
+String SessionId = session.getId();
+out.println("Session ID: " +
+SessionId);
 // Check if user has admin role
 String userRole = (String) sessionObg.getAttribute("userRole");
 if (!"admin".equals(userRole)) {
@@ -42,13 +44,13 @@ String username = (String) sessionObg.getAttribute("username");
     }
     
     .container {
-        max-width: 600px;
+        max-width: 1200px;
         margin: 0 auto;
     }
     
     header {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 30px;
         color: white;
     }
     
@@ -65,104 +67,231 @@ String username = (String) sessionObg.getAttribute("username");
     }
     
     .form-container {
-        background: white;
-        padding: 40px;
-        border-radius: 15px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .form-field {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .form-field::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        transition: width 0.3s ease;
+    }
+    
+    .form-field:hover::before {
+        width: 5px;
+    }
+    
+    .form-field:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+    
+    .form-field-full {
+        grid-column: 1 / -1;
+    }
+    
+    .field-header {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #667eea;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .field-icon {
+        font-size: 1.1rem;
     }
     
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 0;
     }
     
     label {
         display: block;
         font-weight: 600;
         color: #333;
-        margin-bottom: 8px;
-        font-size: 1rem;
+        margin-bottom: 6px;
+        font-size: 0.9rem;
     }
     
     input[type="text"],
     input[type="number"],
-    input[type="file"] {
+    input[type="file"],
+    textarea,
+    select {
         width: 100%;
-        padding: 12px 16px;
+        padding: 10px 14px;
         border: 2px solid #e1e5e9;
         border-radius: 8px;
-        font-size: 1rem;
-        transition: border-color 0.3s ease;
-        background: #f8f9fa;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: white;
+        font-family: inherit;
     }
     
     input[type="text"]:focus,
     input[type="number"]:focus,
-    input[type="file"]:focus {
+    input[type="file"]:focus,
+    textarea:focus,
+    select:focus {
         outline: none;
         border-color: #667eea;
-        background: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-1px);
+    }
+    
+    textarea {
+        resize: vertical;
+        min-height: 80px;
     }
     
     .id-display {
-        background: #e8f5e8;
-        padding: 12px 16px;
-        border-radius: 8px;
+        background: linear-gradient(135deg, #e8f5e8, #d4edda);
+        padding: 15px;
+        border-radius: 12px;
         font-weight: bold;
         color: #2e7d32;
         text-align: center;
-        margin-bottom: 20px;
-        font-size: 1.1rem;
+        margin-bottom: 25px;
+        font-size: 1rem;
+        border: 1px solid rgba(46, 125, 50, 0.2);
+        box-shadow: 0 3px 10px rgba(46, 125, 50, 0.1);
     }
     
     .submit-btn {
-        background: #4CAF50;
+        background: linear-gradient(135deg, #4CAF50, #45a049);
         color: white;
         border: none;
-        padding: 14px 28px;
-        border-radius: 8px;
-        font-size: 1.1rem;
+        padding: 15px 30px;
+        border-radius: 12px;
+        font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
         width: 100%;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .submit-btn:hover::before {
+        left: 100%;
     }
     
     .submit-btn:hover {
-        background: #45a049;
         transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
     }
     
     .back-link {
         text-align: center;
-        margin-top: 30px;
+        margin-top: 20px;
     }
     
     .back-link a {
         color: white;
         text-decoration: none;
-        font-size: 1.1rem;
-        padding: 12px 24px;
+        font-size: 1rem;
+        padding: 12px 25px;
         border-radius: 25px;
         background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
         transition: all 0.3s ease;
         display: inline-block;
+        border: 1px solid rgba(255,255,255,0.2);
     }
     
     .back-link a:hover {
         background: rgba(255,255,255,0.2);
         transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+    
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .form-field {
+            padding: 15px;
+        }
+        
+        .form-container {
+            padding: 20px;
+            max-height: none;
+        }
+        
+        h1 {
+            font-size: 2rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .container {
+            padding: 10px;
+        }
+        
+        .form-container {
+            padding: 15px;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+        }
     }
 </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🍽️ Add New Product</h1>
+            <h1> Add New Product</h1>
             <p class="subtitle">Welcome, <%= username != null ? username : "Admin" %>! Add to menu</p>
             <div style="text-align: center; margin-bottom: 20px;">
-                <a href="LogoutServlet" class="admin-btn" style="background: #f44336; text-decoration: none; padding: 10px 20px; border-radius: 5px; color: white;">🚪 Logout</a>
+               
             </div>
         </header>
         

@@ -9,6 +9,10 @@ if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null ||
     response.sendRedirect("Login.html");
     return;
 }
+	String SessionId = session.getId();
+out.println("Session ID: " +
+SessionId);
+
 
 String userRole = (String) sessionObg.getAttribute("userRole");
 String username = (String) sessionObg.getAttribute("username");
@@ -163,6 +167,8 @@ tr:hover {
         <a href="Showproducts.jsp">🛍️ Products</a>
         
         <a href="admin.jsp">🔧 Add & Update </a>
+        <a href="Seller.jsp">👤 Seller</a>
+        <a href="Sellerupload.jsp">👤 Sellerupload</a>
 <% } %>
         <a href="#">📦 Orders</a>
 <% if ("admin".equals(userRole)) { %>
@@ -174,146 +180,7 @@ tr:hover {
     <!-- Main Content -->
     <div class="main">
 
-        <!-- Cards -->
-        <div class="cards">
-            <div class="card">
-                <h2>120</h2>
-                <p>Total Products</p>
-            </div>
-
-            <div class="card">
-                <h2>85</h2>
-                <p>Total Orders</p>
-            </div>
-
-            <div class="card">
-                <h2>60</h2>
-                <p>Total Users</p>
-            </div>
-
-            <div class="card">
-                <h2>₹45,000</h2>
-                <p>Total Revenue</p>
-            </div>
-        </div>
-
-        <!-- Table -->
-        <div class="table-container">
-            <h2 style="margin-bottom:15px;">Recent Orders</h2>
-            <table>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Product</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-                <tr>
-                    <td>#101</td>
-                    <td>Rahul</td>
-                    <td>Mobile</td>
-                    <td>Delivered</td>
-                    <td>
-                        <form action="DeleteOrder" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this order?')">
-                            <input type="hidden" name="orderId" value="101">
-                            <button type="submit" class="delete-btn">🗑️ Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                <tr>
-                    <td>#102</td>
-                    <td>Anita</td>
-                    <td>Shoes</td>
-                    <td>Pending</td>
-                    <td>
-                        <form action="DeleteOrder" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this order?')">
-                            <input type="hidden" name="orderId" value="102">
-                            <button type="submit" class="delete-btn">🗑️ Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                <tr>
-                    <td>#103</td>
-                    <td>Suresh</td>
-                    <td>Laptop</td>
-                    <td>Shipped</td>
-                    <td>
-                        <form action="DeleteOrder" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this order?')">
-                            <input type="hidden" name="orderId" value="103">
-                            <button type="submit" class="delete-btn">🗑️ Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- Products Table -->
-        <div class="table-container" style="margin-top: 30px;">
-            <h2 style="margin-bottom:15px;">Recent Products</h2>
-            <table>
-                <tr>
-                    <th>Product ID</th>
-                    <th>Product Name</th>
-                    <th>Price</th>
-                    <th>Category</th>
-                    <th>Actions</th>
-                </tr>
-                <tr>
-                    <td>#P001</td>
-                    <td>iPhone 14 Pro</td>
-                    <td>₹79,999</td>
-                    <td>Mobile</td>
-                    <td>
-                        <form action="Deleteproducts" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this product?')">
-                            <input type="hidden" name="id" value="P001">
-                            <input type="hidden" name="imageFileName" value="iphone14.jpg">
-                            <button type="submit" class="delete-btn">🗑️ Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                <tr>
-                    <td>#P002</td>
-                    <td>Nike Air Max</td>
-                    <td>₹8,499</td>
-                    <td>Shoes</td>
-                    <td>
-                        <form action="Deleteproducts" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this product?')">
-                            <input type="hidden" name="id" value="P002">
-                            <input type="hidden" name="imageFileName" value="nikeair.jpg">
-                            <button type="submit" class="delete-btn">🗑️ Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                <tr>
-                    <td>#P003</td>
-                    <td>Sony Headphones</td>
-                    <td>₹12,999</td>
-                    <td>Electronics</td>
-                    <td>
-                        <form action="Deleteproducts" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this product?')">
-                            <input type="hidden" name="id" value="P003">
-                            <input type="hidden" name="imageFileName" value="sonyheadphones.jpg">
-                            <button type="submit" class="delete-btn">🗑️ Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                <tr>
-                    <td>#P004</td>
-                    <td>Adidas T-Shirt</td>
-                    <td>₹1,299</td>
-                    <td>Clothing</td>
-                    <td>
-                        <form action="Deleteproducts" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this product?')">
-                            <input type="hidden" name="id" value="P004">
-                            <input type="hidden" name="imageFileName" value="adidastshirt.jpg">
-                            <button type="submit" class="delete-btn">🗑️ Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-    </div>
+       
 </div>
 
 </body>

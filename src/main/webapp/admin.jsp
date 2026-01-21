@@ -18,6 +18,9 @@ if (!"admin".equals(userRole)) {
     response.sendRedirect("users.html");
     return;
 }
+String SessionId = session.getId();
+out.println("Session ID: " +
+SessionId);
 
 String username = (String) session.getAttribute("username");
 %>
@@ -42,13 +45,13 @@ String username = (String) session.getAttribute("username");
     }
     
     .container {
-        max-width: 800px;
+        max-width: 1200px;
         margin: 0 auto;
     }
     
     header {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 30px;
         color: white;
     }
     
@@ -61,196 +64,325 @@ String username = (String) session.getAttribute("username");
     .subtitle {
         font-size: 1.1rem;
         opacity: 0.9;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
     }
     
     .admin-options {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: 1fr 1fr;
         gap: 20px;
-        margin-bottom: 40px;
+        margin-bottom: 30px;
     }
     
     .admin-card {
-        background: white;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
         padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
         text-align: center;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .admin-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        transition: width 0.3s ease;
+    }
+    
+    .admin-card:hover::before {
+        width: 6px;
     }
     
     .admin-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     }
     
     .admin-card h3 {
         color: #333;
         margin-bottom: 15px;
         font-size: 1.3rem;
+        font-weight: 600;
     }
     
     .admin-card p {
         color: #666;
         margin-bottom: 20px;
         font-size: 0.95rem;
+        line-height: 1.5;
     }
     
     .admin-btn {
         display: inline-block;
-        background: #4CAF50;
+        background: linear-gradient(135deg, #4CAF50, #45a049);
         color: white;
         padding: 12px 24px;
         text-decoration: none;
         border-radius: 25px;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
         font-weight: 600;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .admin-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .admin-btn:hover::before {
+        left: 100%;
     }
     
     .admin-btn:hover {
-        background: #45a049;
         transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
     }
     
     .update-btn {
-        background: #2196F3;
+        background: linear-gradient(135deg, #2196F3, #1976D2);
     }
     
     .update-btn:hover {
-        background: #1976D2;
+        box-shadow: 0 10px 30px rgba(33, 150, 243, 0.4);
     }
     
     .back-link {
         text-align: center;
-        margin-top: 30px;
+        margin-top: 20px;
     }
     
     .back-link a {
         color: white;
         text-decoration: none;
-        font-size: 1.1rem;
-        padding: 12px 24px;
+        font-size: 1rem;
+        padding: 12px 25px;
         border-radius: 25px;
         background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
         transition: all 0.3s ease;
         display: inline-block;
+        border: 1px solid rgba(255,255,255,0.2);
     }
     
     .back-link a:hover {
         background: rgba(255,255,255,0.2);
         transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
     }
     
     .update-section {
-        background: white;
-        padding: 40px;
-        border-radius: 15px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
         margin-bottom: 30px;
+        max-height: calc(100vh - 300px);
+        overflow-y: auto;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .form-field {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid rgba(33, 150, 243, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .form-field::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(135deg, #2196F3, #1976D2);
+        transition: width 0.3s ease;
+    }
+    
+    .form-field:hover::before {
+        width: 5px;
+    }
+    
+    .form-field:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(33, 150, 243, 0.15);
+        border-color: rgba(33, 150, 243, 0.3);
+    }
+    
+    .form-field-full {
+        grid-column: 1 / -1;
+    }
+    
+    .field-header {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #2196F3;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .field-icon {
+        font-size: 1.1rem;
     }
     
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 0;
     }
     
     label {
         display: block;
         font-weight: 600;
         color: #333;
-        margin-bottom: 8px;
-        font-size: 1rem;
+        margin-bottom: 6px;
+        font-size: 0.9rem;
     }
     
     input[type="text"],
     input[type="number"],
+    input[type="file"],
     select,
     textarea {
         width: 100%;
-        padding: 12px 16px;
+        padding: 10px 14px;
         border: 2px solid #e1e5e9;
         border-radius: 8px;
-        font-size: 1rem;
-        transition: border-color 0.3s ease;
-        background: #f8f9fa;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: white;
+        font-family: inherit;
     }
     
     input[type="text"]:focus,
     input[type="number"]:focus,
+    input[type="file"]:focus,
     select:focus,
     textarea:focus {
         outline: none;
         border-color: #2196F3;
-        background: white;
+        box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        transform: translateY(-1px);
+    }
+    
+    textarea {
+        resize: vertical;
+        min-height: 80px;
     }
     
     .submit-btn {
-        background: #2196F3;
+        background: linear-gradient(135deg, #2196F3, #1976D2);
         color: white;
         border: none;
-        padding: 14px 28px;
-        border-radius: 8px;
-        font-size: 1.1rem;
+        padding: 15px 30px;
+        border-radius: 12px;
+        font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
         width: 100%;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 6px 20px rgba(33, 150, 243, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .submit-btn:hover::before {
+        left: 100%;
     }
     
     .submit-btn:hover {
-        background: #1976D2;
         transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 10px 30px rgba(33, 150, 243, 0.4);
     }
     
-    .products-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
+    @media (max-width: 768px) {
+        .admin-options {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .admin-card,
+        .update-section {
+            padding: 20px;
+        }
+        
+        .update-section {
+            max-height: none;
+        }
+        
+        h1 {
+            font-size: 2rem;
+        }
     }
     
-    .products-table th,
-    .products-table td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-    }
-    
-    .products-table th {
-        background: #f8f9fa;
-        font-weight: 600;
-        color: #333;
-    }
-    
-    .products-table tr:hover {
-        background: #f8f9fa;
-    }
-    
-    .select-btn {
-        background: #2196F3;
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.9rem;
-    }
-    
-    .select-btn:hover {
-        background: #1976D2;
+    @media (max-width: 480px) {
+        .container {
+            padding: 10px;
+        }
+        
+        .admin-card,
+        .update-section {
+            padding: 15px;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+        }
     }
 </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🔧 Admin Panel</h1>
+            <h1>🔧  Add & Update Products</h1>
             <p class="subtitle">Welcome, <%= username != null ? username : "Admin" %>! Manage your shopping cart inventory</p>
             <div style="text-align: center; margin-bottom: 20px;">
-                <a href="LogoutServlet" class="admin-btn" style="background: #f44336; text-decoration: none; padding: 10px 20px; border-radius: 5px; color: white;">🚪 Logout</a>
+                
             </div>
         </header>
         
@@ -271,23 +403,33 @@ String username = (String) session.getAttribute("username");
         <div id="update-section" class="update-section">
             <h2 style="color: #2196F3; margin-bottom: 20px;">🔄 Update Product Items</h2>
             
-            <div class="form-group">
-                <label for="categoryFilter">Filter by Category:</label>
-                <select id="categoryFilter" onchange="filterProducts()">
-                    <option value="">All Categories</option>
-                    <option value="Mo">📱 Mobile</option>
-                    <option value="Ms">👞 Men Shoe</option>
-                    <option value="Lp">💻 Laptop</option>
-                    <option value="Wt">⌚ Watch</option>
-                    <option value="Hp">🎧 Headphones</option>
-                    <option value="Ca">📷 Camera</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="productSelect">Select Product to Update:</label>
-                <select id="productSelect" onchange="loadProductDetails()">
-                    <option value="">-- Choose a product --</option>
+            <div class="form-grid">
+                <div class="form-field">
+                    <div class="field-header">
+                        <span class="field-icon">📂</span>
+                        Filter by Category
+                    </div>
+                    <div class="form-group">
+                        <select id="categoryFilter" onchange="filterProducts()">
+                            <option value="">All Categories</option>
+                            <option value="Mo">📱 Mobile</option>
+                            <option value="Ms">👞 Men Shoe</option>
+                            <option value="Lp">💻 Laptop</option>
+                            <option value="Wt">⌚ Watch</option>
+                            <option value="Hp">🎧 Headphones</option>
+                            <option value="Ca">📷 Camera</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-field">
+                    <div class="field-header">
+                        <span class="field-icon">📦</span>
+                        Select Product
+                    </div>
+                    <div class="form-group">
+                        <select id="productSelect" onchange="loadProductDetails()">
+                            <option value="">-- Choose a product --</option>
 <%
 try {
     Dbase db = new Dbase();
@@ -297,7 +439,7 @@ try {
     
     while(rs.next()) {
 %>
-                    <option value="<%=rs.getString("id")%>" data-category="<%=rs.getString("category_id")%>"><%=rs.getString("name")%> (ID: <%=rs.getString("id")%>)</option>
+                            <option value="<%=rs.getString("id")%>" data-category="<%=rs.getString("category_id")%>"><%=rs.getString("name")%> (ID: <%=rs.getString("id")%>)</option>
 <%
     }
     
@@ -307,40 +449,73 @@ try {
     
 } catch (Exception e) {
 %>
-                    <option value="">Error loading products</option>
+                            <option value="">Error loading products</option>
 <%
 }
 %>
-                </select>
+                        </select>
+                    </div>
+                </div>
             </div>
             
             <form id="updateForm" action="UpdateServlet" method="post" enctype="multipart/form-data" style="display: none;">
                 <input type="hidden" id="originalId" name="originalId">
                 
-                <div class="form-group">
-                    <label for="updateId">Product ID:</label>
-                    <input type="text" id="updateId" name="id" pattern="[A-Za-z0-9]+" title="Only alphabetic characters allowed" required>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <div class="field-header">
+                            <span class="field-icon">🆔</span>
+                            Product ID
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="updateId" name="id" pattern="[A-Za-z0-9]+" title="Only alphabetic characters allowed" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <div class="field-header">
+                            <span class="field-icon">📝</span>
+                            Product Name
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="updateName" name="name" required>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="updateName">Product Name:</label>
-                    <input type="text" id="updateName" name="name" required>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <div class="field-header">
+                            <span class="field-icon">💰</span>
+                            Price
+                        </div>
+                        <div class="form-group">
+                            <input type="number" id="updatePrice" name="price" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <div class="field-header">
+                            <span class="field-icon">🖼️</span>
+                            Product Image
+                        </div>
+                        <div class="form-group">
+                            <input type="file" id="updateImage" name="image" accept="image/*">
+                            <small style="color: #666; font-size: 0.8rem;">Current image will be kept if no new image is selected</small>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="updatePrice">Price (₹):</label>
-                    <input type="number" id="updatePrice" name="price" step="0.01" min="0" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="updateDescription">Description:</label>
-                    <textarea id="updateDescription" name="description" rows="4"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="updateImage">Product Image (leave empty to keep current):</label>
-                    <input type="file" id="updateImage" name="image" accept="image/*">
-                    <small style="color: #666;">Current image will be kept if no new image is selected</small>
+                <div class="form-grid">
+                    <div class="form-field form-field-full">
+                        <div class="field-header">
+                            <span class="field-icon">📄</span>
+                            Description
+                        </div>
+                        <div class="form-group">
+                            <textarea id="updateDescription" name="description" rows="3"></textarea>
+                        </div>
+                    </div>
                 </div>
                 
                 <button type="submit" class="submit-btn">🔄 Update Product</button>

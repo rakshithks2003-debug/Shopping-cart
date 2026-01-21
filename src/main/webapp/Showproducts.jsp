@@ -10,6 +10,9 @@ if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null ||
     response.sendRedirect("Login.html");
     return;
 }
+String SessionId = session.getId();
+out.println("Session ID: " +
+SessionId);
 
 String userRole = (String) sessionObg.getAttribute("userRole");
 String username = (String) sessionObg.getAttribute("username");

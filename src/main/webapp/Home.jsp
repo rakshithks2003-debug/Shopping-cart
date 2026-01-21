@@ -9,6 +9,9 @@ if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null ||
     response.sendRedirect("Login.html");
     return;
 }
+String SessionId = session.getId();
+out.println("Session ID: " +
+SessionId);
 
 String userRole = (String) sessionObg.getAttribute("userRole");
 String username = (String) sessionObg.getAttribute("username");
@@ -52,6 +55,31 @@ String username = (String) sessionObg.getAttribute("username");
             background-clip: text;
             margin-bottom: 10px;
             letter-spacing: -0.02em;
+        }
+
+        header h1.institution-name {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            position: relative;
+            animation: institutionGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes institutionGlow {
+            0% {
+                filter: drop-shadow(0px 0px 10px rgba(255, 107, 107, 0.3));
+                transform: scale(1);
+            }
+            100% {
+                filter: drop-shadow(0px 0px 20px rgba(78, 205, 196, 0.5));
+                transform: scale(1.02);
+            }
         }
 
         header p {
@@ -345,6 +373,7 @@ String username = (String) sessionObg.getAttribute("username");
     <div style="position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.9); padding: 10px 20px; border-radius: 25px; font-weight: 600; color: #333; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
         👤 <%= username != null ? username : "User" %> (<%= userRole != null ? userRole : "Guest" %>)
     </div>
+    <h1 class="institution-name">Cauvery Polytechnic Gonikoppal</h1>
     <h1>Mini Shopping Cart</h1>
     <p>Welcome, <%= username != null ? username : "User" %>! Shop Smart, Shop Easy</p>
 </header>
@@ -408,24 +437,7 @@ String username = (String) sessionObg.getAttribute("username");
             <h3>Laptop</h3>
         </button>
     </div>
-    <div class="product-card">
-        <button onclick="window.location.href='Products.html'">
-            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=120&h=120&fit=crop" alt="Watch">
-            <h3>Watch</h3>
-        </button>
-    </div>
-    <div class="product-card">
-        <button onclick="window.location.href='Products.html'">
-            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=120&h=120&fit=crop" alt="Headphones">
-            <h3>Headphones</h3>
-        </button>
-    </div>
-    <div class="product-card">
-        <button onclick="window.location.href='Products.html'">
-            <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=120&h=120&fit=crop" alt="Camera">
-            <h3>Camera</h3>
-        </button>
-    </div>
+  
 </section>
 
 </body>
