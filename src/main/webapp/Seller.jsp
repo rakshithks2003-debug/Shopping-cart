@@ -2,6 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
 <%@ page import="jakarta.servlet.http.HttpSession" %>
+<%@ page import="products.Dbase" %>
 <%
 // Check if user is logged in
 HttpSession sessionObj = request.getSession(false);
@@ -156,212 +157,65 @@ String username = (String) sessionObj.getAttribute("username");
         border-color: rgba(102, 126, 234, 0.5);
     }
 
-    .stats-container {
+    .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 30px;
-        margin-bottom: 50px;
-        perspective: 1000px;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
     }
 
     .stat-card {
-        background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
-        backdrop-filter: blur(25px);
-        padding: 40px;
-        border-radius: 30px;
-        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 15px;
+        padding: 25px;
         text-align: center;
-        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border: 2px solid rgba(102, 126, 234, 0.2);
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-        transform-style: preserve-3d;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid rgba(102, 126, 234, 0.1);
     }
-    
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 5px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
-        transform: scaleX(0);
-        transition: transform 0.4s ease;
-        transform-origin: left;
-    }
-    
-    .stat-card:hover::before {
-        transform: scaleX(1);
-    }
-    
+
     .stat-card:hover {
-        transform: translateY(-12px) rotateX(5deg) scale(1.05);
-        box-shadow: 0 40px 80px rgba(0,0,0,0.2);
-        border-color: rgba(102, 126, 234, 0.4);
-    }
-    
-    .stat-card::after {
-        content: '';
-        position: absolute;
-        top: -100%;
-        left: -100%;
-        width: 300%;
-        height: 300%;
-        background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 60%);
-        opacity: 0;
-        transition: opacity 0.4s ease;
-        pointer-events: none;
-    }
-    
-    .stat-card:hover::after {
-        opacity: 1;
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
     }
 
     .stat-icon {
-        font-size: 4rem;
-        margin-bottom: 25px;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
         display: block;
-        filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15));
-        transition: all 0.4s ease;
-        animation: iconFloat 3s ease-in-out infinite;
-    }
-    
-    @keyframes iconFloat {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-    }
-    
-    .stat-card:hover .stat-icon {
-        transform: scale(1.2) rotate(10deg);
-        filter: drop-shadow(0 8px 16px rgba(0,0,0,0.25));
     }
 
     .stat-number {
-        font-size: 3.5rem;
-        font-weight: 900;
-        background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 12px;
-        text-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        animation: numberPulse 2s ease-in-out infinite;
-    }
-    
-    @keyframes numberPulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 5px;
     }
 
     .stat-label {
-        font-size: 1.1rem;
         color: #666;
-        font-weight: 600;
+        font-weight: 500;
         text-transform: uppercase;
+        font-size: 0.9rem;
         letter-spacing: 1px;
     }
 
-    .table-container {
-        background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
-        backdrop-filter: blur(25px);
-        border-radius: 30px;
-        padding: 50px;
-        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-        margin-bottom: 50px;
-        overflow: hidden;
-        border: 2px solid rgba(102, 126, 234, 0.2);
-        position: relative;
-    }
-    
-    .table-container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
-        opacity: 0.6;
-    }
-
-    .table-header {
+    .controls-section {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
         flex-wrap: wrap;
         gap: 20px;
     }
 
-    .table-title {
-        font-size: 1.8rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    
-    .table-title::before {
-        content: '📋';
-        font-size: 1.5rem;
-    }
-
-    .table-controls {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        flex-wrap: wrap;
-    }
-
-    .add-seller-btn {
-        padding: 12px 24px;
-        background: linear-gradient(135deg, #28a745, #20c997);
-        color: white;
-        text-decoration: none;
-        border-radius: 15px;
-        font-weight: 700;
-        font-size: 1rem;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        position: relative;
-        overflow: hidden;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border: none;
-        cursor: pointer;
-    }
-    
-    .add-seller-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s ease;
-    }
-    
-    .add-seller-btn:hover::before {
-        left: 100%;
-    }
-    
-    .add-seller-btn:hover {
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.5);
-        background: linear-gradient(135deg, #218838, #1ea085);
-    }
-
-    .search-box {
+    .search-filter-group {
         display: flex;
         gap: 15px;
         align-items: center;
@@ -371,47 +225,51 @@ String username = (String) sessionObj.getAttribute("username");
     .search-input {
         padding: 12px 20px;
         border: 2px solid #e1e5e9;
-        border-radius: 15px;
+        border-radius: 10px;
         font-size: 1rem;
         width: 300px;
         transition: all 0.3s ease;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
-    
+
     .search-input:focus {
         outline: none;
         border-color: #667eea;
-        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
-        transform: translateY(-2px);
-        background: white;
-    }
-    
-    .search-input::placeholder {
-        color: #999;
-        font-style: italic;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
 
-    .filter-select {
+        .filter-select {
         padding: 12px 20px;
         border: 2px solid #e1e5e9;
-        border-radius: 15px;
+        border-radius: 10px;
         font-size: 1rem;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
+        background: white;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        min-width: 150px;
     }
-    
+
     .filter-select:focus {
         outline: none;
         border-color: #667eea;
-        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .add-btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 10px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .add-btn:hover {
         transform: translateY(-2px);
-        background: white;
+        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
     }
 
     .sellers-table {
@@ -421,7 +279,7 @@ String username = (String) sessionObj.getAttribute("username");
         border-radius: 15px;
         overflow: hidden;
         box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        text-align: right;
+        text-align: center;
     }
 
     .sellers-table th {
@@ -435,15 +293,21 @@ String username = (String) sessionObj.getAttribute("username");
         position: relative;
         white-space: nowrap;
         vertical-align: middle;
+        text-align: center;
     }
     
     .sellers-table th:nth-child(1) { width: 60px; text-align: center; }
-    .sellers-table th:nth-child(2) { width: 180px; text-align: center; }
-    .sellers-table th:nth-child(3) { width: 220px; text-align: center; }
+    .sellers-table th:nth-child(2) { width: 150px; text-align: center; }
+    .sellers-table th:nth-child(3) { width: 200px; text-align: center; }
     .sellers-table th:nth-child(4) { width: 120px; text-align: center; }
-    .sellers-table th:nth-child(5) { width: 200px; text-align: center; }
+    .sellers-table th:nth-child(5) { width: 150px; text-align: center; }
     .sellers-table th:nth-child(6) { width: 100px; text-align: center; }
-    .sellers-table th:nth-child(7) { width: 180px; text-align: center; }
+    .sellers-table th:nth-child(7) { width: 100px; text-align: center; }
+    .sellers-table th:nth-child(8) { width: 120px; text-align: center; }
+    .sellers-table th:nth-child(9) { width: 80px; text-align: center; }
+    .sellers-table th:nth-child(10) { width: 200px; text-align: center; }
+    .sellers-table th:nth-child(11) { width: 100px; text-align: center; }
+    .sellers-table th:nth-child(12) { width: 150px; text-align: center; }
     
     .sellers-table th::after {
         content: '';
@@ -456,11 +320,12 @@ String username = (String) sessionObj.getAttribute("username");
     }
 
     .sellers-table td {
-        padding: 20px 15px;
+        padding: 15px 12px;
         border-bottom: 1px solid #f0f0f0;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         transition: all 0.3s ease;
         vertical-align: middle;
+        text-align: center;
     }
     
     .sellers-table td:nth-child(1) { text-align: center; font-weight: 600; }
@@ -470,6 +335,11 @@ String username = (String) sessionObj.getAttribute("username");
     .sellers-table td:nth-child(5) { text-align: center; }
     .sellers-table td:nth-child(6) { text-align: center; }
     .sellers-table td:nth-child(7) { text-align: center; }
+    .sellers-table td:nth-child(8) { text-align: center; }
+    .sellers-table td:nth-child(9) { text-align: center; }
+    .sellers-table td:nth-child(10) { text-align: center; }
+    .sellers-table td:nth-child(11) { text-align: center; }
+    .sellers-table td:nth-child(12) { text-align: center; }
     
     .sellers-table tr:hover td {
         background: linear-gradient(90deg, #f8f9ff, #f0f4ff);
@@ -713,13 +583,16 @@ String username = (String) sessionObj.getAttribute("username");
 <body>
     <div class="container">
         <header>
-            <div class="user-info">
-                👤 <%= username != null ? username : "Admin" %> (<%= userRole != null ? userRole : "Guest" %>)
+            <div class="header-title">
+                <h1><i class="fas fa-store"></i> Seller Management</h1>
             </div>
-            <h1>🏪 Seller Management</h1>
+            <div class="user-info">
+                <i class="fas fa-user"></i>
+                <%= username != null ? username : "Admin" %> (<%= userRole != null ? userRole : "Guest" %>)
+            </div>
         </header>
 
-        <div class="stats-container">
+        <div class="stats-grid">
             <div class="stat-card">
                 <span class="stat-icon">📊</span>
                 <div class="stat-number" id="totalSellers">0</div>
@@ -728,48 +601,49 @@ String username = (String) sessionObj.getAttribute("username");
             <div class="stat-card">
                 <span class="stat-icon">⏳</span>
                 <div class="stat-number" id="pendingSellers">0</div>
-                <div class="stat-label">Pending Approval</div>
+                <div class="stat-label">Pending</div>
             </div>
             <div class="stat-card">
                 <span class="stat-icon">✅</span>
                 <div class="stat-number" id="approvedSellers">0</div>
-                <div class="stat-label">Approved Sellers</div>
+                <div class="stat-label">Approved</div>
             </div>
             <div class="stat-card">
                 <span class="stat-icon">❌</span>
                 <div class="stat-number" id="rejectedSellers">0</div>
-                <div class="stat-label">Rejected Sellers</div>
+                <div class="stat-label">Rejected</div>
             </div>
         </div>
 
         
-        <div class="table-container">
-            <div class="table-header">
-                <h2 class="table-title">Seller Applications</h2>
-                <div class="table-controls">
-                    <a href="Sellerupload.jsp" class="add-seller-btn">
-                        ➕ Add New Seller
-                    </a>
-                    <div class="search-box">
-                        <input type="text" class="search-input" id="searchInput" placeholder="Search sellers..." onkeyup="filterSellers()">
-                        <select class="filter-select" id="statusFilter" onchange="filterSellers()">
-                            <option value="">All Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
-                        </select>
-                    </div>
-                </div>
+        <div class="controls-section">
+            <a href="Sellerupload.jsp" class="add-btn">
+                <i class="fas fa-plus"></i> Add New Seller
+            </a>
+            <div class="search-filter-group">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search sellers..." onkeyup="filterSellers()">
+                <select class="filter-select" id="statusFilter" onchange="filterSellers()">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
             </div>
+        </div>
 
             <table class="sellers-table" id="sellerTable">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
+                        <th>Full Name</th>
+                        <th>Email Address</th>
+                        <th>Phone No</th>
                         <th>Product Brand</th>
+                        <th>Category</th>
+                        <th>Category Id</th>
+                        <th>Price</th>
+                        <th>Image</th>
+                        <th>Description</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -777,11 +651,24 @@ String username = (String) sessionObj.getAttribute("username");
                 <tbody id="sellersTableBody">
 <%
 try {
-    Class.forName("com.mysql.cj.jdbc.Driver");
-    Connection con = DriverManager.getConnection(
-        "jdbc:mysql://localhost:3306/mscart", "root", "password");
+    Dbase db = new Dbase();
+    Connection con = null;
+    
+    try {
+        con = db.initailizeDatabase();
+    } catch (Exception e) {
+        // Fallback to direct connection if Dbase fails
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        con = DriverManager.getConnection(
+            "jdbc:mysql://localhost:3306/mscart", "root", "123456");
+    }
 
-    PreparedStatement ps = con.prepareStatement("SELECT * FROM seller ORDER BY created_at DESC");
+    if (con == null || con.isClosed()) {
+        out.println("<script>alert('Database connection failed!');</script>");
+        return;
+    }
+
+    PreparedStatement ps = con.prepareStatement("SELECT * FROM seller ORDER BY id DESC");
     ResultSet rs = ps.executeQuery();
 
     int totalSellers = 0;
@@ -800,12 +687,17 @@ try {
             rejectedSellers++;
         }
 %>
-                    <tr data-status="<%= status %>" data-name="<%= rs.getString("name").toLowerCase() %>" data-email="<%= rs.getString("email").toLowerCase() %>">
-                        <td><%= rs.getInt("id") %></td>
-                        <td><%= rs.getString("name") %></td>
-                        <td><%= rs.getString("email") %></td>
-                        <td><%= rs.getString("phone") %></td>
-                        <td><%= rs.getString("shop_name") %></td>
+                    <tr data-status="<%= status %>" data-name="<%= rs.getString("full_name").toLowerCase() %>" data-email="<%= rs.getString("email_address").toLowerCase() %>">
+                        <td><%= rs.getString("id") %></td>
+                        <td><%= rs.getString("full_name") %></td>
+                        <td><%= rs.getString("email_address") %></td>
+                        <td><%= rs.getString("phone_number") %></td>
+                        <td><%= rs.getString("product_brand") %></td>
+                        <td><%= rs.getString("Category") %></td>
+                        <td><%= rs.getString("Category_id") %></td>
+                        <td><%= rs.getString("price") %></td>
+                        <td><% if(rs.getString("image") != null && !rs.getString("image").isEmpty()) { %><img src="seller_images/<%= rs.getString("image") %>" width="50" height="50" style="border-radius: 8px;"><% } else { %>No Image<% } %></td>
+                        <td><%= rs.getString("description") != null ? rs.getString("description").substring(0, Math.min(50, rs.getString("description").length())) + (rs.getString("description").length() > 50 ? "..." : "") : "" %></td>
                         <td>
                             <span class="status-badge status-<%= status %>">
                                 <%= status.toUpperCase() %>
@@ -814,18 +706,18 @@ try {
                         <td>
                             <div class="action-buttons">
                                 <% if ("pending".equals(status)) { %>
-                                    <a class="action-btn approve-btn" href="ApproveSellerServlet?id=<%= rs.getInt("id") %>">
+                                    <a class="action-btn approve-btn" href="ApproveSellerServlet?id=<%= rs.getString("id") %>">
                                         ✅ Approve
                                     </a>
-                                    <a class="action-btn reject-btn" href="RejectSellerServlet?id=<%= rs.getInt("id") %>">
+                                    <a class="action-btn reject-btn" href="RejectSellerServlet?id=<%= rs.getString("id") %>">
                                         ❌ Reject
                                     </a>
                                 <% } else if ("approved".equals(status)) { %>
-                                    <a class="action-btn reject-btn" href="RejectSellerServlet?id=<%= rs.getInt("id") %>">
+                                    <a class="action-btn reject-btn" href="RejectSellerServlet?id=<%= rs.getString("id") %>">
                                         ❌ Reject
                                     </a>
                                 <% } else { %>
-                                    <a class="action-btn approve-btn" href="ApproveSellerServlet?id=<%= rs.getInt("id") %>">
+                                    <a class="action-btn approve-btn" href="ApproveSellerServlet?id=<%= rs.getString("id") %>">
                                         ✅ Approve
                                     </a>
                                 <% } %>
