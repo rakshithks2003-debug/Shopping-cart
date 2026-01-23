@@ -7,9 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-
-import products.Dbase;
 import java.sql.Statement;
 
 import jakarta.servlet.ServletException;
@@ -20,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
+import products.Dbase;
 
 @SuppressWarnings("serial")
 @WebServlet("/SelleruploadServlet")
@@ -58,7 +56,8 @@ public class SellerUploadServlet extends HttpServlet {
         String categoryId = request.getParameter("categoryId");
         String price = request.getParameter("price");
         String description = request.getParameter("description");
-        String status = request.getParameter("status");
+        @SuppressWarnings("unused")
+		String status = request.getParameter("status");
         String imageFileName = "";
 
         // Generate seller ID if not provided
@@ -89,7 +88,7 @@ public class SellerUploadServlet extends HttpServlet {
                 // Create table if not exists (optional safety)
                 try (Statement stmt = con.createStatement()) {
                     String createTableSQL = "CREATE TABLE IF NOT EXISTS seller (" +
-                        "sid VARCHAR(20) PRIMARY KEY, " +
+                        "sid VARCHAR(20) , " +
                         "full_name VARCHAR(100) NOT NULL, " +
                         "email_address VARCHAR(100) NOT NULL, " +
                         "phone_number VARCHAR(20) NOT NULL, " +
@@ -98,10 +97,14 @@ public class SellerUploadServlet extends HttpServlet {
                         "Category_id VARCHAR(20) NOT NULL, " +
                         "price DECIMAL(10,2) NOT NULL, " +
                         "description TEXT, " +
-                        "image VARCHAR(255)" +
+                        "image VARCHAR(255), " +
+                        "status VARCHAR(20) DEFAULT 'pending'" +
                         ")";
                     stmt.executeUpdate(createTableSQL);
                 }
+                
+                // Create table if not exists (optional safety)
+              
 
                 // Handle file upload
                 Part filePart = request.getPart("image");
@@ -120,44 +123,32 @@ public class SellerUploadServlet extends HttpServlet {
                     }
                 }
 
-                // Check if seller ID already exists
-                PreparedStatement checkPs = con.prepareStatement("SELECT COUNT(*) FROM seller WHERE sid = ?");
-                checkPs.setString(1, sellerId);
-                ResultSet checkRs = checkPs.executeQuery();
+                // Insert new seller (11 columns, 11 placeholders)
+                String sql = "INSERT INTO seller (sid, full_name, email_address, phone_number, product_brand, Category, Category_id, price, description, image, status) " +
+                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                PreparedStatement ps = con.prepareStatement(sql);
                 
-                if (checkRs.next() && checkRs.getInt(1) > 0) {
-                    message = "Seller ID already exists! Please use a different id.";
-                    messageType = "error";
+                ps.setString(1, sellerId);
+                ps.setString(2, name);
+                ps.setString(3, email);
+                ps.setString(4, phone);
+                ps.setString(5, productBrand);
+                ps.setString(6, category);
+                ps.setString(7, categoryId);
+                ps.setString(8, price);
+                ps.setString(9, description);
+                ps.setString(10, imageFileName);
+                ps.setString(11, "pending"); // Default status
+                
+                int result = ps.executeUpdate();
+                if (result > 0) {
+                    message = "Seller added successfully!";
+                    messageType = "success";
                 } else {
-                    // Insert new seller (11 columns, 11 placeholders)
-                    String sql = "INSERT INTO seller (sid, full_name, email_address, phone_number, product_brand, Category, Category_id, price, description, image, status) " +
-                                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                    PreparedStatement ps = con.prepareStatement(sql);
-                    
-                    ps.setString(1, sellerId);
-                    ps.setString(2, name);
-                    ps.setString(3, email);
-                    ps.setString(4, phone);
-                    ps.setString(5, productBrand);
-                    ps.setString(6, category);
-                    ps.setString(7, categoryId);
-                    ps.setString(8, price);
-                    ps.setString(9, description);
-                    ps.setString(10, imageFileName);
-                    ps.setString(11, request.getParameter("status")); // Get status from form
-                    
-                    int result = ps.executeUpdate();
-                    if (result > 0) {
-                        message = "Seller added successfully!";
-                        messageType = "success";
-                    } else {
-                        message = "Failed to add seller.";
-                        messageType = "error";
-                    }
-                    ps.close();
+                    message = "Failed to add seller.";
+                    messageType = "error";
                 }
-                checkRs.close();
-                checkPs.close();
+                ps.close();
                 con.close();
                 
             } catch (Exception e) {

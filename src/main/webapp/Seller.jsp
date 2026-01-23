@@ -369,14 +369,14 @@ String username = (String) sessionObj.getAttribute("username");
     .sellers-table th:nth-child(12) { width: 140px; }
 
     .sellers-table tbody tr {
-        transition: all 0.3s ease;
+        transition: none;
         border-bottom: 1px solid #f0f0f0;
     }
 
     .sellers-table tbody tr:hover {
-        background: linear-gradient(90deg, #f8f9ff, #f0f4ff);
-        transform: scale(1.01);
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+        background: transparent;
+        transform: none;
+        box-shadow: none;
     }
 
     .sellers-table tbody tr:last-child {
@@ -636,27 +636,29 @@ String username = (String) sessionObj.getAttribute("username");
     }
 
     .dropdown-btn {
-        background: linear-gradient(135deg, #6c757d, #5a6268);
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
         color: white;
-        padding: 6px 12px;
-        font-size: 0.7rem;
+        padding: 8px 16px;
+        font-size: 0.75rem;
         border: none;
-        border-radius: 6px;
+        border-radius: 8px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         transition: all 0.3s ease;
-        font-weight: 500;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.3px;
-        box-shadow: 0 2px 6px rgba(108, 117, 125, 0.2);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .dropdown-btn:hover {
-        background: linear-gradient(135deg, #5a6268, #495057);
-        transform: translateY(-1px);
-        box-shadow: 0 3px 10px rgba(108, 117, 125, 0.3);
+        background: linear-gradient(135deg, #4338ca, #6d28d9);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+        border-color: rgba(255, 255, 255, 0.3);
     }
 
     .dropdown-content {
@@ -675,7 +677,7 @@ String username = (String) sessionObj.getAttribute("username");
     }
 
     .dropdown-content.show {
-        display: block;
+        display: block !important;
         animation: dropdownSlide 0.3s ease;
     }
 
@@ -713,23 +715,23 @@ String username = (String) sessionObj.getAttribute("username");
     }
 
     .dropdown-item.approve-item:hover {
-        background: linear-gradient(90deg, #d4edda, #c3e6cb);
-        color: #155724;
+        background: linear-gradient(90deg, #10b981, #059669);
+        color: white;
     }
 
     .dropdown-item.reject-item:hover {
-        background: linear-gradient(90deg, #f8d7da, #f5c6cb);
-        color: #721c24;
+        background: linear-gradient(90deg, #ef4444, #dc2626);
+        color: white;
     }
 
     .dropdown-item.pending-item:hover {
-        background: linear-gradient(90deg, #fff3cd, #ffeaa7);
-        color: #856404;
+        background: linear-gradient(90deg, #f59e0b, #d97706);
+        color: white;
     }
 
     .dropdown-item.move-item:hover {
-        background: linear-gradient(90deg, #d1ecf1, #bee5eb);
-        color: #0c5460;
+        background: linear-gradient(90deg, #3b82f6, #2563eb);
+        color: white;
     }
 
     .dropdown-item.moved-item {
@@ -737,6 +739,102 @@ String username = (String) sessionObj.getAttribute("username");
         color: #155724;
         font-weight: 600;
         cursor: default;
+    }
+
+    /* Comprehensive Dropdown System Styles */
+    .dropdown-content {
+        min-width: 280px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .dropdown-section {
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .dropdown-section:last-child {
+        border-bottom: none;
+    }
+
+    .section-title {
+        padding: 8px 16px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8f9fa;
+        margin-bottom: 4px;
+    }
+
+    .section-title i {
+        font-size: 0.8rem;
+    }
+
+    .dropdown-filter-select {
+        width: calc(100% - 24px);
+        margin: 0 12px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .dropdown-filter-select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+
+    /* Additional Action Item Styles */
+    .dropdown-item.edit-item:hover {
+        background: linear-gradient(90deg, #17a2b8, #138496);
+        color: white;
+    }
+
+    .dropdown-item.view-item:hover {
+        background: linear-gradient(90deg, #6c757d, #5a6268);
+        color: white;
+    }
+
+    .dropdown-item.delete-item:hover {
+        background: linear-gradient(90deg, #dc3545, #c82333);
+        color: white;
+    }
+
+    .dropdown-item.duplicate-item:hover {
+        background: linear-gradient(90deg, #fd7e14, #e55a00);
+        color: white;
+    }
+
+    .dropdown-item.export-item:hover {
+        background: linear-gradient(90deg, #20c997, #1ea085);
+        color: white;
+    }
+
+    /* Scrollbar for dropdown */
+    .dropdown-content::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .dropdown-content::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .dropdown-content::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+
+    .dropdown-content::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
     }
 
     .dropdown-item.filter-approved-item:hover {
@@ -1154,59 +1252,231 @@ String username = (String) sessionObj.getAttribute("username");
         box-shadow: 0 12px 35px rgba(0,0,0,0.3);
     }
 
+    /* Card-based Seller Layout */
+    .sellers-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 25px;
+        padding: 20px 0;
+    }
+
+    .seller-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        position: relative;
+    }
+
+    .seller-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        border-color: rgba(79, 70, 229, 0.2);
+    }
+
+    .seller-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .seller-id {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .id-label {
+        font-size: 0.85rem;
+        opacity: 0.8;
+        font-weight: 500;
+    }
+
+    .id-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #ffffff;
+    }
+
+    .seller-info {
+        padding: 20px;
+        background: #fafbfc;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        gap: 20px;
+    }
+
+    .info-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        font-size: 0.9rem;
+        color: #4a5568;
+    }
+
+    .info-item i {
+        color: #667eea;
+        width: 16px;
+        text-align: center;
+    }
+
+    .seller-details {
+        padding: 20px;
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+    }
+
+    .seller-image {
+        flex-shrink: 0;
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f7fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #e2e8f0;
+    }
+
+    .seller-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .no-image {
+        color: #a0aec0;
+        font-size: 0.8rem;
+        text-align: center;
+        padding: 10px;
+    }
+
+    .seller-description {
+        flex: 1;
+        font-size: 0.9rem;
+        color: #4a5568;
+        line-height: 1.5;
+    }
+
+    .seller-actions {
+        padding: 20px;
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    /* Responsive Design */
     @media (max-width: 768px) {
-        .container {
-            padding: 10px;
-        }
-
-        header h1 {
-            font-size: 2rem;
-        }
-
-        .stats-container {
+        .sellers-container {
             grid-template-columns: 1fr;
-            gap: 15px;
+            gap: 20px;
+            padding: 15px 0;
         }
 
-        .table-header {
+        .seller-card {
+            border-radius: 12px;
+        }
+
+        .seller-header {
+            padding: 15px;
             flex-direction: column;
-            gap: 15px;
-            align-items: stretch;
+            gap: 10px;
+            text-align: center;
         }
 
-        .table-controls {
+        .seller-info {
+            padding: 15px;
+        }
+
+        .info-row {
             flex-direction: column;
-            gap: 15px;
-            align-items: stretch;
+            gap: 10px;
         }
 
-        .add-seller-btn {
-            width: 100%;
-            justify-content: center;
-            font-size: 1.1rem;
-            padding: 15px 20px;
-        }
-
-        .search-box {
+        .seller-details {
+            padding: 15px;
             flex-direction: column;
+            text-align: center;
         }
 
-        .search-input, .filter-select {
-            width: 100%;
+        .seller-image {
+            margin: 0 auto;
         }
 
-        .sellers-table {
-            font-size: 0.8rem;
-        }
-
-        .sellers-table th,
-        .sellers-table td {
-            padding: 10px;
+        .seller-actions {
+            padding: 15px;
         }
 
         .action-buttons {
-            flex-direction: column;
+            justify-content: center;
         }
+    }
+
+    @media (max-width: 480px) {
+        .sellers-container {
+            padding: 10px 0;
+        }
+
+        .seller-header {
+            padding: 12px;
+        }
+
+        .seller-info,
+        .seller-details,
+        .seller-actions {
+            padding: 12px;
+        }
+
+        .info-item {
+            font-size: 0.85rem;
+        }
+
+        .seller-description {
+            font-size: 0.85rem;
+        }
+    }
+
+    /* Dropdown positioning for table */
+    .dropdown-content {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 2px;
+        min-width: 160px;
+        z-index: 9999 !important;
+        display: none !important;
+    }
+
+    .dropdown-content.show {
+        display: block !important;
+    }
+
+    .sellers-table {
+        position: relative;
+    }
+
+    .sellers-table .dropdown {
+        position: relative;
     }
 </style>
 </head>
@@ -1243,6 +1513,11 @@ String username = (String) sessionObj.getAttribute("username");
                 <div class="stat-number" id="rejectedSellers">0</div>
                 <div class="stat-label">Rejected</div>
             </div>
+            <div class="stat-card">
+                <span class="stat-icon">📦</span>
+                <div class="stat-number" id="movedSellers">0</div>
+                <div class="stat-label">Moved to Products</div>
+            </div>
         </div>
 
         
@@ -1257,141 +1532,175 @@ String username = (String) sessionObj.getAttribute("username");
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
+                    <option value="moved_to_products">Moved to Products</option>
                 </select>
             </div>
         </div>
 
             <table class="sellers-table" id="sellerTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Brand</th>
-                        <th>Category</th>
-                        <th>Category ID</th>
-                        <th>Price</th>
-                        <th>Image</th>
-                        <th>Description</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="sellersTableBody">
-<%
-try {
-    Dbase db = new Dbase();
-    Connection con = null;
-    
-    try {
-        con = db.initailizeDatabase();
-    } catch (Exception e) {
-        // Fallback to direct connection if Dbase fails
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        con = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/mscart", "root", "123456");
-    }
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Brand</th>
+            <th>Category</th>
+            <th>Category ID</th>
+            <th>Price</th>
+            <th>Image</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="sellersTableBody">
+        <%
+        try {
+            Dbase db = new Dbase();
+            Connection con = null;
+            
+            try {
+                con = db.initailizeDatabase();
+            } catch (Exception e) {
+                // Fallback to direct connection if Dbase fails
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                con = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/mscart", "root", "123456");
+            }
 
-    if (con == null || con.isClosed()) {
-        out.println("<script>alert('Database connection failed!');</script>");
-        return;
-    }
+            if (con == null || con.isClosed()) {
+                out.println("<script>alert('Database connection failed!');</script>");
+                return;
+            }
 
-    PreparedStatement ps = con.prepareStatement("SELECT * FROM seller ORDER BY sid DESC");
-    ResultSet rs = ps.executeQuery();
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM seller ORDER BY sid DESC");
+            ResultSet rs = ps.executeQuery();
 
-    int totalSellers = 0;
-    int pendingSellers = 0;
-    int approvedSellers = 0;
-    int rejectedSellers = 0;
+            int totalSellers = 0;
+            int pendingSellers = 0;
+            int approvedSellers = 0;
+            int rejectedSellers = 0;
+            int movedSellers = 0;
 
-    while (rs.next()) {
-        totalSellers++;
-        String status = rs.getString("status");
-        if ("pending".equals(status)) {
-            pendingSellers++;
-        } else if ("approved".equals(status)) {
-            approvedSellers++;
-        } else if ("rejected".equals(status)) {
-            rejectedSellers++;
-        }
-%>
-                    <tr data-status="<%= status %>" data-name="<%= rs.getString("full_name").toLowerCase() %>" data-email="<%= rs.getString("email_address").toLowerCase() %>">
-                        <td><%= rs.getString("sid") %></td>
-                        <td><%= rs.getString("full_name") %></td>
-                        <td><%= rs.getString("email_address") %></td>
-                        <td><%= rs.getString("phone_number") %></td>
-                        <td><%= rs.getString("product_brand") %></td>
-                        <td><%= rs.getString("Category") %></td>
-                        <td><%= rs.getString("Category_id") %></td>
-                        <td><%= rs.getString("price") %></td>
-                        <td><% if(rs.getString("image") != null && !rs.getString("image").isEmpty()) { %><img src="seller_images/<%= rs.getString("image") %>" width="50" height="50" style="border-radius: 8px;"><% } else { %>No Image<% } %></td>
-                        <td><%= rs.getString("description") != null ? rs.getString("description").substring(0, Math.min(50, rs.getString("description").length())) + (rs.getString("description").length() > 50 ? "..." : "") : "" %></td>
-                        <td>
-                            <span class="status-badge status-<%= status %>">
-                                <%= status.toUpperCase() %>
-                            </span>
-                        </td>
-                        <td>
-                            <div class="action-buttons">
-                                <% if ("pending".equals(status)) { %>
-                                    <a class="action-btn approve-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=approved" 
-                                       onclick="return confirm('Are you sure you want to approve this seller?')">
-                                        <i class="fas fa-check"></i> Approve
-                                    </a>
-                                    <a class="action-btn reject-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=rejected" 
-                                       onclick="return confirm('Are you sure you want to reject this seller?')">
-                                        <i class="fas fa-times"></i> Reject
-                                    </a>
-                                <% } else if ("approved".equals(status)) { %>
-                                    <a class="action-btn pending-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=pending" 
-                                       onclick="return confirm('Are you sure you want to set this seller to pending?')">
-                                        <i class="fas fa-clock"></i> Pending
-                                    </a>
-                                    <a class="action-btn reject-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=rejected" 
-                                       onclick="return confirm('Are you sure you want to reject this seller?')">
-                                        <i class="fas fa-times"></i> Reject
-                                    </a>
-                                    <a class="action-btn move-btn" href="MoveToProductsServlet?id=<%= rs.getString("sid") %>" 
-                                       onclick="return confirm('Are you sure you want to move this seller to products?')">
-                                        <i class="fas fa-arrow-right"></i> Move
-                                    </a>
-                                <% } else if ("rejected".equals(status)) { %>
-                                    <a class="action-btn approve-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=approved" 
-                                       onclick="return confirm('Are you sure you want to approve this seller?')">
-                                        <i class="fas fa-check"></i> Approve
-                                    </a>
-                                    <a class="action-btn pending-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=pending" 
-                                       onclick="return confirm('Are you sure you want to set this seller to pending?')">
-                                        <i class="fas fa-clock"></i> Pending
-                                    </a>
-                                <% } else if ("moved_to_products".equals(status)) { %>
-                                    <span class="status-badge status-approved">
-                                        <i class="fas fa-check"></i> Moved
-                                    </span>
-                                    <a class="action-btn pending-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=pending" 
-                                       onclick="return confirm('Are you sure you want to set this seller to pending?')">
-                                        <i class="fas fa-undo"></i> Reset
-                                    </a>
-                                <% } %>
+            while (rs.next()) {
+                totalSellers++;
+                String status = rs.getString("status");
+                if ("pending".equals(status)) {
+                    pendingSellers++;
+                } else if ("approved".equals(status)) {
+                    approvedSellers++;
+                } else if ("rejected".equals(status)) {
+                    rejectedSellers++;
+                } else if ("moved_to_products".equals(status)) {
+                    movedSellers++;
+                }
+        %>
+                <tr data-status="<%= status %>" data-name="<%= rs.getString("full_name").toLowerCase() %>" data-email="<%= rs.getString("email_address").toLowerCase() %>">
+                    <td><%= rs.getString("sid") %></td>
+                    <td><%= rs.getString("full_name") %></td>
+                    <td><%= rs.getString("email_address") %></td>
+                    <td><%= rs.getString("phone_number") %></td>
+                    <td><%= rs.getString("product_brand") %></td>
+                    <td><%= rs.getString("Category") %></td>
+                    <td><%= rs.getString("Category_id") %></td>
+                    <td><%= rs.getString("price") %></td>
+                    <td><% if(rs.getString("image") != null && !rs.getString("image").isEmpty()) { %><img src="seller_images/<%= rs.getString("image") %>" width="50" height="50" style="border-radius: 8px;"><% } else { %>No Image<% } %></td>
+                    <td><%= rs.getString("description") != null ? rs.getString("description").substring(0, Math.min(50, rs.getString("description").length())) + (rs.getString("description").length() > 50 ? "..." : "") : "" %></td>
+                    <td>
+                        <span class="status-badge status-<%= status %>">
+                            <%= status.toUpperCase() %>
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <div class="dropdown">
+                                <button class="dropdown-btn" onclick="toggleDropdown('dropdown<%= rs.getString("sid") %>')">
+                                    <i class="fas fa-cog"></i> Actions
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-content" id="dropdown<%= rs.getString("sid") %>">
+                                    <!-- Status Filter Section -->
+                                    <div class="dropdown-section">
+                                        <div class="section-title">
+                                            <i class="fas fa-filter"></i> Filter by Status
+                                        </div>
+                                        <select class="dropdown-filter-select" id="statusFilter<%= rs.getString("sid") %>" onchange="filterByStatus('<%= rs.getString("sid") %>')">
+                                            <option value="">All Status</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="approved">Approved</option>
+                                            <option value="rejected">Rejected</option>
+                                            <option value="moved_to_products">Moved to Products</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Quick Actions Section -->
+                                    <div class="dropdown-section">
+                                        <div class="section-title">
+                                            <i class="fas fa-bolt"></i> Quick Actions
+                                        </div>
+                                        <a href="#" class="dropdown-item approve-item" onclick="alert('Approve clicked for <%= rs.getString("sid") %>'); return false;">
+                                            <i class="fas fa-check"></i> Approve
+                                        </a>
+                                        <a href="#" class="dropdown-item pending-item" onclick="alert('Pending clicked for <%= rs.getString("sid") %>'); return false;">
+                                            <i class="fas fa-clock"></i> Set to Pending
+                                        </a>
+                                        <a href="#" class="dropdown-item reject-item" onclick="alert('Reject clicked for <%= rs.getString("sid") %>'); return false;">
+                                            <i class="fas fa-times"></i> Reject
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- Advanced Actions Section -->
+                                    <div class="dropdown-section">
+                                        <div class="section-title">
+                                            <i class="fas fa-cogs"></i> Advanced Actions
+                                        </div>
+                                        <a href="#" class="dropdown-item move-item" onclick="alert('Move to Products clicked for <%= rs.getString("sid") %>'); return false;">
+                                            <i class="fas fa-arrow-right"></i> Move to Products
+                                        </a>
+                                        <a href="#" class="dropdown-item edit-item" onclick="alert('Edit clicked for <%= rs.getString("sid") %>'); return false;">
+                                            <i class="fas fa-edit"></i> Edit Details
+                                        </a>
+                                        <a href="#" class="dropdown-item view-item" onclick="alert('View clicked for <%= rs.getString("sid") %>'); return false;">
+                                            <i class="fas fa-eye"></i> View Full Details
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- Management Section -->
+                                    <div class="dropdown-section">
+                                        <div class="section-title">
+                                            <i class="fas fa-tools"></i> Management
+                                        </div>
+                                        <a href="#" class="dropdown-item delete-item" onclick="alert('Delete clicked for <%= rs.getString("sid") %>'); return false;">
+                                            <i class="fas fa-trash"></i> Delete Seller
+                                        </a>
+                                        <a href="#" class="dropdown-item duplicate-item" onclick="alert('Duplicate clicked for <%= rs.getString("sid") %>'); return false;">
+                                            <i class="fas fa-copy"></i> Duplicate Entry
+                                        </a>
+                                        <a href="#" class="dropdown-item export-item" onclick="alert('Export clicked for <%= rs.getString("sid") %>'); return false;">
+                                            <i class="fas fa-download"></i> Export Data
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
-                        </td>
-                    </tr>
-<%
-    }
-    
-    // Set statistics
-    request.setAttribute("totalSellers", totalSellers);
-    request.setAttribute("pendingSellers", pendingSellers);
-    request.setAttribute("approvedSellers", approvedSellers);
-    request.setAttribute("rejectedSellers", rejectedSellers);
-    
-    con.close();
-} catch (Exception e) {
-    out.println("<script>alert('Error loading seller: " + e.getMessage() + "');</script>");
-}
-%>
+                        </div>
+                    </td>
+                </tr>
+        <%
+            }
+            
+            // Set statistics
+            request.setAttribute("totalSellers", totalSellers);
+            request.setAttribute("pendingSellers", pendingSellers);
+            request.setAttribute("approvedSellers", approvedSellers);
+            request.setAttribute("rejectedSellers", rejectedSellers);
+            request.setAttribute("movedSellers", movedSellers);
+            
+            con.close();
+        } catch (Exception e) {
+            out.println("<script>alert('Error loading seller: " + e.getMessage() + "');</script>");
+        }
+        %>
                 </tbody>
             </table>
         </div>
@@ -1408,11 +1717,54 @@ try {
             const pendingSellers = parseInt('<%= request.getAttribute("pendingSellers") != null ? request.getAttribute("pendingSellers") : 0 %>');
             const approvedSellers = parseInt('<%= request.getAttribute("approvedSellers") != null ? request.getAttribute("approvedSellers") : 0 %>');
             const rejectedSellers = parseInt('<%= request.getAttribute("rejectedSellers") != null ? request.getAttribute("rejectedSellers") : 0 %>');
+            const movedSellers = parseInt('<%= request.getAttribute("movedSellers") != null ? request.getAttribute("movedSellers") : 0 %>');
 
             document.getElementById('totalSellers').textContent = totalSellers;
             document.getElementById('pendingSellers').textContent = pendingSellers;
             document.getElementById('approvedSellers').textContent = approvedSellers;
             document.getElementById('rejectedSellers').textContent = rejectedSellers;
+            document.getElementById('movedSellers').textContent = movedSellers;
+        });
+
+        // Simple dropdown toggle function
+        function toggleDropdown(dropdownId) {
+            console.log('Toggle dropdown called for:', dropdownId);
+            var dropdown = document.getElementById(dropdownId);
+            if (dropdown) {
+                var isVisible = dropdown.style.display === 'block';
+                console.log('Current visibility:', isVisible);
+                
+                // Close all dropdowns first
+                var allDropdowns = document.getElementsByClassName('dropdown-content');
+                for (var i = 0; i < allDropdowns.length; i++) {
+                    allDropdowns[i].style.display = 'none';
+                    allDropdowns[i].classList.remove('show');
+                }
+                
+                // Toggle current dropdown
+                if (!isVisible) {
+                    dropdown.style.display = 'block';
+                    dropdown.classList.add('show');
+                    console.log('Dropdown shown with display:', dropdown.style.display);
+                } else {
+                    dropdown.style.display = 'none';
+                    dropdown.classList.remove('show');
+                    console.log('Dropdown hidden');
+                }
+            } else {
+                console.log('Dropdown not found:', dropdownId);
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.dropdown-btn') && !event.target.closest('.dropdown-content')) {
+                var dropdowns = document.getElementsByClassName('dropdown-content');
+                for (var i = 0; i < dropdowns.length; i++) {
+                    dropdowns[i].style.display = 'none';
+                    dropdowns[i].classList.remove('show');
+                }
+            }
         });
 
         // Toggle products table
@@ -1471,34 +1823,7 @@ try {
             }
         });
 
-        // Toggle dropdown
-        function toggleDropdown(dropdownId) {
-            // Close all other dropdowns
-            const dropdowns = document.querySelectorAll('.dropdown-content');
-            dropdowns.forEach(dropdown => {
-                if (dropdown.id !== dropdownId) {
-                    dropdown.classList.remove('show');
-                }
-            });
-            
-            // Toggle current dropdown
-            const currentDropdown = document.getElementById(dropdownId);
-            if (currentDropdown) {
-                currentDropdown.classList.toggle('show');
-            }
-        }
-
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!event.target.matches('.dropdown-btn') && !event.target.closest('.dropdown-btn')) {
-                const dropdowns = document.querySelectorAll('.dropdown-content');
-                dropdowns.forEach(dropdown => {
-                    dropdown.classList.remove('show');
-                });
-            }
-        });
-
-        // Filter sellers
+        // Filter sellers - Updated for table layout
         function filterSellers() {
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value;
@@ -1516,6 +1841,30 @@ try {
                 
                 row.style.display = matchesSearch && matchesStatus ? '' : 'none';
             });
+        }
+
+        // Filter by individual status from Actions dropdown
+        function filterByStatus(sellerId) {
+            const statusFilter = document.getElementById('statusFilter' + sellerId).value;
+            const rows = document.querySelectorAll('#sellersTableBody tr');
+            
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                const rowSellerId = row.querySelector('td:first-child').textContent;
+                
+                // If filtering for a specific seller, only show that seller
+                const matchesSeller = !statusFilter || rowSellerId === sellerId;
+                const matchesStatus = !statusFilter || status === statusFilter;
+                
+                row.style.display = matchesSeller && matchesStatus ? '' : 'none';
+            });
+            
+            // Show alert for feedback
+            if (statusFilter) {
+                alert('Filtering seller ' + sellerId + ' by status: ' + statusFilter);
+            } else {
+                alert('Showing all sellers');
+            }
         }
 
         // Filter by product status
