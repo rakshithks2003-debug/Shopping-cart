@@ -1,5 +1,7 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
+<%@ page import="java.io.*" %>
 <%@ page import="products.*"%>
 <%@ page import="jakarta.servlet.http.HttpSession" %>
 <%
@@ -366,60 +368,132 @@ String category = request.getParameter("category");
 
 try {
     Dbase db = new Dbase();
-    Connection con = db.initailizeDatabase();
-    PreparedStatement ps;
-    String sql;
+    Connection con = null;
     
-    if (category != null && !category.trim().isEmpty()) {
-        // Filter by category
-        sql = "SELECT id, name, price, image, description FROM product WHERE category_id = ? ORDER BY id DESC";
-        ps = con.prepareStatement(sql);
-        ps.setString(1, category);
-    } else {
-        // Show all products
-        sql = "SELECT id, name, price, image, description FROM product ORDER BY id DESC";
-        ps = con.prepareStatement(sql);
+    try {
+        con = db.initailizeDatabase();
+    } catch (Exception e) {
+        // Fallback to direct connection if Dbase fails
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        con = DriverManager.getConnection(
+            "jdbc:mysql://localhost:3306/mscart", "root", "123456");
     }
     
-    ResultSet rs = ps.executeQuery();
-    
-    boolean hasProducts = false;
-    while(rs.next()) {
-        hasProducts = true;
+    if (con == null || con.isClosed()) {
+%>
+                <div class="error-message">
+                    ⚠️ Database connection failed!
+                </div>
+<%
+    } else {
+        PreparedStatement ps;
+        String sql;
+        
+        if (category != null && !category.trim().isEmpty()) {
+            // Filter by category
+            sql = "SELECT id, name, price, image, description FROM product WHERE category_id = ? ORDER BY id DESC";
+            ps = con.prepareStatement(sql);
+            ps.setString(1, category);
+        } else {
+            // Show all products
+            sql = "SELECT id, name, price, image, description FROM product ORDER BY id DESC";
+            ps = con.prepareStatement(sql);
+        }
+        
+        ResultSet rs = ps.executeQuery();
+        
+        // Fix NULL IDs by updating the database
+        if (!rs.next()) {
+            // No products, try to fix the table structure
+            try {
+                // First, let's try to add an auto-increment primary key if it doesn't exist
+                PreparedStatement checkTable = con.prepareStatement("SHOW COLUMNS FROM product WHERE Field = 'id' AND Extra = 'auto_increment'");
+                ResultSet checkRs = checkTable.executeQuery();
+                
+                if (!checkRs.next()) {
+                    // Add auto_increment to id column
+                    PreparedStatement alterTable = con.prepareStatement("ALTER TABLE product MODIFY id INT AUTO_INCREMENT PRIMARY KEY");
+                    alterTable.executeUpdate();
+                    System.out.println("Showproducts: Added auto_increment to id column");
+                }
+                checkRs.close();
+                
+                // Update NULL IDs to sequential values
+                PreparedStatement updateIds = con.prepareStatement("SET @row_number = 0; UPDATE product SET id = (@row_number := @row_number + 1) WHERE id IS NULL ORDER BY sid");
+                int updatedRows = updateIds.executeUpdate();
+                System.out.println("Showproducts: Updated " + updatedRows + " NULL IDs to sequential values");
+                
+                // Re-run the query to get the updated data
+                rs = ps.executeQuery();
+            } catch (Exception e) {
+                System.out.println("Showproducts: Error fixing table structure: " + e.getMessage());
+            }
+        }
+        
+        boolean hasProducts = false;
+        while(rs.next()) {
+            hasProducts = true;
 %>
                 <div class="product-card">
 <%
         String imageFileName = rs.getString("image");
-        String imageSrc = "product_images/" + (imageFileName != null ? imageFileName : "");
+        String imageSrc = "";
+        
+        // Debug image information
+        System.out.println("Showproducts: Product ID: " + rs.getString("id") + ", Image file: " + imageFileName);
+        
+        if (imageFileName != null && !imageFileName.trim().isEmpty()) {
+            // Use direct path assignment
+            imageSrc = "seller_images/" + imageFileName;
+            System.out.println("Showproducts: Using image path: " + imageSrc);
+        } else {
+            // Use a placeholder image if no image available
+            imageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+";
+            System.out.println("Showproducts: No image file, using placeholder");
+        }
 %>
                     <div class="product-image-wrapper">
                         <img class="product-image" src="<%=imageSrc%>" alt="<%=rs.getString("name")%>" 
                              onclick="window.location.href='Details.jsp?id=<%=rs.getString("id")%>'"
-                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4='">
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz=';">
                     </div>
                     <div class="product-info">
                         <div class="product-name"><%=rs.getString("name")%></div>
                         <div class="product-price"><%=String.format("%.2f", rs.getDouble("price"))%></div>
+                        <div class="product-description"><%=rs.getString("description") != null ? rs.getString("description") : "No description available"%></div>
                         <div class="product-actions">
                         </div>
                     </div>
                 </div>
 <%
-    }
-    
-    if (!hasProducts) {
+        }
+        
+        if (!hasProducts) {
 %>
                 <div class="no-products">
                     <h3>📦 No items Yet</h3>
                     <p>Start by adding your first item to the gallery!</p>
                 </div>
 <%
+        }
+        
+        rs.close();
+        ps.close();
+        con.close();
     }
     
-    rs.close();
-    ps.close();
-    con.close();
-    
+} catch (ClassNotFoundException e) {
+%>
+                <div class="error-message">
+                    ⚠️ Database driver not found: <%=e.getMessage()%>
+                </div>
+<%
+} catch (SQLException e) {
+%>
+                <div class="error-message">
+                    ⚠️ Database error: <%=e.getMessage()%>
+                </div>
+<%
 } catch (Exception e) {
 %>
                 <div class="error-message">

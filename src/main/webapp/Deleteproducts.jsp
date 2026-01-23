@@ -21,34 +21,132 @@ String deleteMessage = "";
 String messageType = "";
 
 if ("POST".equalsIgnoreCase(request.getMethod())) {
-    String productId = request.getParameter("id");
+    String productName = request.getParameter("productName");
     
-    if (productId != null && !productId.trim().isEmpty()) {
+    System.out.println("Deleteproducts.jsp: Attempting to delete product with name: " + productName);
+    
+    if (productName != null && !productName.trim().isEmpty()) {
         try {
             Dbase db = new Dbase();
-            Connection con = db.initailizeDatabase();
+            Connection con = null;
             
-            // Delete the product from database
-            PreparedStatement ps = con.prepareStatement("DELETE FROM product WHERE id = ?");
-            ps.setString(1, productId);
-            int result = ps.executeUpdate();
-            ps.close();
-            con.close();
-            
-            if (result > 0) {
-                deleteMessage = "Product deleted successfully!";
-                messageType = "success";
-            } else {
-                deleteMessage = "Failed to delete product. Please try again.";
-                messageType = "error";
+            try {
+                con = db.initailizeDatabase();
+            } catch (Exception e) {
+                // Fallback to direct connection if Dbase fails
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                con = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/mscart", "root", "123456");
             }
             
+            if (con == null || con.isClosed()) {
+                deleteMessage = "Database connection failed!";
+                messageType = "error";
+            } else {
+                // First check if product exists by name
+                PreparedStatement checkPs = null;
+                ResultSet checkRs = null;
+                boolean productFound = false;
+                int productId = -1;
+                
+                try {
+                    checkPs = con.prepareStatement("SELECT id, name FROM product WHERE name = ?");
+                    checkPs.setString(1, productName);
+                    checkRs = checkPs.executeQuery();
+                    
+                    if (checkRs.next()) {
+                        productFound = true;
+                        productId = checkRs.getInt("id");
+                        String foundName = checkRs.getString("name");
+                        System.out.println("Found product with NAME: " + productName + " - ID: " + productId);
+                    }
+                } catch (Exception e) {
+                    System.out.println("Name check failed: " + e.getMessage());
+                } finally {
+                    if (checkRs != null) checkRs.close();
+                    if (checkPs != null) checkPs.close();
+                }
+                
+                if (productFound) {
+                    // Delete the product using the name
+                    PreparedStatement ps = null;
+                    int result = 0;
+                    
+                    try {
+                        ps = con.prepareStatement("DELETE FROM product WHERE name = ?");
+                        ps.setString(1, productName);
+                        result = ps.executeUpdate();
+                        System.out.println("Delete with NAME affected " + result + " rows");
+                        
+                    } finally {
+                        if (ps != null) ps.close();
+                    }
+                    
+                    if (result > 0) {
+                        deleteMessage = "Product '" + productName + "' deleted successfully!";
+                        messageType = "success";
+                    } else {
+                        deleteMessage = "Failed to delete product. Try checking database permissions.";
+                        messageType = "error";
+                    }
+                } else {
+                    System.out.println("No product found with name: " + productName);
+                    
+                    // Show all available product names for debugging
+                    PreparedStatement allPs = con.prepareStatement("SELECT id, name FROM product ORDER BY name");
+                    ResultSet allRs = allPs.executeQuery();
+                    StringBuilder availableProducts = new StringBuilder("Available products: ");
+                    int productCount = 0;
+                    
+                    while (allRs.next()) {
+                        productCount++;
+                        String id = allRs.getString("id");
+                        String name = allRs.getString("name");
+                        
+                        // Debug each product
+                        System.out.println("Product " + productCount + " - ID: " + id + ", Name: " + name);
+                        
+                        // Handle null name gracefully
+                        String displayName = (name != null && !name.trim().isEmpty() ? name : "No Name");
+                        
+                        availableProducts.append(displayName).append(", ");
+                    }
+                    allRs.close();
+                    allPs.close();
+                    
+                    System.out.println("Total products found: " + productCount);
+                    
+                    if (availableProducts.length() > 2) {
+                        availableProducts.setLength(availableProducts.length() - 2); // Remove trailing comma
+                        System.out.println(availableProducts.toString());
+                        
+                        // Safely truncate the message for display
+                        String displayMessage = availableProducts.toString();
+                        if (displayMessage.length() > 100) {
+                            displayMessage = displayMessage.substring(0, 100) + "...";
+                        }
+                        deleteMessage = "Product not found. " + displayMessage;
+                    } else {
+                        deleteMessage = "Product not found. No products in database.";
+                    }
+                    messageType = "error";
+                }
+                
+                con.close();
+            }
+            
+        } catch (ClassNotFoundException e) {
+            deleteMessage = "Database driver not found: " + e.getMessage();
+            messageType = "error";
+        } catch (SQLException e) {
+            deleteMessage = "Database error: " + e.getMessage();
+            messageType = "error";
         } catch (Exception e) {
             deleteMessage = "Error: " + e.getMessage();
             messageType = "error";
         }
     } else {
-        deleteMessage = "Invalid product ID.";
+        deleteMessage = "Invalid product name: " + productName;
         messageType = "error";
     }
 }
@@ -383,32 +481,51 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                         <%
                         try {
                             Dbase db = new Dbase();
-                            Connection con = db.initailizeDatabase();
-                            PreparedStatement ps = con.prepareStatement("SELECT id, name, category_id, price, description FROM product ORDER BY id DESC");
-                            ResultSet rs = ps.executeQuery();
+                            Connection con = null;
                             
-                            boolean hasProducts = false;
-                            while(rs.next()) {
-                                hasProducts = true;
+                            try {
+                                con = db.initailizeDatabase();
+                            } catch (Exception e) {
+                                // Fallback to direct connection if Dbase fails
+                                Class.forName("com.mysql.cj.jdbc.Driver");
+                                con = DriverManager.getConnection(
+                                    "jdbc:mysql://localhost:3306/mscart", "root", "123456");
+                            }
+                            
+                            if (con == null || con.isClosed()) {
+                        %>
+                            <tr>
+                                <td colspan="6" class="message error">
+                                    Database connection failed!
+                                </td>
+                            </tr>
+                        <%
+                            } else {
+                                PreparedStatement ps = con.prepareStatement("SELECT id, name, category_id, price, description FROM product ORDER BY id DESC");
+                                ResultSet rs = ps.executeQuery();
+                                
+                                boolean hasProducts = false;
+                                while(rs.next()) {
+                                    hasProducts = true;
                         %>
                             <tr>
                                 <td class="product-id">#<%= rs.getString("id") %></td>
                                 <td class="product-name"><%= rs.getString("name") %></td>
-                                <td><span class="category-id"><%= rs.getString("category_id") %></span></td>
+                                <td class="category-id"><%= rs.getString("category_id") %></td>
                                 <td class="product-price"><%= String.format("%.2f", rs.getDouble("price")) %></td>
                                 <td class="product-description"><%= rs.getString("description") != null ? rs.getString("description") : "No description" %></td>
                                 <td>
                                     <form action="Deleteproducts.jsp" method="post" 
                                           onsubmit="return confirm('Are you sure you want to delete this product?')">
-                                        <input type="hidden" name="id" value="<%= rs.getString("id") %>">
+                                        <input type="hidden" name="productName" value="<%= rs.getString("name") %>">
                                         <button type="submit" class="delete-btn">🗑️ Delete</button>
                                     </form>
                                 </td>
                             </tr>
                         <%
-                            }
-                            
-                            if (!hasProducts) {
+                                }
+                                
+                                if (!hasProducts) {
                         %>
                             <tr>
                                 <td colspan="6" class="no-products">
@@ -417,12 +534,29 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                                 </td>
                             </tr>
                         <%
+                                }
+                                
+                                rs.close();
+                                ps.close();
+                                con.close();
                             }
                             
-                            rs.close();
-                            ps.close();
-                            con.close();
-                            
+                        } catch (ClassNotFoundException e) {
+                        %>
+                            <tr>
+                                <td colspan="6" class="message error">
+                                    Database driver not found: <%= e.getMessage() %>
+                                </td>
+                            </tr>
+                        <%
+                        } catch (SQLException e) {
+                        %>
+                            <tr>
+                                <td colspan="6" class="message error">
+                                    Database error: <%= e.getMessage() %>
+                                </td>
+                            </tr>
+                        <%
                         } catch (Exception e) {
                         %>
                             <tr>

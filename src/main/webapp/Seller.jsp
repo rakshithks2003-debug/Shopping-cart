@@ -1457,18 +1457,45 @@ String username = (String) sessionObj.getAttribute("username");
     }
 
     /* Dropdown positioning for table */
-    .dropdown-content {
+    .sellers-table .dropdown-content {
         position: absolute;
         right: 0;
         top: 100%;
         margin-top: 2px;
-        min-width: 160px;
+        min-width: 280px;
         z-index: 9999 !important;
-        display: none !important;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        display: none; /* Initially hidden */
     }
 
-    .dropdown-content.show {
+    .sellers-table .dropdown-content.show {
         display: block !important;
+    }
+
+    /* Ensure dropdown button is visible */
+    .sellers-table .dropdown-btn {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .sellers-table .dropdown-btn:hover {
+        background: linear-gradient(135deg, #4338ca, #6d28d9);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
     }
 
     .sellers-table {
@@ -1619,6 +1646,8 @@ String username = (String) sessionObj.getAttribute("username");
                                     <i class="fas fa-cog"></i> Actions
                                     <i class="fas fa-chevron-down"></i>
                                 </button>
+                                <!-- Direct delete button for testing -->
+                                <button onclick="deleteSellerDirect('<%= rs.getString("sid") %>', 'delete')" style="margin-left: 2px; padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer;" title="Delete Seller">🗑️</button>
                                 <div class="dropdown-content" id="dropdown<%= rs.getString("sid") %>">
                                     <!-- Status Filter Section -->
                                     <div class="dropdown-section">
@@ -1639,8 +1668,8 @@ String username = (String) sessionObj.getAttribute("username");
                                         <div class="section-title">
                                             <i class="fas fa-bolt"></i> Quick Actions
                                         </div>
-                                        <a href="#" class="dropdown-item approve-item" onclick="alert('Approve clicked for <%= rs.getString("sid") %>'); return false;">
-                                            <i class="fas fa-check"></i> Approve
+                                        <a href="#" class="dropdown-item approve-item" onclick="acceptProduct('<%= rs.getString("sid") %>'); return false;">
+                                            <i class="fas fa-check"></i> Accept Product
                                         </a>
                                         <a href="#" class="dropdown-item pending-item" onclick="alert('Pending clicked for <%= rs.getString("sid") %>'); return false;">
                                             <i class="fas fa-clock"></i> Set to Pending
@@ -1671,7 +1700,7 @@ String username = (String) sessionObj.getAttribute("username");
                                         <div class="section-title">
                                             <i class="fas fa-tools"></i> Management
                                         </div>
-                                        <a href="#" class="dropdown-item delete-item" onclick="alert('Delete clicked for <%= rs.getString("sid") %>'); return false;">
+                                        <a href="#" class="dropdown-item delete-item" onclick="deleteSeller('<%= rs.getString("sid") %>'); return false;">
                                             <i class="fas fa-trash"></i> Delete Seller
                                         </a>
                                         <a href="#" class="dropdown-item duplicate-item" onclick="alert('Duplicate clicked for <%= rs.getString("sid") %>'); return false;">
@@ -1711,6 +1740,110 @@ String username = (String) sessionObj.getAttribute("username");
     </div>
 
     <script>
+        // Test function for debugging AcceptProductServlet
+        function testAcceptProductServlet() {
+            console.log('Testing AcceptProductServlet...');
+            
+            // Try different possible servlet paths
+            const possiblePaths = [
+                'AcceptProductServlet',
+                '/AcceptProductServlet',
+                'servlets/AcceptProductServlet',
+                '/servlets/AcceptProductServlet'
+            ];
+            
+            let currentIndex = 0;
+            
+            function tryNextPath() {
+                if (currentIndex >= possiblePaths.length) {
+                    alert('All servlet paths failed. Check server logs for servlet deployment issues.');
+                    return;
+                }
+                
+                const path = possiblePaths[currentIndex];
+                console.log('Trying path:', path);
+                
+                fetch(path, {
+                    method: 'GET'
+                }).then(response => {
+                    console.log('Response for path', path, '- status:', response.status);
+                    if (response.status === 404) {
+                        currentIndex++;
+                        tryNextPath();
+                    } else {
+                        return response.text();
+                    }
+                }).then(text => {
+                    if (text) {
+                        console.log('Response text:', text);
+                        alert('Success with path ' + path + '!\n\nServlet Response: ' + text);
+                        
+                        // Update the acceptProduct function to use the working path
+                        window.workingServletPath = path;
+                        console.log('Set working servlet path to:', path);
+                    }
+                }).catch(error => {
+                    console.error('Error with path', path, ':', error);
+                    currentIndex++;
+                    tryNextPath();
+                });
+            }
+            
+            tryNextPath();
+        }
+
+        // Test function for debugging DeleteSellerServlet
+        function testDeleteSellerServlet() {
+            console.log('Testing DeleteSellerServlet...');
+            
+            // Try different possible servlet paths
+            const possiblePaths = [
+                'DeleteSellerServlet',
+                '/DeleteSellerServlet',
+                'servlets/DeleteSellerServlet',
+                '/servlets/DeleteSellerServlet'
+            ];
+            
+            let currentIndex = 0;
+            
+            function tryNextPath() {
+                if (currentIndex >= possiblePaths.length) {
+                    alert('All DeleteSellerServlet paths failed. Check if the servlet is properly deployed in Eclipse.');
+                    return;
+                }
+                
+                const path = possiblePaths[currentIndex];
+                console.log('Testing DeleteSellerServlet path:', path);
+                
+                fetch(path, {
+                    method: 'GET'
+                }).then(response => {
+                    console.log('DeleteSellerServlet response for path', path, '- status:', response.status);
+                    if (response.status === 404) {
+                        currentIndex++;
+                        tryNextPath();
+                    } else {
+                        return response.text();
+                    }
+                }).then(text => {
+                    if (text) {
+                        console.log('DeleteSellerServlet response text:', text);
+                        alert('DeleteSellerServlet works with path ' + path + '!\n\nResponse: ' + text);
+                        
+                        // Update the deleteSellerDirect function to use the working path
+                        window.workingDeleteServletPath = path;
+                        console.log('Set working DeleteSellerServlet path to:', path);
+                    }
+                }).catch(error => {
+                    console.error('Error with DeleteSellerServlet path', path, ':', error);
+                    currentIndex++;
+                    tryNextPath();
+                });
+            }
+            
+            tryNextPath();
+        }
+
         // Update statistics
         document.addEventListener('DOMContentLoaded', function() {
             const totalSellers = parseInt('<%= request.getAttribute("totalSellers") != null ? request.getAttribute("totalSellers") : 0 %>');
@@ -1726,15 +1859,33 @@ String username = (String) sessionObj.getAttribute("username");
             document.getElementById('movedSellers').textContent = movedSellers;
         });
 
+        // Test dropdown function for debugging
+        function testDropdown(dropdownId) {
+            console.log('Test dropdown called for:', dropdownId);
+            var dropdown = document.getElementById(dropdownId);
+            if (dropdown) {
+                alert('Dropdown found! Current display: ' + dropdown.style.display + ', Classes: ' + dropdown.className);
+                // Force show the dropdown
+                dropdown.style.display = 'block';
+                dropdown.classList.add('show');
+                dropdown.style.background = 'yellow';
+                dropdown.style.border = '2px solid red';
+                alert('Dropdown should now be visible with yellow background!');
+            } else {
+                alert('Dropdown NOT found: ' + dropdownId);
+            }
+        }
+
         // Simple dropdown toggle function
         function toggleDropdown(dropdownId) {
             console.log('Toggle dropdown called for:', dropdownId);
             var dropdown = document.getElementById(dropdownId);
             if (dropdown) {
-                var isVisible = dropdown.style.display === 'block';
-                console.log('Current visibility:', isVisible);
+                // Check current state
+                var isHidden = dropdown.style.display === 'none' || !dropdown.style.display;
+                console.log('Current visibility:', isHidden ? 'hidden' : 'visible');
                 
-                // Close all dropdowns first
+                // Close all other dropdowns first
                 var allDropdowns = document.getElementsByClassName('dropdown-content');
                 for (var i = 0; i < allDropdowns.length; i++) {
                     allDropdowns[i].style.display = 'none';
@@ -1742,10 +1893,10 @@ String username = (String) sessionObj.getAttribute("username");
                 }
                 
                 // Toggle current dropdown
-                if (!isVisible) {
+                if (isHidden) {
                     dropdown.style.display = 'block';
                     dropdown.classList.add('show');
-                    console.log('Dropdown shown with display:', dropdown.style.display);
+                    console.log('Dropdown shown');
                 } else {
                     dropdown.style.display = 'none';
                     dropdown.classList.remove('show');
@@ -1822,6 +1973,287 @@ String username = (String) sessionObj.getAttribute("username");
                 });
             }
         });
+
+        // Direct delete function for the red delete button
+        function deleteSellerDirect(sellerId, action) {
+            console.log('deleteSellerDirect called with sellerId:', sellerId, 'and action:', action);
+            
+            // Show confirmation dialog
+            if (!confirm('Are you sure you want to delete this seller? This action cannot be undone.')) {
+                console.log('User cancelled deletion');
+                return;
+            }
+            
+            // Show loading message
+            const loadingDiv = document.createElement('div');
+            loadingDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 10000;';
+            loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting seller...';
+            document.body.appendChild(loadingDiv);
+            
+            // Send AJAX request to working DeleteSellerServlet
+            const xhr = new XMLHttpRequest();
+            const servletPath = window.workingDeleteServletPath || 'DeleteSellerServlet';
+            console.log('Using servlet path:', servletPath);
+            xhr.open('POST', servletPath, true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            
+            // Log the request data
+            const requestData = 'sellerId=' + encodeURIComponent(sellerId) + '&action=' + encodeURIComponent(action);
+            console.log('Sending request data to DeleteSellerServlet:', requestData);
+            
+            xhr.onreadystatechange = function() {
+                console.log('XHR state changed:', xhr.readyState, 'status:', xhr.status);
+                if (xhr.readyState === 4) {
+                    // Remove loading message
+                    if (loadingDiv.parentNode) {
+                        document.body.removeChild(loadingDiv);
+                    }
+                    
+                    console.log('Response status:', xhr.status);
+                    console.log('Response text:', xhr.responseText);
+                    
+                    if (xhr.status === 200) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            console.log('Parsed response:', response);
+                            
+                            if (response.success) {
+                                // Show success message
+                                showNotification(response.message, 'success');
+                                
+                                // Reload page after 2 seconds to show updated data
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 2000);
+                            } else {
+                                console.error('Delete failed:', response.message);
+                                showNotification(response.message, 'error');
+                            }
+                        } catch (e) {
+                            console.error('Error parsing delete response:', e);
+                            console.error('Raw response:', xhr.responseText);
+                            showNotification('Error parsing server response. Please try again.', 'error');
+                        }
+                    } else {
+                        console.error('Delete request failed with status:', xhr.status);
+                        console.error('Response text:', xhr.responseText);
+                        showNotification('Server error: ' + xhr.status + '. Please try again.', 'error');
+                    }
+                }
+            };
+            
+            xhr.onerror = function() {
+                console.error('XHR error occurred');
+                if (loadingDiv.parentNode) {
+                    document.body.removeChild(loadingDiv);
+                }
+                showNotification('Network error occurred. Please check your connection.', 'error');
+            };
+            
+            try {
+                xhr.send(requestData);
+                console.log('Request sent successfully to DeleteSellerServlet');
+            } catch (e) {
+                console.error('Error sending request:', e);
+                if (loadingDiv.parentNode) {
+                    document.body.removeChild(loadingDiv);
+                }
+                showNotification('Error sending request. Please try again.', 'error');
+            }
+        }
+
+        // Delete Seller function (for dropdown)
+        function deleteSeller(sellerId) {
+            console.log('deleteSeller called with sellerId:', sellerId);
+            
+            // Close dropdown
+            const dropdown = document.getElementById('dropdown' + sellerId);
+            if (dropdown) {
+                dropdown.style.display = 'none';
+                dropdown.classList.remove('show');
+            }
+            
+            // Show confirmation dialog
+            if (!confirm('Are you sure you want to delete this seller? This action cannot be undone.')) {
+                return;
+            }
+            
+            // Show loading message
+            const loadingDiv = document.createElement('div');
+            loadingDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 10000;';
+            loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting seller...';
+            document.body.appendChild(loadingDiv);
+            
+            // Send AJAX request to delete servlet
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'DeleteSellerServlet', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function() {
+                console.log('Delete XHR state changed:', xhr.readyState, 'status:', xhr.status);
+                if (xhr.readyState === 4) {
+                    // Remove loading message
+                    if (loadingDiv.parentNode) {
+                        document.body.removeChild(loadingDiv);
+                    }
+                    
+                    console.log('Delete response text:', xhr.responseText);
+                    
+                    if (xhr.status === 200) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.success) {
+                                // Show success message
+                                showNotification(response.message, 'success');
+                                
+                                // Remove the seller row from table
+                                const sellerRow = document.querySelector('tr[data-status][data-name] td:first-child');
+                                if (sellerRow && sellerRow.textContent.includes(sellerId)) {
+                                    sellerRow.closest('tr').remove();
+                                }
+                                
+                                // Reload page after 2 seconds to show updated data
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 2000);
+                            } else {
+                                showNotification(response.message, 'error');
+                            }
+                        } catch (e) {
+                            console.error('Error parsing delete response:', e);
+                            showNotification('Error deleting seller. Please try again.', 'error');
+                        }
+                    } else {
+                        console.error('Delete request failed with status:', xhr.status);
+                        showNotification('Error deleting seller. Please try again.', 'error');
+                    }
+                }
+            };
+            
+            xhr.send('sellerId=' + encodeURIComponent(sellerId) + '&action=delete');
+        }
+
+        // Show notification function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 15px 20px; border-radius: 8px; color: white; font-weight: 500; z-index: 10000; animation: slideIn 0.3s ease; max-width: 400px;';
+            
+            if (type === 'success') {
+                notification.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
+            } else {
+                notification.style.background = 'linear-gradient(135deg, #f44336, #d32f2f)';
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
+            }, 5000);
+        }
+
+        // Accept Product function
+        function acceptProduct(sellerId) {
+            console.log('acceptProduct called with sellerId:', sellerId);
+            
+            // Close dropdown
+            const dropdown = document.getElementById('dropdown' + sellerId);
+            if (dropdown) {
+                dropdown.style.display = 'none';
+                dropdown.classList.remove('show');
+            }
+            
+            // Show confirmation dialog
+            if (!confirm('Are you sure you want to accept this product? It will be displayed in Showproducts.jsp')) {
+                return;
+            }
+            
+            // Show loading message
+            const loadingDiv = document.createElement('div');
+            loadingDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 10000;';
+            loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Accepting product...';
+            document.body.appendChild(loadingDiv);
+            
+            // Send AJAX request
+            const xhr = new XMLHttpRequest();
+            const servletPath = window.workingServletPath || 'AcceptProductServlet';
+            console.log('Using servlet path:', servletPath);
+            xhr.open('POST', servletPath, true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function() {
+                console.log('XHR state changed:', xhr.readyState, 'status:', xhr.status);
+                if (xhr.readyState === 4) {
+                    // Remove loading message
+                    if (loadingDiv.parentNode) {
+                        document.body.removeChild(loadingDiv);
+                    }
+                    
+                    console.log('Response text:', xhr.responseText);
+                    
+                    if (xhr.status === 200) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.success) {
+                                // Show success message
+                                showNotification(response.message, 'success');
+                                
+                                // Reload page after 2 seconds to show updated data
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 2000);
+                            } else {
+                                showNotification(response.message, 'error');
+                            }
+                        } catch (e) {
+                            console.error('JSON parse error:', e);
+                            showNotification('Error processing response: ' + e.message, 'error');
+                        }
+                    } else {
+                        console.error('HTTP error:', xhr.status, xhr.statusText);
+                        showNotification('HTTP Error: ' + xhr.status + ' - ' + xhr.statusText, 'error');
+                    }
+                }
+            };
+            
+            xhr.onerror = function() {
+                console.error('XHR error occurred');
+                if (loadingDiv.parentNode) {
+                    document.body.removeChild(loadingDiv);
+                }
+                showNotification('Network error occurred', 'error');
+            };
+            
+            const data = 'sellerId=' + encodeURIComponent(sellerId) + '&action=accept';
+            console.log('Sending data:', data);
+            xhr.send(data);
+        }
+        
+        // Show notification function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 15px 20px; border-radius: 8px; color: white; font-weight: bold; z-index: 10000; max-width: 300px;';
+            
+            if (type === 'success') {
+                notification.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+            } else if (type === 'error') {
+                notification.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
+            } else {
+                notification.style.background = 'linear-gradient(135deg, #ffc107, #e0a800)';
+                notification.style.color = '#212529';
+            }
+            
+            notification.innerHTML = '<i class="fas fa-' + (type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle') + '"></i> ' + message;
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
+            }, 3000);
+        }
 
         // Filter sellers - Updated for table layout
         function filterSellers() {
