@@ -89,7 +89,7 @@ public class SellerUploadServlet extends HttpServlet {
                 // Create table if not exists (optional safety)
                 try (Statement stmt = con.createStatement()) {
                     String createTableSQL = "CREATE TABLE IF NOT EXISTS seller (" +
-                        "id VARCHAR(20) PRIMARY KEY, " +
+                        "sid VARCHAR(20) PRIMARY KEY, " +
                         "full_name VARCHAR(100) NOT NULL, " +
                         "email_address VARCHAR(100) NOT NULL, " +
                         "phone_number VARCHAR(20) NOT NULL, " +
@@ -121,7 +121,7 @@ public class SellerUploadServlet extends HttpServlet {
                 }
 
                 // Check if seller ID already exists
-                PreparedStatement checkPs = con.prepareStatement("SELECT COUNT(*) FROM seller WHERE id = ?");
+                PreparedStatement checkPs = con.prepareStatement("SELECT COUNT(*) FROM seller WHERE sid = ?");
                 checkPs.setString(1, sellerId);
                 ResultSet checkRs = checkPs.executeQuery();
                 
@@ -130,7 +130,7 @@ public class SellerUploadServlet extends HttpServlet {
                     messageType = "error";
                 } else {
                     // Insert new seller (11 columns, 11 placeholders)
-                    String sql = "INSERT INTO seller (id, full_name, email_address, phone_number, product_brand, Category, Category_id, price, description, image, status) " +
+                    String sql = "INSERT INTO seller (sid, full_name, email_address, phone_number, product_brand, Category, Category_id, price, description, image, status) " +
                                  "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement ps = con.prepareStatement(sql);
                     

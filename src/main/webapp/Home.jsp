@@ -60,7 +60,7 @@ String username = (String) sessionObg.getAttribute("username");
         header h1.institution-name {
             font-size: 2.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            background: blue;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -373,7 +373,8 @@ String username = (String) sessionObg.getAttribute("username");
     <div style="position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.9); padding: 10px 20px; border-radius: 25px; font-weight: 600; color: #333; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
         👤 <%= username != null ? username : "User" %> (<%= userRole != null ? userRole : "Guest" %>)
     </div>
-    <h1 class="institution-name">Cauvery Polytechnic Gonikoppal</h1>
+    <h2 class="institution-name">Cauvery Polytechnic Gonikoppal</h2>
+    <h2>Online Shopping System</h2>
     <h1>Mini Shopping Cart</h1>
     <p>Welcome, <%= username != null ? username : "User" %>! Shop Smart, Shop Easy</p>
 </header>
@@ -439,6 +440,6 @@ String username = (String) sessionObg.getAttribute("username");
     </div>
   
 </section>
-
+<footer align="center">Developed and Designed by Rakshith.k.S,Saajida.A.M,Prajwal.B.R,Mohammed Adil</footer>
 </body>
 </html>

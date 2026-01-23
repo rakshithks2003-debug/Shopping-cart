@@ -18,7 +18,7 @@ public class Sellerservlet extends HttpServlet {
 protected void doGet(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
 
-    int id = Integer.parseInt(request.getParameter("id"));
+    int id = Integer.parseInt(request.getParameter("sid"));
 
     try {
         Class.forName("com.mysql.cj.jdbc.Driver");
@@ -26,7 +26,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
             "jdbc:mysql://localhost:3306/mscart","root","password");
 
         PreparedStatement ps = con.prepareStatement(
-            "UPDATE seller SET status='Approved' WHERE id=?");
+            "UPDATE seller SET status='Approved' WHERE sid=?");
         ps.setInt(1, id);
         ps.executeUpdate();
 

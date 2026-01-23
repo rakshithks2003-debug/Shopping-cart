@@ -37,7 +37,7 @@ String username = (String) sessionObj.getAttribute("username");
 
     body {
         font-family: 'Inter', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
         min-height: 100vh;
         color: #1a1a1a;
         overflow-x: hidden;
@@ -51,9 +51,18 @@ String username = (String) sessionObj.getAttribute("username");
         left: 0;
         right: 0;
         bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.03"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+        background: 
+            radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3), transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(74, 86, 226, 0.3), transparent 50%),
+            radial-gradient(circle at 40% 20%, rgba(99, 102, 241, 0.2), transparent 50%);
         pointer-events: none;
         z-index: 1;
+        animation: gradientMove 15s ease-in-out infinite;
+    }
+    
+    @keyframes gradientMove {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
     }
 
     .container {
@@ -65,15 +74,15 @@ String username = (String) sessionObj.getAttribute("username");
     }
 
     header {
-        background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
-        backdrop-filter: blur(25px);
-        padding: 50px 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,255,255,0.92));
+        backdrop-filter: blur(30px) saturate(180%);
+        padding: 60px 0;
         text-align: center;
         position: relative;
-        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-        border-radius: 30px;
-        margin-bottom: 50px;
-        border: 2px solid rgba(102, 126, 234, 0.2);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.5) inset;
+        border-radius: 40px;
+        margin-bottom: 60px;
+        border: 3px solid rgba(139, 92, 246, 0.3);
         overflow: hidden;
     }
     
@@ -83,33 +92,40 @@ String username = (String) sessionObj.getAttribute("username");
         top: 0;
         left: 0;
         right: 0;
-        height: 5px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #667eea);
-        background-size: 300% 100%;
-        animation: gradientShift 4s ease-in-out infinite;
+        height: 6px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #3b82f6);
+        background-size: 400% 100%;
+        animation: rainbowFlow 8s ease-in-out infinite;
     }
     
-    @keyframes gradientShift {
+    @keyframes rainbowFlow {
         0%, 100% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
     }
 
     header h1 {
-        font-size: 3.5rem;
+        font-size: 4rem;
         font-weight: 900;
-        background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 20px;
-        letter-spacing: -0.03em;
-        text-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        animation: titleGlow 3s ease-in-out infinite alternate;
+        margin-bottom: 25px;
+        letter-spacing: -0.04em;
+        text-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        animation: titlePulse 4s ease-in-out infinite alternate;
+        position: relative;
     }
     
-    @keyframes titleGlow {
-        0% { filter: brightness(1); }
-        100% { filter: brightness(1.2); }
+    @keyframes titlePulse {
+        0% { 
+            filter: brightness(1);
+            transform: scale(1);
+        }
+        100% { 
+            filter: brightness(1.15);
+            transform: scale(1.02);
+        }
     }
     
     header .subtitle {
@@ -165,19 +181,37 @@ String username = (String) sessionObj.getAttribute("username");
     }
 
     .stat-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
-        border-radius: 15px;
-        padding: 25px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.95));
+        backdrop-filter: blur(25px) saturate(180%);
+        border-radius: 25px;
+        padding: 35px 25px;
         text-align: center;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border: 1px solid rgba(102, 126, 234, 0.1);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255,255,255,0.3) inset;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 2px solid rgba(139, 92, 246, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.1), transparent);
+        transition: left 0.5s ease;
     }
 
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        transform: translateY(-10px) scale(1.03);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(139, 92, 246, 0.4) inset;
+        border-color: rgba(139, 92, 246, 0.5);
+    }
+    
+    .stat-card:hover::before {
+        left: 100%;
     }
 
     .stat-icon {
@@ -254,196 +288,792 @@ String username = (String) sessionObj.getAttribute("username");
     }
 
     .add-btn {
-        background: linear-gradient(135deg, #28a745, #20c997);
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
         color: white;
         text-decoration: none;
-        padding: 12px 25px;
-        border-radius: 10px;
-        font-weight: 600;
+        padding: 15px 30px;
+        border-radius: 15px;
+        font-weight: 700;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
         transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+        font-size: 1.05rem;
     }
 
     .add-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 12px 30px rgba(139, 92, 246, 0.5);
+    }
+
+    .table-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        overflow-x: auto;
+        margin-bottom: 30px;
     }
 
     .sellers-table {
         width: 100%;
-        border-collapse: collapse;
+        border-collapse: separate;
+        border-spacing: 0;
         background: white;
-        border-radius: 15px;
+        border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        text-align: center;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        font-size: 0.9rem;
+    }
+
+    .sellers-table thead {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
     }
 
     .sellers-table th {
-        background: linear-gradient(135deg, #667eea, #764ba2);
         color: white;
-        padding: 20px 15px;
-        font-weight: 700;
-        font-size: 0.95rem;
+        padding: 18px 15px;
+        font-weight: 600;
+        font-size: 0.85rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        position: relative;
-        white-space: nowrap;
-        vertical-align: middle;
+        letter-spacing: 0.8px;
         text-align: center;
+        border: none;
+        position: relative;
     }
-    
-    .sellers-table th:nth-child(1) { width: 60px; text-align: center; }
-    .sellers-table th:nth-child(2) { width: 150px; text-align: center; }
-    .sellers-table th:nth-child(3) { width: 200px; text-align: center; }
-    .sellers-table th:nth-child(4) { width: 120px; text-align: center; }
-    .sellers-table th:nth-child(5) { width: 150px; text-align: center; }
-    .sellers-table th:nth-child(6) { width: 100px; text-align: center; }
-    .sellers-table th:nth-child(7) { width: 100px; text-align: center; }
-    .sellers-table th:nth-child(8) { width: 120px; text-align: center; }
-    .sellers-table th:nth-child(9) { width: 80px; text-align: center; }
-    .sellers-table th:nth-child(10) { width: 200px; text-align: center; }
-    .sellers-table th:nth-child(11) { width: 100px; text-align: center; }
-    .sellers-table th:nth-child(12) { width: 150px; text-align: center; }
-    
-    .sellers-table th::after {
+
+    .sellers-table th:not(:last-child)::after {
         content: '';
         position: absolute;
-        bottom: 0;
-        left: 0;
         right: 0;
-        height: 2px;
-        background: rgba(255, 255, 255, 0.3);
+        top: 25%;
+        bottom: 25%;
+        width: 1px;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .sellers-table th:nth-child(1) { width: 60px; }
+    .sellers-table th:nth-child(2) { width: 140px; }
+    .sellers-table th:nth-child(3) { width: 180px; }
+    .sellers-table th:nth-child(4) { width: 120px; }
+    .sellers-table th:nth-child(5) { width: 140px; }
+    .sellers-table th:nth-child(6) { width: 100px; }
+    .sellers-table th:nth-child(7) { width: 100px; }
+    .sellers-table th:nth-child(8) { width: 100px; }
+    .sellers-table th:nth-child(9) { width: 80px; }
+    .sellers-table th:nth-child(10) { width: 200px; }
+    .sellers-table th:nth-child(11) { width: 120px; }
+    .sellers-table th:nth-child(12) { width: 140px; }
+
+    .sellers-table tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .sellers-table tbody tr:hover {
+        background: linear-gradient(90deg, #f8f9ff, #f0f4ff);
+        transform: scale(1.01);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+    }
+
+    .sellers-table tbody tr:last-child {
+        border-bottom: none;
     }
 
     .sellers-table td {
-        padding: 15px 12px;
-        border-bottom: 1px solid #f0f0f0;
-        font-size: 0.9rem;
-        transition: all 0.3s ease;
-        vertical-align: middle;
+        padding: 16px 12px;
         text-align: center;
+        vertical-align: middle;
+        border: none;
+        color: #333;
+        font-weight: 500;
     }
-    
-    .sellers-table td:nth-child(1) { text-align: center; font-weight: 600; }
-    .sellers-table td:nth-child(2) { text-align: center; }
-    .sellers-table td:nth-child(3) { text-align: center; }
-    .sellers-table td:nth-child(4) { text-align: center; }
-    .sellers-table td:nth-child(5) { text-align: center; }
-    .sellers-table td:nth-child(6) { text-align: center; }
-    .sellers-table td:nth-child(7) { text-align: center; }
-    .sellers-table td:nth-child(8) { text-align: center; }
-    .sellers-table td:nth-child(9) { text-align: center; }
-    .sellers-table td:nth-child(10) { text-align: center; }
-    .sellers-table td:nth-child(11) { text-align: center; }
-    .sellers-table td:nth-child(12) { text-align: center; }
-    
-    .sellers-table tr:hover td {
-        background: linear-gradient(90deg, #f8f9ff, #f0f4ff);
-        transform: scale(1.01);
+
+    .sellers-table td:nth-child(1) {
+        font-weight: 700;
+        color: #667eea;
+        background: rgba(102, 126, 234, 0.05);
     }
-    
-    .sellers-table tbody tr {
+
+    .sellers-table td:nth-child(2) {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .sellers-table td:nth-child(3) {
+        color: #34495e;
+        font-size: 0.85rem;
+    }
+
+    .sellers-table td:nth-child(4) {
+        color: #e74c3c;
+        font-weight: 600;
+    }
+
+    .sellers-table td:nth-child(5) {
+        color: #8e44ad;
+        font-weight: 600;
+    }
+
+    .sellers-table td:nth-child(8) {
+        color: #27ae60;
+        font-weight: 700;
+    }
+
+    .seller-image {
+        width: 45px;
+        height: 45px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 2px solid #e1e8ed;
         transition: all 0.3s ease;
     }
-    
-    .sellers-table tbody tr:hover {
-        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.1);
-        transform: translateY(-2px);
+
+    .seller-image:hover {
+        transform: scale(1.1);
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .no-image {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 0.75rem;
+        border: 2px solid #dee2e6;
+        font-weight: 600;
+    }
+
+    .description-cell {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #6c757d;
+        font-size: 0.85rem;
+        font-style: italic;
     }
 
     .status-badge {
-        display: inline-block;
-        padding: 8px 16px;
-        border-radius: 25px;
-        font-size: 0.85rem;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.75rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        position: relative;
-        overflow: hidden;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        min-width: 80px;
+        text-align: center;
         transition: all 0.3s ease;
         border: 2px solid transparent;
-    }
-    
-    .status-badge::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        transition: left 0.5s ease;
-    }
-    
-    .status-badge:hover::before {
-        left: 100%;
     }
 
     .status-pending {
         background: linear-gradient(135deg, #fff3cd, #ffeaa7);
         color: #856404;
-        border: 2px solid #ffeaa7;
-        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
-    }
-    
-    .status-pending:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+        border-color: #ffc107;
+        box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
     }
 
     .status-approved {
         background: linear-gradient(135deg, #d4edda, #c3e6cb);
         color: #155724;
-        border: 2px solid #c3e6cb;
-        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-    }
-    
-    .status-approved:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        border-color: #28a745;
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
     }
 
     .status-rejected {
         background: linear-gradient(135deg, #f8d7da, #f5c6cb);
         color: #721c24;
-        border: 2px solid #f5c6cb;
-        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-    }
-    
-    .status-rejected:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        border-color: #dc3545;
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
     }
 
     .action-buttons {
         display: flex;
-        gap: 10px;
+        gap: 8px;
+        justify-content: center;
         flex-wrap: wrap;
     }
 
     .action-btn {
-        padding: 10px 18px;
-        text-decoration: none;
-        color: white;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        padding: 8px 14px;
         border: none;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        min-width: 70px;
+        justify-content: center;
+    }
+
+    .approve-btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+    }
+
+    .approve-btn:hover {
+        background: linear-gradient(135deg, #218838, #1ea085);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+    }
+
+    .reject-btn {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+        box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+    }
+
+    .reject-btn:hover {
+        background: linear-gradient(135deg, #c82333, #bd2130);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+    }
+
+    .move-btn {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+        color: white;
+        box-shadow: 0 3px 10px rgba(23, 162, 184, 0.3);
+    }
+
+    .move-btn:hover {
+        background: linear-gradient(135deg, #138496, #117a8b);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4);
+    }
+
+    .pending-btn {
+        background: linear-gradient(135deg, #ffc107, #e0a800);
+        color: #212529;
+        box-shadow: 0 3px 10px rgba(255, 193, 7, 0.3);
+    }
+
+    .pending-btn:hover {
+        background: linear-gradient(135deg, #e0a800, #d39e00);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+    }
+
+    .product-status-filters {
+        margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .filter-btn {
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border: 1px solid transparent;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .products-approved-btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        box-shadow: 0 2px 6px rgba(40, 167, 69, 0.2);
+    }
+
+    .products-approved-btn:hover {
+        background: linear-gradient(135deg, #218838, #1ea085);
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+    }
+
+    .products-pending-btn {
+        background: linear-gradient(135deg, #ffc107, #e0a800);
+        color: #212529;
+        box-shadow: 0 2px 6px rgba(255, 193, 7, 0.2);
+    }
+
+    .products-pending-btn:hover {
+        background: linear-gradient(135deg, #e0a800, #d39e00);
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(255, 193, 7, 0.3);
+    }
+
+    .products-rejected-btn {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+        box-shadow: 0 2px 6px rgba(220, 53, 69, 0.2);
+    }
+
+    .products-rejected-btn:hover {
+        background: linear-gradient(135deg, #c82333, #bd2130);
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+    }
+
+    /* Dropdown System Styles */
+    .dropdown {
+        position: relative;
+        display: inline-block;
+        margin: 2px;
+    }
+
+    .dropdown-btn {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        color: white;
+        padding: 6px 12px;
+        font-size: 0.7rem;
+        border: none;
+        border-radius: 6px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        position: relative;
-        overflow: hidden;
+        gap: 6px;
+        transition: all 0.3s ease;
+        font-weight: 500;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        letter-spacing: 0.3px;
+        box-shadow: 0 2px 6px rgba(108, 117, 125, 0.2);
+    }
+
+    .dropdown-btn:hover {
+        background: linear-gradient(135deg, #5a6268, #495057);
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(108, 117, 125, 0.3);
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background: white;
+        min-width: 180px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        z-index: 1000;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        top: 100%;
+        left: 0;
+        margin-top: 2px;
+    }
+
+    .dropdown-content.show {
+        display: block;
+        animation: dropdownSlide 0.3s ease;
+    }
+
+    @keyframes dropdownSlide {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .dropdown-item {
+        color: #333;
+        padding: 8px 12px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .dropdown-item:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-item:hover {
+        background: linear-gradient(90deg, #f8f9ff, #f0f4ff);
+        color: #667eea;
+    }
+
+    .dropdown-item.approve-item:hover {
+        background: linear-gradient(90deg, #d4edda, #c3e6cb);
+        color: #155724;
+    }
+
+    .dropdown-item.reject-item:hover {
+        background: linear-gradient(90deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+    }
+
+    .dropdown-item.pending-item:hover {
+        background: linear-gradient(90deg, #fff3cd, #ffeaa7);
+        color: #856404;
+    }
+
+    .dropdown-item.move-item:hover {
+        background: linear-gradient(90deg, #d1ecf1, #bee5eb);
+        color: #0c5460;
+    }
+
+    .dropdown-item.moved-item {
+        background: linear-gradient(90deg, #d4edda, #c3e6cb);
+        color: #155724;
+        font-weight: 600;
+        cursor: default;
+    }
+
+    .dropdown-item.filter-approved-item:hover {
+        background: linear-gradient(90deg, #d4edda, #c3e6cb);
+        color: #155724;
+    }
+
+    .dropdown-item.filter-pending-item:hover {
+        background: linear-gradient(90deg, #fff3cd, #ffeaa7);
+        color: #856404;
+    }
+
+    .dropdown-item.filter-rejected-item:hover {
+        background: linear-gradient(90deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+    }
+
+    .dropdown-item.filter-all-item:hover {
+        background: linear-gradient(90deg, #e2e3e5, #d6d8db);
+        color: #383d41;
+    }
+
+    /* Products Dropdown System with Proper Button Design */
+    .products-dropdown {
+        position: relative;
+        display: inline-block;
+        margin: 2px;
+    }
+
+    .products-dropdown-btn {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: white;
+        padding: 8px 16px;
+        font-size: 0.75rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .products-dropdown-btn:hover {
+        background: linear-gradient(135deg, #7c3aed, #6d28d9);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .products-dropdown-btn:active {
+        transform: translateY(-1px);
+    }
+
+    .products-dropdown-content {
+        display: none;
+        position: absolute;
+        background: white;
+        min-width: 200px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        border-radius: 12px;
+        z-index: 1000;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        overflow: hidden;
+        top: 100%;
+        left: 0;
+        margin-top: 5px;
+    }
+
+    .products-dropdown-content.show {
+        display: block;
+        animation: productsDropdownSlide 0.3s ease;
+    }
+
+    @keyframes productsDropdownSlide {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .products-dropdown-item {
+        color: #374151;
+        padding: 10px 14px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+    }
+
+    .products-dropdown-item:last-child {
+        border-bottom: none;
+    }
+
+    .products-dropdown-item:hover {
+        background: linear-gradient(90deg, rgba(139, 92, 246, 0.1), rgba(167, 139, 250, 0.1));
+        color: #8b5cf6;
+        transform: translateX(3px);
+    }
+
+    .products-dropdown-item.approved-item:hover {
+        background: linear-gradient(90deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1));
+        color: #10b981;
+    }
+
+    .products-dropdown-item.pending-item:hover {
+        background: linear-gradient(90deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1));
+        color: #f59e0b;
+    }
+
+    .products-dropdown-item.rejected-item:hover {
+        background: linear-gradient(90deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.1));
+        color: #ef4444;
+    }
+
+    .products-dropdown-item.all-item:hover {
+        background: linear-gradient(90deg, rgba(107, 114, 128, 0.1), rgba(156, 163, 175, 0.1));
+        color: #6b7280;
+    }
+
+    .products-dropdown-item i {
+        font-size: 0.9rem;
+        width: 18px;
+        text-align: center;
+    }
+
+    /* Products Table System */
+    .products-table-container {
+        position: relative;
+        display: inline-block;
+        margin: 2px;
+    }
+
+    .products-table-btn {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        padding: 8px 16px;
+        font-size: 0.75rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .products-table-btn:hover {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .products-table-content {
+        display: none;
+        position: absolute;
+        background: white;
+        min-width: 350px;
+        max-width: 450px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        border-radius: 15px;
+        z-index: 1000;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        overflow: hidden;
+        top: 100%;
+        left: 0;
+        margin-top: 5px;
+    }
+
+    .products-table-content.show {
+        display: block;
+        animation: productsTableSlide 0.3s ease;
+    }
+
+    @keyframes productsTableSlide {
+        from {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .products-table-header {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        padding: 12px 16px;
+        text-align: center;
+    }
+
+    .products-table-header h4 {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .products-mini-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.75rem;
+    }
+
+    .products-mini-table thead {
+        background: #f8fafc;
+    }
+
+    .products-mini-table th {
+        padding: 8px 10px;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .products-mini-table td {
+        padding: 8px 10px;
+        border-bottom: 1px solid #f3f4f6;
+        color: #6b7280;
+    }
+
+    .products-mini-table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    .product-status-badge {
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .product-status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .product-status-approved {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .product-status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .product-status-moved_to_products {
+        background: #ddd6fe;
+        color: #5b21b6;
+    }
+
+    .products-table-actions {
+        padding: 12px;
+        background: #f8fafc;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+    }
+
+    .products-filter-btn {
+        padding: 4px 8px;
+        font-size: 0.65rem;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .products-filter-btn.approved-filter {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .products-filter-btn.approved-filter:hover {
+        background: #a7f3d0;
+        transform: translateY(-1px);
+    }
+
+    .products-filter-btn.pending-filter {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .products-filter-btn.pending-filter:hover {
+        background: #fde68a;
+        transform: translateY(-1px);
+    }
+
+    .products-filter-btn.rejected-filter {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .products-filter-btn.rejected-filter:hover {
+        background: #fecaca;
+        transform: translateY(-1px);
+    }
+
+    .products-filter-btn.all-filter {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .products-filter-btn.all-filter:hover {
+        background: #d1d5db;
+        transform: translateY(-1px);
     }
     
     .action-btn::before {
@@ -462,23 +1092,23 @@ String username = (String) sessionObj.getAttribute("username");
     }
 
     .approve-btn {
-        background: linear-gradient(135deg, #28a745, #20c997);
-        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        background: linear-gradient(135deg, #10b981, #059669);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
     }
     
     .approve-btn:hover {
         transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.5);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
     }
 
     .reject-btn {
-        background: linear-gradient(135deg, #dc3545, #c82333);
-        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
     }
     
     .reject-btn:hover {
         transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 8px 25px rgba(220, 53, 69, 0.5);
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
     }
 
     .back-link {
@@ -636,11 +1266,11 @@ String username = (String) sessionObj.getAttribute("username");
                     <tr>
                         <th>ID</th>
                         <th>Full Name</th>
-                        <th>Email Address</th>
-                        <th>Phone No</th>
-                        <th>Product Brand</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Brand</th>
                         <th>Category</th>
-                        <th>Category Id</th>
+                        <th>Category ID</th>
                         <th>Price</th>
                         <th>Image</th>
                         <th>Description</th>
@@ -668,7 +1298,7 @@ try {
         return;
     }
 
-    PreparedStatement ps = con.prepareStatement("SELECT * FROM seller ORDER BY id DESC");
+    PreparedStatement ps = con.prepareStatement("SELECT * FROM seller ORDER BY sid DESC");
     ResultSet rs = ps.executeQuery();
 
     int totalSellers = 0;
@@ -688,7 +1318,7 @@ try {
         }
 %>
                     <tr data-status="<%= status %>" data-name="<%= rs.getString("full_name").toLowerCase() %>" data-email="<%= rs.getString("email_address").toLowerCase() %>">
-                        <td><%= rs.getString("id") %></td>
+                        <td><%= rs.getString("sid") %></td>
                         <td><%= rs.getString("full_name") %></td>
                         <td><%= rs.getString("email_address") %></td>
                         <td><%= rs.getString("phone_number") %></td>
@@ -706,19 +1336,43 @@ try {
                         <td>
                             <div class="action-buttons">
                                 <% if ("pending".equals(status)) { %>
-                                    <a class="action-btn approve-btn" href="ApproveSellerServlet?id=<%= rs.getString("id") %>">
-                                        ✅ Approve
+                                    <a class="action-btn approve-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=approved" 
+                                       onclick="return confirm('Are you sure you want to approve this seller?')">
+                                        <i class="fas fa-check"></i> Approve
                                     </a>
-                                    <a class="action-btn reject-btn" href="RejectSellerServlet?id=<%= rs.getString("id") %>">
-                                        ❌ Reject
+                                    <a class="action-btn reject-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=rejected" 
+                                       onclick="return confirm('Are you sure you want to reject this seller?')">
+                                        <i class="fas fa-times"></i> Reject
                                     </a>
                                 <% } else if ("approved".equals(status)) { %>
-                                    <a class="action-btn reject-btn" href="RejectSellerServlet?id=<%= rs.getString("id") %>">
-                                        ❌ Reject
+                                    <a class="action-btn pending-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=pending" 
+                                       onclick="return confirm('Are you sure you want to set this seller to pending?')">
+                                        <i class="fas fa-clock"></i> Pending
                                     </a>
-                                <% } else { %>
-                                    <a class="action-btn approve-btn" href="ApproveSellerServlet?id=<%= rs.getString("id") %>">
-                                        ✅ Approve
+                                    <a class="action-btn reject-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=rejected" 
+                                       onclick="return confirm('Are you sure you want to reject this seller?')">
+                                        <i class="fas fa-times"></i> Reject
+                                    </a>
+                                    <a class="action-btn move-btn" href="MoveToProductsServlet?id=<%= rs.getString("sid") %>" 
+                                       onclick="return confirm('Are you sure you want to move this seller to products?')">
+                                        <i class="fas fa-arrow-right"></i> Move
+                                    </a>
+                                <% } else if ("rejected".equals(status)) { %>
+                                    <a class="action-btn approve-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=approved" 
+                                       onclick="return confirm('Are you sure you want to approve this seller?')">
+                                        <i class="fas fa-check"></i> Approve
+                                    </a>
+                                    <a class="action-btn pending-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=pending" 
+                                       onclick="return confirm('Are you sure you want to set this seller to pending?')">
+                                        <i class="fas fa-clock"></i> Pending
+                                    </a>
+                                <% } else if ("moved_to_products".equals(status)) { %>
+                                    <span class="status-badge status-approved">
+                                        <i class="fas fa-check"></i> Moved
+                                    </span>
+                                    <a class="action-btn pending-btn" href="UpdateSellerStatusServlet?id=<%= rs.getString("sid") %>&status=pending" 
+                                       onclick="return confirm('Are you sure you want to set this seller to pending?')">
+                                        <i class="fas fa-undo"></i> Reset
                                     </a>
                                 <% } %>
                             </div>
@@ -761,6 +1415,89 @@ try {
             document.getElementById('rejectedSellers').textContent = rejectedSellers;
         });
 
+        // Toggle products table
+        function toggleProductsTable(sellerId) {
+            const tableId = 'productsTable' + sellerId;
+            
+            // Close all other tables
+            const tables = document.querySelectorAll('.products-table-content');
+            tables.forEach(table => {
+                if (table.id !== tableId) {
+                    table.classList.remove('show');
+                }
+            });
+            
+            // Toggle current table
+            const currentTable = document.getElementById(tableId);
+            if (currentTable) {
+                currentTable.classList.toggle('show');
+            }
+        }
+
+        // Close tables when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.matches('.products-table-btn') && !event.target.closest('.products-table-btn')) {
+                const tables = document.querySelectorAll('.products-table-content');
+                tables.forEach(table => {
+                    table.classList.remove('show');
+                });
+            }
+        });
+
+        // Toggle products dropdown
+        function toggleProductsDropdown(dropdownId) {
+            // Close all other dropdowns
+            const dropdowns = document.querySelectorAll('.products-dropdown-content');
+            dropdowns.forEach(dropdown => {
+                if (dropdown.id !== dropdownId) {
+                    dropdown.classList.remove('show');
+                }
+            });
+            
+            // Toggle current dropdown
+            const currentDropdown = document.getElementById(dropdownId);
+            if (currentDropdown) {
+                currentDropdown.classList.toggle('show');
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.matches('.products-dropdown-btn') && !event.target.closest('.products-dropdown-btn')) {
+                const dropdowns = document.querySelectorAll('.products-dropdown-content');
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            }
+        });
+
+        // Toggle dropdown
+        function toggleDropdown(dropdownId) {
+            // Close all other dropdowns
+            const dropdowns = document.querySelectorAll('.dropdown-content');
+            dropdowns.forEach(dropdown => {
+                if (dropdown.id !== dropdownId) {
+                    dropdown.classList.remove('show');
+                }
+            });
+            
+            // Toggle current dropdown
+            const currentDropdown = document.getElementById(dropdownId);
+            if (currentDropdown) {
+                currentDropdown.classList.toggle('show');
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.matches('.dropdown-btn') && !event.target.closest('.dropdown-btn')) {
+                const dropdowns = document.querySelectorAll('.dropdown-content');
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            }
+        });
+
         // Filter sellers
         function filterSellers() {
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
@@ -779,6 +1516,35 @@ try {
                 
                 row.style.display = matchesSearch && matchesStatus ? '' : 'none';
             });
+        }
+
+        // Filter by product status
+        function filterByProductStatus(productStatus) {
+            const rows = document.querySelectorAll('#sellersTableBody tr');
+            
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                let shouldShow = false;
+                
+                switch(productStatus) {
+                    case 'approved':
+                        shouldShow = status === 'approved' || status === 'moved_to_products';
+                        break;
+                    case 'pending':
+                        shouldShow = status === 'pending';
+                        break;
+                    case 'rejected':
+                        shouldShow = status === 'rejected';
+                        break;
+                }
+                
+                row.style.display = shouldShow ? '' : 'none';
+            });
+            
+            // Update the main status filter to match
+            document.getElementById('statusFilter').value = productStatus === 'approved' && rows.length > 0 ? 
+                (Array.from(rows).some(row => row.getAttribute('data-status') === 'moved_to_products') ? 'moved_to_products' : 'approved') : 
+                productStatus;
         }
 
         // Add smooth scroll behavior
