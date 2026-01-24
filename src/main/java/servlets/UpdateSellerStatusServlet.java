@@ -33,35 +33,7 @@ public class UpdateSellerStatusServlet extends HttpServlet {
             return;
         }
 
-        try {
-            Dbase db = new Dbase();
-            Connection con = db.initailizeDatabase();
-            
-            if (con == null || con.isClosed()) {
-                response.sendRedirect("Seller.jsp?error=Database connection failed");
-                return;
-            }
-
-            // Update seller status
-            PreparedStatement ps = con.prepareStatement(
-                "UPDATE seller SET status = ? WHERE id = ?");
-            
-            ps.setString(1, newStatus);
-            ps.setString(2, sellerId);
-            
-            int result = ps.executeUpdate();
-            
-            if (result > 0) {
-                response.sendRedirect("Seller.jsp?success=Seller status updated to " + newStatus);
-            } else {
-                response.sendRedirect("Seller.jsp?error=Failed to update seller status");
-            }
-            
-            con.close();
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.sendRedirect("Seller.jsp?error=" + e.getMessage());
-        }
+        // Since status column is removed, just redirect with success message
+        response.sendRedirect("Seller.jsp?success=Status management is now simplified - no status column needed");
     }
 }

@@ -13,6 +13,9 @@ if (sessionObj == null || sessionObj.getAttribute("isLoggedIn") == null ||
     response.sendRedirect("Login.html");
     return;
 }
+String SessionId = session.getId();
+out.println("Session ID: " +
+SessionId);
 
 // Check if user has admin role
 String userRole = (String) sessionObj.getAttribute("userRole");
@@ -402,20 +405,7 @@ String username = (sessionObj != null) ? (String) sessionObj.getAttribute("usern
 
                     <div class="form-field">
                         <div class="field-header">
-                            <span class="field-icon">�</span>
-                            <label class="field-label" for="status">Status</label>
-                        </div>
-                        <select class="form-input" id="status" name="status" required>
-                            <option value="">Select Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
-                        </select>
-                    </div>
-
-                    <div class="form-field">
-                        <div class="field-header">
-                            <span class="field-icon">�📝</span>
+                            <span class="field-icon">📝</span>
                             <label class="field-label" for="description">Description</label>
                         </div>
                         <textarea class="form-input" id="description" name="description" 

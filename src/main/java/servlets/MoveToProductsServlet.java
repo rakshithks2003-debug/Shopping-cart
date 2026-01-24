@@ -34,14 +34,14 @@ public class MoveToProductsServlet extends HttpServlet {
                 return;
             }
 
-            // First, check if the seller exists and is approved
+            // First, check if the seller exists
             PreparedStatement checkPs = con.prepareStatement(
-                "SELECT * FROM seller WHERE id = ? AND status = 'approved'");
+                "SELECT * FROM seller WHERE id = ?");
             checkPs.setString(1, sellerId);
             ResultSet checkRs = checkPs.executeQuery();
             
             if (!checkRs.next()) {
-                response.sendRedirect("Seller.jsp?error=Seller not found or not approved");
+                response.sendRedirect("Seller.jsp?error=Seller not found");
                 return;
             }
 
@@ -71,15 +71,10 @@ public class MoveToProductsServlet extends HttpServlet {
             int result = insertPs.executeUpdate();
             
             if (result > 0) {
-                // Update seller status to indicate it's been moved
-                PreparedStatement updatePs = con.prepareStatement(
-                    "UPDATE seller SET status = 'moved_to_products' WHERE id = ?");
-                updatePs.setString(1, sellerId);
-                updatePs.executeUpdate();
-                
-                response.sendRedirect("Seller.jsp?success=Seller moved to products successfully");
+                // Product moved successfully (no status update needed)
+                response.sendRedirect("Showproducts.jsp?success=Product moved successfully");
             } else {
-                response.sendRedirect("Seller.jsp?error=Failed to move seller to products");
+                response.sendRedirect("Seller.jsp?error=Failed to move product");
             }
             
             con.close();

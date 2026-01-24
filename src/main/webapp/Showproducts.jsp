@@ -1,30 +1,20 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<%@ page import="java.sql.*" %>
-<%@ page import="java.io.*" %>
-<%@ page import="products.*"%>
-<%@ page import="jakarta.servlet.http.HttpSession" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*, products.Dbase" %>
 <%
-// Check if user is logged in
-HttpSession sessionObg = request.getSession(false);
-if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null || 
-    !(Boolean) sessionObg.getAttribute("isLoggedIn")) {
-    response.sendRedirect("Login.html");
-    return;
-}
-String SessionId = session.getId();
-out.println("Session ID: " +
-SessionId);
-
-String userRole = (String) sessionObg.getAttribute("userRole");
-String username = (String) sessionObg.getAttribute("username");
+    String username = (String) session.getAttribute("username");
+    String userRole = (String) session.getAttribute("userRole");
+    
+    if (username == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
 %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Gallery</title>
+    <title>Mini Shopping Cart - Products</title>
     <style>
         * {
             margin: 0;
@@ -36,112 +26,92 @@ String username = (String) sessionObg.getAttribute("username");
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            color: #333;
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
         
         header {
-            text-align: center;
-            margin-bottom: 50px;
-            color: white;
-            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
         }
         
         .header-content {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
         
         h1 {
-            font-size: 3.5rem;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            background: linear-gradient(45deg, #fff, #f0f0f0);
+            font-size: 3rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
+            margin-bottom: 10px;
+            font-weight: 800;
         }
         
         .subtitle {
-            font-size: 1.3rem;
-            opacity: 0.9;
+            color: #666;
+            font-size: 1.2rem;
             margin-bottom: 30px;
-            color: rgba(255, 255, 255, 0.9);
         }
         
         .nav-buttons {
             display: flex;
-            gap: 15px;
             justify-content: center;
+            gap: 15px;
             flex-wrap: wrap;
         }
         
         .nav-btn {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
             padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
             text-decoration: none;
-            border-radius: 30px;
             transition: all 0.3s ease;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            font-weight: 500;
-            backdrop-filter: blur(5px);
-        }
-        
-        .nav-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            font-size: 1rem;
         }
         
         .nav-btn.primary {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            border-color: transparent;
-        }
-        
-        .nav-btn.primary:hover {
-            background: linear-gradient(135deg, #45a049, #3d8b40);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
         }
         
         .nav-btn.admin {
-            background: linear-gradient(135deg, #2196F3, #1976D2);
-            border-color: transparent;
-        }
-        
-        .nav-btn.admin:hover {
-            background: linear-gradient(135deg, #1976D2, #1565C0);
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
         }
         
         .nav-btn.logout {
-            background: linear-gradient(135deg, #f44336, #d32f2f);
-            border-color: transparent;
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            color: white;
         }
         
-        .nav-btn.logout:hover {
-            background: linear-gradient(135deg, #d32f2f, #c62828);
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
         
         .products-section {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 25px;
+            border-radius: 20px;
             padding: 40px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
         }
         
         .section-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
         }
         
         .section-title {
@@ -171,22 +141,6 @@ String username = (String) sessionObg.getAttribute("username");
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-        
-        .product-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-        
-        .product-card:hover::before {
-            transform: scaleX(1);
         }
         
         .product-card:hover {
@@ -240,21 +194,16 @@ String username = (String) sessionObg.getAttribute("username");
             font-size: 1.4rem;
         }
         
-        .product-actions {
-            display: flex;
-            gap: 12px;
+        .product-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
         }
         
         .no-products {
             text-align: center;
             padding: 80px 40px;
             color: #666;
-        }
-        
-        .no-products-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
         }
         
         .no-products h3 {
@@ -288,49 +237,15 @@ String username = (String) sessionObg.getAttribute("username");
         }
         
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-            }
-            
-            .header-content {
-                padding: 25px;
-            }
-            
             .products-grid {
                 grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
                 gap: 20px;
-            }
-            
-            .products-section {
-                padding: 25px;
-            }
-            
-            .section-title {
-                font-size: 2rem;
-            }
-            
-            .product-name {
-                font-size: 1.2rem;
-            }
-            
-            .product-price {
-                font-size: 1.5rem;
             }
         }
         
         @media (max-width: 480px) {
             .products-grid {
                 grid-template-columns: 1fr;
-            }
-            
-            .nav-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .nav-btn {
-                width: 200px;
-                text-align: center;
             }
         }
     </style>
@@ -346,7 +261,6 @@ String username = (String) sessionObg.getAttribute("username");
                     <a href="Addproducts.jsp" class="nav-btn primary">➕ Add New Product</a>
                     <% if ("admin".equals(userRole)) { %>
                         <a href="admin.jsp" class="nav-btn admin">🔧 Admin Panel</a>
-                        
                     <% } else { %>
                         <a href="LogoutServlet" class="nav-btn logout">🚪 Logout</a>
                     <% } %>
@@ -363,7 +277,6 @@ String username = (String) sessionObg.getAttribute("username");
                 
                 <div class="products-grid">
 <%
-// Get category parameter from URL
 String category = request.getParameter("category");
 
 try {
@@ -373,7 +286,6 @@ try {
     try {
         con = db.initailizeDatabase();
     } catch (Exception e) {
-        // Fallback to direct connection if Dbase fails
         Class.forName("com.mysql.cj.jdbc.Driver");
         con = DriverManager.getConnection(
             "jdbc:mysql://localhost:3306/mscart", "root", "123456");
@@ -390,83 +302,57 @@ try {
         String sql;
         
         if (category != null && !category.trim().isEmpty()) {
-            // Filter by category
             sql = "SELECT id, name, price, image, description FROM product WHERE category_id = ? ORDER BY id DESC";
             ps = con.prepareStatement(sql);
             ps.setString(1, category);
         } else {
-            // Show all products
             sql = "SELECT id, name, price, image, description FROM product ORDER BY id DESC";
             ps = con.prepareStatement(sql);
         }
         
         ResultSet rs = ps.executeQuery();
         
-        // Fix NULL IDs by updating the database
-        if (!rs.next()) {
-            // No products, try to fix the table structure
-            try {
-                // First, let's try to add an auto-increment primary key if it doesn't exist
-                PreparedStatement checkTable = con.prepareStatement("SHOW COLUMNS FROM product WHERE Field = 'id' AND Extra = 'auto_increment'");
-                ResultSet checkRs = checkTable.executeQuery();
-                
-                if (!checkRs.next()) {
-                    // Add auto_increment to id column
-                    PreparedStatement alterTable = con.prepareStatement("ALTER TABLE product MODIFY id INT AUTO_INCREMENT PRIMARY KEY");
-                    alterTable.executeUpdate();
-                    System.out.println("Showproducts: Added auto_increment to id column");
-                }
-                checkRs.close();
-                
-                // Update NULL IDs to sequential values
-                PreparedStatement updateIds = con.prepareStatement("SET @row_number = 0; UPDATE product SET id = (@row_number := @row_number + 1) WHERE id IS NULL ORDER BY sid");
-                int updatedRows = updateIds.executeUpdate();
-                System.out.println("Showproducts: Updated " + updatedRows + " NULL IDs to sequential values");
-                
-                // Re-run the query to get the updated data
-                rs = ps.executeQuery();
-            } catch (Exception e) {
-                System.out.println("Showproducts: Error fixing table structure: " + e.getMessage());
-            }
-        }
+        System.out.println("Showproducts: Executing query: " + sql);
         
         boolean hasProducts = false;
+        int productCount = 0;
+        
         while(rs.next()) {
             hasProducts = true;
+            productCount++;
+            if (productCount == 1) {
+                System.out.println("Showproducts: Found first product - ID: " + rs.getString("id") + ", Name: " + rs.getString("name"));
+            }
 %>
                 <div class="product-card">
 <%
         String imageFileName = rs.getString("image");
         String imageSrc = "";
         
-        // Debug image information
-        System.out.println("Showproducts: Product ID: " + rs.getString("id") + ", Image file: " + imageFileName);
-        
         if (imageFileName != null && !imageFileName.trim().isEmpty()) {
-            // Use direct path assignment
-            imageSrc = "seller_images/" + imageFileName;
-            System.out.println("Showproducts: Using image path: " + imageSrc);
+            // Try product_images first (for Addproducts.jsp uploads), then seller_images (for accepted seller products)
+            imageSrc = "product_images/" + imageFileName;
+            // Add fallback to seller_images for accepted products
+            System.out.println("Showproducts: Trying image path: " + imageSrc);
         } else {
-            // Use a placeholder image if no image available
             imageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+";
-            System.out.println("Showproducts: No image file, using placeholder");
         }
 %>
                     <div class="product-image-wrapper">
                         <img class="product-image" src="<%=imageSrc%>" alt="<%=rs.getString("name")%>" 
                              onclick="window.location.href='Details.jsp?id=<%=rs.getString("id")%>'"
-                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz=';">
+                             onerror="tryFallbackImage(this, '<%=imageFileName%>')">
                     </div>
                     <div class="product-info">
                         <div class="product-name"><%=rs.getString("name")%></div>
                         <div class="product-price"><%=String.format("%.2f", rs.getDouble("price"))%></div>
                         <div class="product-description"><%=rs.getString("description") != null ? rs.getString("description") : "No description available"%></div>
-                        <div class="product-actions">
-                        </div>
                     </div>
                 </div>
 <%
         }
+        
+        System.out.println("Showproducts: Total products displayed: " + productCount);
         
         if (!hasProducts) {
 %>
@@ -502,6 +388,7 @@ try {
 <%
 }
 %>
+                </div>
             </div>
         </main>
         
@@ -511,6 +398,84 @@ try {
     </div>
     
     <script>
+        // Test product table functionality
+        function testProductTable() {
+            console.log('Testing product table...');
+            alert('Testing product table functionality. Check browser console for details.');
+            
+            const productCards = document.querySelectorAll('.product-card');
+            console.log('Found ' + productCards.length + ' product cards on page');
+            
+            if (productCards.length === 0) {
+                alert('No products found on page. Check if products were accepted from seller page.');
+            } else {
+                alert('Found ' + productCards.length + ' products displayed!');
+                productCards.forEach((card, index) => {
+                    const name = card.querySelector('.product-name');
+                    const price = card.querySelector('.product-price');
+                    console.log('Product ' + (index + 1) + ': ' + (name ? name.textContent : 'No name') + ' - ' + (price ? price.textContent : 'No price'));
+                });
+            }
+        }
+        
+        // Show debug information
+        function showDebugInfo() {
+            console.log('Showproducts debug info:');
+            console.log('Current URL:', window.location.href);
+            console.log('User role:', '<%= userRole != null ? userRole : "Not set" %>');
+            console.log('Username:', '<%= username != null ? username : "Not set" %>');
+            
+            const productCards = document.querySelectorAll('.product-card');
+            const noProducts = document.querySelector('.no-products');
+            const errorMessages = document.querySelectorAll('.error-message');
+            
+            let debugInfo = '=== DEBUG INFO ===\n';
+            debugInfo += 'URL: ' + window.location.href + '\n';
+            debugInfo += 'Products found: ' + productCards.length + '\n';
+            debugInfo += 'No products message: ' + (noProducts ? 'Yes' : 'No') + '\n';
+            debugInfo += 'Error messages: ' + errorMessages.length + '\n';
+            
+            if (productCards.length > 0) {
+                debugInfo += '\nFirst product details:\n';
+                const firstCard = productCards[0];
+                const name = firstCard.querySelector('.product-name');
+                const price = firstCard.querySelector('.product-price');
+                const desc = firstCard.querySelector('.product-description');
+                debugInfo += 'Name: ' + (name ? name.textContent : 'N/A') + '\n';
+                debugInfo += 'Price: ' + (price ? price.textContent : 'N/A') + '\n';
+                debugInfo += 'Description: ' + (desc ? desc.textContent.substring(0, 50) + '...' : 'N/A') + '\n';
+            }
+            
+            alert(debugInfo);
+            console.log(debugInfo);
+        }
+        
+        // Auto-run debug on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Showproducts page loaded');
+            setTimeout(() => {
+                const productCards = document.querySelectorAll('.product-card');
+                console.log('Page load check - Found ' + productCards.length + ' products');
+            }, 1000);
+        });
+        
+        // Fallback image function - tries seller_images if product_images fails
+        function tryFallbackImage(img, fileName) {
+            if (!fileName || fileName.trim() === '') {
+                img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+';
+                return;
+            }
+            
+            // If current src is product_images, try seller_images
+            if (img.src.includes('product_images/')) {
+                const newSrc = img.src.replace('product_images/', 'seller_images/');
+                console.log('Image fallback: trying', newSrc);
+                img.src = newSrc;
+            } else {
+                // If seller_images also fails, use placeholder
+                img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz=';
+            }
+        }
     </script>
 </body>
 </html>

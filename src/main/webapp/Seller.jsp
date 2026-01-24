@@ -11,6 +11,9 @@ if (sessionObj == null || sessionObj.getAttribute("isLoggedIn") == null ||
     response.sendRedirect("Login.html");
     return;
 }
+String SessionId = session.getId();
+out.println("Session ID: " +
+SessionId);
 
 // Check if user has admin role
 String userRole = (String) sessionObj.getAttribute("userRole");
@@ -1577,7 +1580,6 @@ String username = (String) sessionObj.getAttribute("username");
             <th>Price</th>
             <th>Image</th>
             <th>Description</th>
-            <th>Status</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -1597,7 +1599,7 @@ String username = (String) sessionObj.getAttribute("username");
             }
 
             if (con == null || con.isClosed()) {
-                out.println("<script>alert('Database connection failed!');</script>");
+                out.println("<script>showApprovedSuccess('Database connection failed!');</script>");
                 return;
             }
 
@@ -1612,18 +1614,8 @@ String username = (String) sessionObj.getAttribute("username");
 
             while (rs.next()) {
                 totalSellers++;
-                String status = rs.getString("status");
-                if ("pending".equals(status)) {
-                    pendingSellers++;
-                } else if ("approved".equals(status)) {
-                    approvedSellers++;
-                } else if ("rejected".equals(status)) {
-                    rejectedSellers++;
-                } else if ("moved_to_products".equals(status)) {
-                    movedSellers++;
-                }
         %>
-                <tr data-status="<%= status %>" data-name="<%= rs.getString("full_name").toLowerCase() %>" data-email="<%= rs.getString("email_address").toLowerCase() %>">
+                <tr data-name="<%= rs.getString("full_name").toLowerCase() %>" data-email="<%= rs.getString("email_address").toLowerCase() %>">
                     <td><%= rs.getString("sid") %></td>
                     <td><%= rs.getString("full_name") %></td>
                     <td><%= rs.getString("email_address") %></td>
@@ -1634,11 +1626,6 @@ String username = (String) sessionObj.getAttribute("username");
                     <td><%= rs.getString("price") %></td>
                     <td><% if(rs.getString("image") != null && !rs.getString("image").isEmpty()) { %><img src="seller_images/<%= rs.getString("image") %>" width="50" height="50" style="border-radius: 8px;"><% } else { %>No Image<% } %></td>
                     <td><%= rs.getString("description") != null ? rs.getString("description").substring(0, Math.min(50, rs.getString("description").length())) + (rs.getString("description").length() > 50 ? "..." : "") : "" %></td>
-                    <td>
-                        <span class="status-badge status-<%= status %>">
-                            <%= status.toUpperCase() %>
-                        </span>
-                    </td>
                     <td>
                         <div class="action-buttons">
                             <div class="dropdown">
@@ -1671,10 +1658,10 @@ String username = (String) sessionObj.getAttribute("username");
                                         <a href="#" class="dropdown-item approve-item" onclick="acceptProduct('<%= rs.getString("sid") %>'); return false;">
                                             <i class="fas fa-check"></i> Accept Product
                                         </a>
-                                        <a href="#" class="dropdown-item pending-item" onclick="alert('Pending clicked for <%= rs.getString("sid") %>'); return false;">
-                                            <i class="fas fa-clock"></i> Set to Pending
+                                        <a href="#" class="dropdown-item pending-item" onclick="showApprovedSuccess('<%= rs.getString("sid") %>'); return false;">
+                                            <i class="fas fa-check-circle"></i> Approved
                                         </a>
-                                        <a href="#" class="dropdown-item reject-item" onclick="alert('Reject clicked for <%= rs.getString("sid") %>'); return false;">
+                                        <a href="#" class="dropdown-item reject-item" onclick="showApprovedSuccess('Reject clicked for <%= rs.getString("sid") %>'); return false;">
                                             <i class="fas fa-times"></i> Reject
                                         </a>
                                     </div>
@@ -1684,13 +1671,13 @@ String username = (String) sessionObj.getAttribute("username");
                                         <div class="section-title">
                                             <i class="fas fa-cogs"></i> Advanced Actions
                                         </div>
-                                        <a href="#" class="dropdown-item move-item" onclick="alert('Move to Products clicked for <%= rs.getString("sid") %>'); return false;">
+                                        <a href="#" class="dropdown-item move-item" onclick="showApprovedSuccess('Move to Products clicked for <%= rs.getString("sid") %>'); return false;">
                                             <i class="fas fa-arrow-right"></i> Move to Products
                                         </a>
-                                        <a href="#" class="dropdown-item edit-item" onclick="alert('Edit clicked for <%= rs.getString("sid") %>'); return false;">
+                                        <a href="#" class="dropdown-item edit-item" onclick="showApprovedSuccess('Edit clicked for <%= rs.getString("sid") %>'); return false;">
                                             <i class="fas fa-edit"></i> Edit Details
                                         </a>
-                                        <a href="#" class="dropdown-item view-item" onclick="alert('View clicked for <%= rs.getString("sid") %>'); return false;">
+                                        <a href="#" class="dropdown-item view-item" onclick="showApprovedSuccess('View clicked for <%= rs.getString("sid") %>'); return false;">
                                             <i class="fas fa-eye"></i> View Full Details
                                         </a>
                                     </div>
@@ -1703,10 +1690,10 @@ String username = (String) sessionObj.getAttribute("username");
                                         <a href="#" class="dropdown-item delete-item" onclick="deleteSeller('<%= rs.getString("sid") %>'); return false;">
                                             <i class="fas fa-trash"></i> Delete Seller
                                         </a>
-                                        <a href="#" class="dropdown-item duplicate-item" onclick="alert('Duplicate clicked for <%= rs.getString("sid") %>'); return false;">
+                                        <a href="#" class="dropdown-item duplicate-item" onclick="showApprovedSuccess('Duplicate clicked for <%= rs.getString("sid") %>'); return false;">
                                             <i class="fas fa-copy"></i> Duplicate Entry
                                         </a>
-                                        <a href="#" class="dropdown-item export-item" onclick="alert('Export clicked for <%= rs.getString("sid") %>'); return false;">
+                                        <a href="#" class="dropdown-item export-item" onclick="showApprovedSuccess('Export clicked for <%= rs.getString("sid") %>'); return false;">
                                             <i class="fas fa-download"></i> Export Data
                                         </a>
                                     </div>
@@ -1727,7 +1714,7 @@ String username = (String) sessionObj.getAttribute("username");
             
             con.close();
         } catch (Exception e) {
-            out.println("<script>alert('Error loading seller: " + e.getMessage() + "');</script>");
+            out.println("<script>showApprovedSuccess('Error loading seller: " + e.getMessage() + "');</script>");
         }
         %>
                 </tbody>
@@ -1756,7 +1743,7 @@ String username = (String) sessionObj.getAttribute("username");
             
             function tryNextPath() {
                 if (currentIndex >= possiblePaths.length) {
-                    alert('All servlet paths failed. Check server logs for servlet deployment issues.');
+                    showApprovedSuccess('All servlet paths failed. Check server logs for servlet deployment issues.');
                     return;
                 }
                 
@@ -1776,7 +1763,7 @@ String username = (String) sessionObj.getAttribute("username");
                 }).then(text => {
                     if (text) {
                         console.log('Response text:', text);
-                        alert('Success with path ' + path + '!\n\nServlet Response: ' + text);
+                        showApprovedSuccess('Success with path ' + path + '!\n\nServlet Response: ' + text);
                         
                         // Update the acceptProduct function to use the working path
                         window.workingServletPath = path;
@@ -1808,7 +1795,7 @@ String username = (String) sessionObj.getAttribute("username");
             
             function tryNextPath() {
                 if (currentIndex >= possiblePaths.length) {
-                    alert('All DeleteSellerServlet paths failed. Check if the servlet is properly deployed in Eclipse.');
+                    showApprovedSuccess('All DeleteSellerServlet paths failed. Check if the servlet is properly deployed in Eclipse.');
                     return;
                 }
                 
@@ -1828,7 +1815,7 @@ String username = (String) sessionObj.getAttribute("username");
                 }).then(text => {
                     if (text) {
                         console.log('DeleteSellerServlet response text:', text);
-                        alert('DeleteSellerServlet works with path ' + path + '!\n\nResponse: ' + text);
+                        showApprovedSuccess('DeleteSellerServlet works with path ' + path + '!\n\nResponse: ' + text);
                         
                         // Update the deleteSellerDirect function to use the working path
                         window.workingDeleteServletPath = path;
@@ -1864,15 +1851,15 @@ String username = (String) sessionObj.getAttribute("username");
             console.log('Test dropdown called for:', dropdownId);
             var dropdown = document.getElementById(dropdownId);
             if (dropdown) {
-                alert('Dropdown found! Current display: ' + dropdown.style.display + ', Classes: ' + dropdown.className);
+                showApprovedSuccess('Dropdown found! Current display: ' + dropdown.style.display + ', Classes: ' + dropdown.className);
                 // Force show the dropdown
                 dropdown.style.display = 'block';
                 dropdown.classList.add('show');
                 dropdown.style.background = 'yellow';
                 dropdown.style.border = '2px solid red';
-                alert('Dropdown should now be visible with yellow background!');
+                showApprovedSuccess('Dropdown should now be visible with yellow background!');
             } else {
-                alert('Dropdown NOT found: ' + dropdownId);
+                showApprovedSuccess('Dropdown NOT found: ' + dropdownId);
             }
         }
 
@@ -2021,10 +2008,10 @@ String username = (String) sessionObj.getAttribute("username");
                                 // Show success message
                                 showNotification(response.message, 'success');
                                 
-                                // Reload page after 2 seconds to show updated data
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 2000);
+                                // Success message displays on same page - no reload needed
+
+
+
                             } else {
                                 console.error('Delete failed:', response.message);
                                 showNotification(response.message, 'error');
@@ -2111,10 +2098,10 @@ String username = (String) sessionObj.getAttribute("username");
                                     sellerRow.closest('tr').remove();
                                 }
                                 
-                                // Reload page after 2 seconds to show updated data
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 2000);
+                                // Success message displays on same page - no reload needed
+
+
+
                             } else {
                                 showNotification(response.message, 'error');
                             }
@@ -2154,9 +2141,16 @@ String username = (String) sessionObj.getAttribute("username");
             }, 5000);
         }
 
+        // Show Approved Success function
+        function showApprovedSuccess(sellerId) {
+            showNotification('Seller ' + sellerId + ' has been approved successfully!', 'success');
+        }
+
         // Accept Product function
+
         function acceptProduct(sellerId) {
             console.log('acceptProduct called with sellerId:', sellerId);
+            showApprovedSuccess('DEBUG: Accept Product called for seller ID: ' + sellerId);
             
             // Close dropdown
             const dropdown = document.getElementById('dropdown' + sellerId);
@@ -2170,64 +2164,80 @@ String username = (String) sessionObj.getAttribute("username");
                 return;
             }
             
+            showApprovedSuccess('DEBUG: User confirmed. Sending AJAX request...');
+            
             // Show loading message
             const loadingDiv = document.createElement('div');
             loadingDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 10000;';
             loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Accepting product...';
             document.body.appendChild(loadingDiv);
             
-            // Send AJAX request
+            // Send AJAX request to AcceptProductServlet
             const xhr = new XMLHttpRequest();
             const servletPath = window.workingServletPath || 'AcceptProductServlet';
             console.log('Using servlet path:', servletPath);
+            showApprovedSuccess('DEBUG: Using servlet path: ' + servletPath);
+            
             xhr.open('POST', servletPath, true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onreadystatechange = function() {
                 console.log('XHR state changed:', xhr.readyState, 'status:', xhr.status);
+                showApprovedSuccess('DEBUG: XHR state: ' + xhr.readyState + ', status: ' + xhr.status);
+                
                 if (xhr.readyState === 4) {
                     // Remove loading message
                     if (loadingDiv.parentNode) {
                         document.body.removeChild(loadingDiv);
                     }
                     
+                    console.log('Response status:', xhr.status);
                     console.log('Response text:', xhr.responseText);
+                    showApprovedSuccess('DEBUG: Response status: ' + xhr.status + '\nResponse text: ' + xhr.responseText);
                     
                     if (xhr.status === 200) {
                         try {
                             const response = JSON.parse(xhr.responseText);
+                            console.log('Parsed response:', response);
+                            showApprovedSuccess('DEBUG: Parsed response: ' + JSON.stringify(response));
+                            
                             if (response.success) {
                                 // Show success message
                                 showNotification(response.message, 'success');
                                 
-                                // Reload page after 2 seconds to show updated data
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 2000);
+                                // Success message displays on same page - no reload needed
+
+
+
                             } else {
+                                console.error('Accept failed:', response.message);
                                 showNotification(response.message, 'error');
                             }
                         } catch (e) {
-                            console.error('JSON parse error:', e);
-                            showNotification('Error processing response: ' + e.message, 'error');
+                            console.error('Error parsing accept response:', e);
+                            console.error('Raw response:', xhr.responseText);
+                            showNotification('Error parsing server response. Please try again.', 'error');
                         }
                     } else {
-                        console.error('HTTP error:', xhr.status, xhr.statusText);
-                        showNotification('HTTP Error: ' + xhr.status + ' - ' + xhr.statusText, 'error');
+                        console.error('Accept request failed with status:', xhr.status);
+                        showNotification('Server error: ' + xhr.status + '. Please try again.', 'error');
                     }
                 }
             };
             
-            xhr.onerror = function() {
-                console.error('XHR error occurred');
-                if (loadingDiv.parentNode) {
-                    document.body.removeChild(loadingDiv);
-                }
-                showNotification('Network error occurred', 'error');
-            };
+            const requestData = 'sellerId=' + encodeURIComponent(sellerId) + '&action=accept';
+            console.log('Sending request data to AcceptProductServlet:', requestData);
+            showApprovedSuccess('DEBUG: Sending data: ' + requestData);
             
-            const data = 'sellerId=' + encodeURIComponent(sellerId) + '&action=accept';
-            console.log('Sending data:', data);
-            xhr.send(data);
+            xhr.send(requestData);
+            console.log('Request sent to AcceptProductServlet');
+        }
+        
+        // Test function for Accept Product
+        function testAcceptProduct() {
+            const sellerId = prompt('Enter seller ID to test Accept Product:', '1');
+            if (sellerId) {
+                acceptProduct(sellerId);
+            }
         }
         
         // Show notification function
@@ -2293,9 +2303,9 @@ String username = (String) sessionObj.getAttribute("username");
             
             // Show alert for feedback
             if (statusFilter) {
-                alert('Filtering seller ' + sellerId + ' by status: ' + statusFilter);
+                showApprovedSuccess('Filtering seller ' + sellerId + ' by status: ' + statusFilter);
             } else {
-                alert('Showing all sellers');
+                showApprovedSuccess('Showing all sellers');
             }
         }
 

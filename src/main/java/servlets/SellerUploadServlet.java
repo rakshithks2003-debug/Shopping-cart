@@ -56,8 +56,6 @@ public class SellerUploadServlet extends HttpServlet {
         String categoryId = request.getParameter("categoryId");
         String price = request.getParameter("price");
         String description = request.getParameter("description");
-        @SuppressWarnings("unused")
-		String status = request.getParameter("status");
         String imageFileName = "";
 
         // Generate seller ID if not provided
@@ -97,8 +95,7 @@ public class SellerUploadServlet extends HttpServlet {
                         "Category_id VARCHAR(20) NOT NULL, " +
                         "price DECIMAL(10,2) NOT NULL, " +
                         "description TEXT, " +
-                        "image VARCHAR(255), " +
-                        "status VARCHAR(20) DEFAULT 'pending'" +
+                        "image VARCHAR(255)" +
                         ")";
                     stmt.executeUpdate(createTableSQL);
                 }
@@ -123,9 +120,9 @@ public class SellerUploadServlet extends HttpServlet {
                     }
                 }
 
-                // Insert new seller (11 columns, 11 placeholders)
-                String sql = "INSERT INTO seller (sid, full_name, email_address, phone_number, product_brand, Category, Category_id, price, description, image, status) " +
-                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                // Insert new seller (10 columns, 10 placeholders)
+                String sql = "INSERT INTO seller (sid, full_name, email_address, phone_number, product_brand, Category, Category_id, price, description, image) " +
+                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 PreparedStatement ps = con.prepareStatement(sql);
                 
                 ps.setString(1, sellerId);
@@ -138,7 +135,6 @@ public class SellerUploadServlet extends HttpServlet {
                 ps.setString(8, price);
                 ps.setString(9, description);
                 ps.setString(10, imageFileName);
-                ps.setString(11, "pending"); // Default status
                 
                 int result = ps.executeUpdate();
                 if (result > 0) {
