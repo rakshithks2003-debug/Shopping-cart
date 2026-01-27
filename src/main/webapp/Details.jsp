@@ -500,125 +500,316 @@ try {
             }
             
             .product-actions {
-                flex-direction: column;
+                display: flex;
+                gap: 20px;
+                margin-top: 20px;
             }
             
-            .add-cart-btn, .buy-now-btn {
-                width: 100%;
+            .buy-now-btn {
+                background: linear-gradient(135deg, #e74c3c, #c0392b);
+                color: white;
+                border: none;
+                padding: 18px 35px;
+                border-radius: 15px;
+                font-size: 1.1rem;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                flex: 1;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 10px 25px rgba(231, 76, 60, 0.3);
             }
+            
+            .buy-now-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                transition: left 0.5s ease;
+            }
+            
+            .buy-now-btn:hover::before {
+                left: 100%;
+            }
+            
+            .buy-now-btn:hover {
+                background: linear-gradient(135deg, #c0392b, #a93226);
+                transform: translateY(-3px);
+                box-shadow: 0 15px 35px rgba(231, 76, 60, 0.4);
+            }
+            
+            .error-container {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(20px);
+                border-radius: 30px;
+                padding: 80px 50px;
+                text-align: center;
+                box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                animation: fadeInUp 0.8s ease-out;
+            }
+            
+            .error-title {
+                font-size: 2.5rem;
+                color: #e74c3c;
+                margin-bottom: 25px;
+                font-weight: 700;
+            }
+            
+            .error-message {
+                color: #5a6c7d;
+                font-size: 1.2rem;
+                margin-bottom: 35px;
+                line-height: 1.6;
+            }
+            
+            .notification {
+                position: fixed;
+                top: 30px;
+                right: 30px;
+                background: linear-gradient(135deg, #27ae60, #2ecc71);
+                color: white;
+                padding: 18px 25px;
+                border-radius: 15px;
+                box-shadow: 0 15px 35px rgba(46, 204, 113, 0.3);
+                z-index: 1000;
+                opacity: 0;
+                transform: translateY(-30px) scale(0.9);
+                transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                font-weight: 600;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            
+            .notification.show {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-50px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(50px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            @keyframes pulse {
+                0%, 100% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.05);
+                }
+            }
+            
+            @media (max-width: 968px) {
+                .product-detail-container {
+                    flex-direction: column;
+                }
+                
+                .product-image-section {
+                    min-width: auto;
+                    padding: 30px;
+                }
+                
+                .product-info-section {
+                    padding: 30px;
+                }
+                
+                .product-name {
+                    font-size: 2.2rem;
+                }
+                
+                .product-price {
+                    font-size: 2rem;
+                }
+                
+                h1 {
+                    font-size: 2.5rem;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                body {
+                    padding: 15px;
+                }
+                
+                header {
+                    padding: 20px;
+                }
+                
+                h1 {
+                    font-size: 2rem;
+                }
+                
+                .product-image-section {
+                    padding: 20px;
+                }
+                
+                .product-info-section {
+                    padding: 20px;
+                }
+                
+                .product-name {
+                    font-size: 1.8rem;
+                }
+                
+                .product-price {
+                    font-size: 1.6rem;
+                }
+                
+                .product-actions {
+                    flex-direction: column;
+                }
+                
+                .add-cart-btn, .buy-now-btn {
+                    width: 100%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>🛍️ Product Details</h1>
+                <a href="Showproducts.jsp" class="back-link">← Back to Products</a>
+            </header>
+            
+    <%
+    if (productFound) {
+    %>
+            <div class="product-detail-container">
+                <div class="product-image-section">
+    <%
+        if (productImage != null && !productImage.trim().isEmpty()) {
+    %>
+                    <img src="product_images/<%=productImage%>" alt="<%=productName%>" class="product-image" 
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNTAgMTUwSDI1MFYyNTBIMTUwVjE1MFoiIGZpbGw9IiNDQ0NDQ0QiLz4KPHA+PC9wPgo8dGV4dCB4PSIyMDAiIHk9IjMyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4='">
+    <%
+        } else {
+    %>
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNTAgMTUwSDI1MFYyNTBIMTUwVjE1MFoiIGZpbGw9IiNDQ0NDQ0QiLz4KPHA+PC9wPgo8dGV4dCB4PSIyMDAiIHk9IjMyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4=" alt="<%=productName%>" class="product-image">
+    <%
         }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🛍️ Product Details</h1>
-            <a href="Showproducts.jsp" class="back-link">← Back to Products</a>
-        </header>
-        
-<%
-if (productFound) {
-%>
-        <div class="product-detail-container">
-            <div class="product-image-section">
-<%
-    if (productImage != null && !productImage.trim().isEmpty()) {
-%>
-                <img src="product_images/<%=productImage%>" alt="<%=productName%>" class="product-image" 
-                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNTAgMTUwSDI1MFYyNTBIMTUwVjE1MFoiIGZpbGw9IiNDQ0NDQ0QiLz4KPHA+PC9wPgo8dGV4dCB4PSIyMDAiIHk9IjMyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4='">
-<%
-    } else {
-%>
-                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNTAgMTUwSDI1MFYyNTBIMTUwVjE1MFoiIGZpbGw9IiNDQ0NDQ0QiLz4KPHA+PC9wPgo8dGV4dCB4PSIyMDAiIHk9IjMyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4=" alt="<%=productName%>" class="product-image">
-<%
-    }
-%>
-            </div>
-            <div class="product-info-section">
-                <h2 class="product-name"><%=productName%></h2>
-                <div class="product-price"><%=String.format("%.2f", productPrice)%></div>
-                <div class="product-description"><%=productDescription != null ? productDescription : "No description available."%></div>
-                <div class="product-actions">
-                    <button class="add-cart-btn" onclick="addToCart()">🛒 Add to Cart</button>
-                    <button class="buy-now-btn" onclick="buyNow()">⚡ Buy Now</button>
+    %>
+                </div>
+                <div class="product-info-section">
+                    <h2 class="product-name"><%=productName%></h2>
+                    <div class="product-price"><%=String.format("%.2f", productPrice)%></div>
+                    <div class="product-description"><%=productDescription != null ? productDescription : "No description available."%></div>
+                    <div class="product-actions">
+                        <button class="add-cart-btn" onclick="addToCart()">🛒 Add to Cart</button>
+                        <button class="buy-now-btn" onclick="buyNow()">⚡ Buy Now</button>
+                    </div>
                 </div>
             </div>
+    <%
+    } else {
+    %>
+            <div class="error-container">
+                <h2 class="error-title">📦 Product Not Found</h2>
+                <p class="error-message">The product you're looking for doesn't exist or has been removed.</p>
+                <a href="Showproducts.jsp" class="back-link">← Back to Products</a>
+            </div>
+    <%
+    }
+    %>
         </div>
-<%
-} else {
-%>
-        <div class="error-container">
-            <h2 class="error-title">📦 Product Not Found</h2>
-            <p class="error-message">The product you're looking for doesn't exist or has been removed.</p>
-            <a href="Showproducts.jsp" class="back-link">← Back to Products</a>
-        </div>
-<%
-}
-%>
-    </div>
-    
-    <!-- Notification -->
-    <div class="notification" id="notification"></div>
-    
-    <script>
-        // Initialize cart from localStorage
-        let cart = JSON.parse(localStorage.getItem('MiniShoppingCart')) || [];
         
-        function addToCart() {
-            const productId = '<%=productId%>';
-            const productNameStr = '<%=productName.replace("\'", "\\'")%>';
-            const productPriceNum = <%=productPrice%>;
-            const productImageStr = '<%=productImage != null ? productImage.replace("\'", "\\'") : ""%>';
-            
-            // Check if item already exists in cart
-            const existingItem = cart.find(item => item.id === productId);
-            
-            if (existingItem) {
-                // Increment quantity if item exists
-                existingItem.quantity += 1;
-            } else {
-                // Add new item to cart
-                cart.push({
-                    id: productId,
-                    name: productNameStr,
-                    price: productPriceNum,
-                    image: productImageStr,
-                    quantity: 1
-                });
+        <!-- Notification -->
+        <div class="notification" id="notification"></div>
+        
+        <script>
+            function addToCart() {
+                const productId = '<%=productId%>';
+                const button = event.target;
+                const originalText = button.innerHTML;
+                
+                // Show loading state
+                button.innerHTML = '⏳ Adding...';
+                button.disabled = true;
+                
+                // Send AJAX request to AddToCart.jsp
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'AddToCart.jsp', true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        // Reset button
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                        
+                        if (xhr.status === 200) {
+                            try {
+                                const response = JSON.parse(xhr.responseText);
+                                if (response.success) {
+                                    showNotification(response.message, 'success');
+                                } else {
+                                    showNotification(response.message, 'error');
+                                }
+                            } catch (e) {
+                                showNotification('Error adding to cart', 'error');
+                            }
+                        } else {
+                            showNotification('Server error. Please try again.', 'error');
+                        }
+                    }
+                };
+                
+                xhr.send('productId=' + encodeURIComponent(productId));
             }
             
-            // Save cart to localStorage
-            localStorage.setItem('MiniShoppingCart', JSON.stringify(cart));
-            
-            // Show notification
-            showNotification('<%=productName.replace("\'", "\\'")%>' + ' added to cart!');
-        }
-        
-        function showNotification(message) {
-            const notification = document.getElementById('notification');
-            if (notification) {
+            function showNotification(message, type) {
+                const notification = document.getElementById('notification');
                 notification.textContent = message;
-                notification.classList.add('show');
+                notification.style.display = 'block';
+                notification.style.opacity = '1';
                 
-                // Hide notification after 3 seconds
+                // Set background color based on type
+                if (type === 'success') {
+                    notification.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+                } else {
+                    notification.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+                }
+                
                 setTimeout(() => {
-                    notification.classList.remove('show');
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        notification.style.display = 'none';
+                    }, 300);
                 }, 3000);
             }
-        }
-        
-        function buyNow() {
-            // Add product to cart first
-            addToCart();
             
-            // Show notification and redirect to cart after a short delay
-            showNotification('Processing your order...');
-            
-            setTimeout(() => {
-                // Redirect to cart page for checkout
-                window.location.href = 'cart.jsp';
-            }, 1500);
-        }
-    </script>
-</body>
-</html>
+            function buyNow() {
+                // Add to cart first, then redirect to cart
+                addToCart();
+                
+                setTimeout(() => {
+                    showNotification('Redirecting to cart...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'Cart.jsp';
+                    }, 1000);
+                }, 1000);
+            }
+        </script>
+    </body>
+    </html>

@@ -96,6 +96,11 @@
             color: white;
         }
         
+        .nav-btn.cart {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+        
         .nav-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
@@ -200,6 +205,24 @@
             line-height: 1.5;
         }
         
+        .add-to-cart-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .add-to-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+        
         .no-products {
             text-align: center;
             padding: 80px 40px;
@@ -259,6 +282,7 @@
                 
                 <div class="nav-buttons">
                     <a href="Addproducts.jsp" class="nav-btn primary">➕ Add New Product</a>
+                    <a href="CartNew.jsp" class="nav-btn cart">🛒 My Cart</a>
                     <% if ("admin".equals(userRole)) { %>
                         <a href="admin.jsp" class="nav-btn admin">🔧 Admin Panel</a>
                     <% } else { %>
@@ -346,7 +370,9 @@ try {
                     <div class="product-info">
                         <div class="product-name"><%=rs.getString("name")%></div>
                         <div class="product-price"><%=String.format("%.2f", rs.getDouble("price"))%></div>
-                        <div class="product-description"><%=rs.getString("description") != null ? rs.getString("description") : "No description available"%></div>
+                        <button class="add-to-cart-btn" onclick="addToCart('<%=rs.getString("id")%>', '<%=rs.getString("name")%>', <%=rs.getDouble("price")%>)">
+                            🛒 Add to Cart
+                        </button>
                     </div>
                 </div>
 <%
@@ -475,6 +501,77 @@ try {
                 // If seller_images also fails, use placeholder
                 img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz=';
             }
+        }
+        
+        // Add to Cart function
+        function addToCart(productId, productName, price) {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            button.innerHTML = '⏳ Adding...';
+            button.disabled = true;
+            
+            // Send AJAX request
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'AddToCart.jsp', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    // Reset button
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    
+                    if (xhr.status === 200) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.success) {
+                                showNotification(response.message, 'success');
+                                // Update cart count if needed
+                                updateCartCount();
+                            } else {
+                                showNotification(response.message, 'error');
+                            }
+                        } catch (e) {
+                            showNotification('Error adding to cart', 'error');
+                        }
+                    } else {
+                        showNotification('Server error. Please try again.', 'error');
+                    }
+                }
+            };
+            
+            xhr.send('productId=' + encodeURIComponent(productId));
+        }
+        
+        // Show notification function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 15px 20px; border-radius: 8px; color: white; font-weight: 600; z-index: 10000; animation: slideIn 0.3s ease; max-width: 400px;';
+            
+            if (type === 'success') {
+                notification.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+            } else {
+                notification.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // Update cart count (placeholder function)
+        function updateCartCount() {
+            // This could be enhanced to fetch actual cart count from server
+            console.log('Cart updated');
         }
     </script>
 </body>
