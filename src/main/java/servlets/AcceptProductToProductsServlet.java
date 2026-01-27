@@ -78,6 +78,7 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                     double price = 0.0;
                     String description = "";
                     String image = "";
+                    String categoryId = "";
                     
                     // Try different possible column names for product name
                     if (productName == null || productName.trim().isEmpty()) {
@@ -133,7 +134,26 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                         image = "";
                     }
                     
-                    debugInfo.append(" DEBUG: Final data to insert: Name='").append(productName).append("' Price:").append(price).append(" Description='").append(description).append("' Image='").append(image).append("'");
+                    // Get Category_id - try multiple possible column names
+                    try { categoryId = rsSeller.getString("Category_id"); } catch (Exception e) { 
+                        debugInfo.append(" DEBUG: 'Category_id' column failed:").append(e.getMessage());
+                    }
+                    if (categoryId == null || categoryId.trim().isEmpty()) {
+                        try { categoryId = rsSeller.getString("category_id"); } catch (Exception e) { 
+                            debugInfo.append(" DEBUG: 'category_id' column failed:").append(e.getMessage());
+                        }
+                    }
+                    if (categoryId == null || categoryId.trim().isEmpty()) {
+                        try { categoryId = rsSeller.getString("Category"); } catch (Exception e) { 
+                            debugInfo.append(" DEBUG: 'Category' column failed:").append(e.getMessage());
+                        }
+                    }
+                    if (categoryId == null || categoryId.trim().isEmpty()) {
+                        categoryId = "1"; // Fallback
+                        debugInfo.append(" DEBUG: Using fallback Category_id:").append(categoryId);
+                    }
+                    
+                    debugInfo.append(" DEBUG: Final data to insert: Name='").append(productName).append("' Price:").append(price).append(" Description='").append(description).append("' Image='").append(image).append("' Category_id='").append(categoryId).append("'");
                     
                     // Move seller data to products table - using correct column names
                     // First, get the next available ID for the product table
@@ -150,14 +170,14 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                     
                     debugInfo.append(" DEBUG: Using product ID:").append(nextProductId);
                     
-                    String insertQuery = "INSERT INTO product (id, name, price, description, image, category_id) VALUES (?, ?, ?, ?, ?, ?)";
+                    String insertQuery = "INSERT INTO product (id, name, price, description, image, Category_id) VALUES (?, ?, ?, ?, ?, ?)";
                     PreparedStatement psInsert = con.prepareStatement(insertQuery);
                     psInsert.setInt(1, nextProductId);
                     psInsert.setString(2, productName);
                     psInsert.setDouble(3, price);
                     psInsert.setString(4, description);
                     psInsert.setString(5, image);
-                    psInsert.setInt(6, 1); // Default category
+                    psInsert.setString(6, categoryId); // Use extracted Category_id instead of hardcoded 1
                     
                     int rowsInserted = psInsert.executeUpdate();
                     debugInfo.append(" DEBUG: INSERT result:").append(rowsInserted).append(" rows affected");
