@@ -957,14 +957,12 @@ String username = (String) sessionObj.getAttribute("username");
             // Check if sellerId is valid
             if (!sellerId || sellerId.trim() === '') {
                 console.error('ERROR: sellerId is null or empty');
-                alert('Error: Seller ID is missing. Please try again.');
                 return;
             }
         }
 
         // Enhanced Accept Product function with Showproducts.jsp integration
         function acceptProductWithShowproducts(sellerId) {
-            alert('DEBUG: acceptProductWithShowproducts called with sellerId: "' + sellerId + '"');
             console.log('acceptProductWithShowproducts called with sellerId:', sellerId);
             console.log('sellerId type:', typeof sellerId);
             console.log('sellerId length:', sellerId ? sellerId.length : 'null/undefined');
@@ -997,9 +995,9 @@ String username = (String) sessionObj.getAttribute("username");
             loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Moving product to Showproducts.jsp...';
             document.body.appendChild(loadingDiv);
             
-            // Send AJAX request to the simple JSP file
+            // Send AJAX request to the servlet
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'AcceptProductToProductsSimple.jsp', true);
+            xhr.open('POST', 'AcceptProductToProductsServlet', true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onreadystatechange = function() {
                 console.log('XHR state changed:', xhr.readyState, 'status:', xhr.status);
@@ -1050,10 +1048,10 @@ String username = (String) sessionObj.getAttribute("username");
             };
             
             const requestData = 'sellerId=' + encodeURIComponent(sellerId);
-            console.log('Sending request data to AcceptProductToProducts.jsp:', requestData);
+            console.log('Sending request data to AcceptProductToProductsServlet:', requestData);
             
             xhr.send(requestData);
-            console.log('Request sent to AcceptProductToProducts.jsp');
+            console.log('Request sent to AcceptProductToProductsServlet');
         }
 
         // Accept Product function
