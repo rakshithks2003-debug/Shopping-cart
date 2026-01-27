@@ -56,6 +56,11 @@
                 
                 // Try different possible column names for product name
                 if (productName == null || productName.trim().isEmpty()) {
+                    try { productName = rsSeller.getString("full_name"); } catch (Exception e) { 
+                        debugInfo.append(" DEBUG: 'full_name' column failed:").append(e.getMessage());
+                    }
+                }
+                if (productName == null || productName.trim().isEmpty()) {
                     try { productName = rsSeller.getString("product_brand"); } catch (Exception e) { 
                         debugInfo.append(" DEBUG: 'product_brand' column failed:").append(e.getMessage());
                     }
