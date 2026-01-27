@@ -99,6 +99,24 @@
         .nav-btn.cart {
             background: linear-gradient(135deg, #ff6b6b, #ee5a24);
             color: white;
+            position: relative;
+        }
+        
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #fff;
+            color: #ff6b6b;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         
         .nav-btn:hover {
@@ -282,7 +300,10 @@
                 
                 <div class="nav-buttons">
                     <a href="Addproducts.jsp" class="nav-btn primary">➕ Add New Product</a>
-                    <a href="CartNew.jsp" class="nav-btn cart">🛒 My Cart</a>
+                    <a href="Cart.jsp" class="nav-btn cart" id="cartButton">
+                        🛒 My Cart
+                        <span class="cart-badge" id="cartBadge" style="display: none;">0</span>
+                    </a>
                     <% if ("admin".equals(userRole)) { %>
                         <a href="admin.jsp" class="nav-btn admin">🔧 Admin Panel</a>
                     <% } else { %>
@@ -368,9 +389,16 @@ try {
                              onerror="tryFallbackImage(this, '<%=imageFileName%>')">
                     </div>
                     <div class="product-info">
-                        <div class="product-name"><%=rs.getString("name")%></div>
-                        <div class="product-price"><%=String.format("%.2f", rs.getDouble("price"))%></div>
-                        <button class="add-to-cart-btn" onclick="addToCart('<%=rs.getString("id")%>', '<%=rs.getString("name")%>', <%=rs.getDouble("price")%>)">
+                        <%
+                        String productName = rs.getString("name");
+                        String productId = rs.getString("id");
+                        double productPrice = rs.getDouble("price");
+                        String safeProductName = productName.replace("'", "\\'").replace("\"", "&quot;");
+                        String safeImageFile = (imageFileName != null && !imageFileName.isEmpty()) ? imageFileName : "";
+                        %>
+                        <div class="product-name"><%=productName%></div>
+                        <div class="product-price"><%=String.format("%.2f", productPrice)%></div>
+                        <button class="add-to-cart-btn" data-id="<%= productId %>" data-name="<%= safeProductName %>" data-price="<%= productPrice %>" data-image="<%= safeImageFile %>" onclick="addToCartData(this)">
                             🛒 Add to Cart
                         </button>
                     </div>
@@ -503,18 +531,22 @@ try {
             }
         }
         
-        // Add to Cart function
-        function addToCart(productId, productName, price) {
-            const button = event.target;
+        // Add to Cart function using data attributes
+        function addToCartData(button) {
+            const productId = button.getAttribute('data-id');
+            const productName = button.getAttribute('data-name');
+            const price = button.getAttribute('data-price');
+            const image = button.getAttribute('data-image');
+            
             const originalText = button.innerHTML;
             
             // Show loading state
             button.innerHTML = '⏳ Adding...';
             button.disabled = true;
             
-            // Send AJAX request
+            // Send AJAX request to CartServlet
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'AddToCart.jsp', true);
+            xhr.open('POST', 'CartServlet', true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
@@ -527,12 +559,12 @@ try {
                             const response = JSON.parse(xhr.responseText);
                             if (response.success) {
                                 showNotification(response.message, 'success');
-                                // Update cart count if needed
-                                updateCartCount();
+                                updateCartCount(response.cartSize);
                             } else {
                                 showNotification(response.message, 'error');
                             }
                         } catch (e) {
+                            console.error('Error parsing response:', e);
                             showNotification('Error adding to cart', 'error');
                         }
                     } else {
@@ -541,7 +573,11 @@ try {
                 }
             };
             
-            xhr.send('productId=' + encodeURIComponent(productId));
+            const data = 'action=add&productId=' + encodeURIComponent(productId) + 
+                        '&productName=' + encodeURIComponent(productName) + 
+                        '&price=' + encodeURIComponent(price) + 
+                        '&image=' + encodeURIComponent(image || '');
+            xhr.send(data);
         }
         
         // Show notification function
@@ -568,11 +604,36 @@ try {
             }, 3000);
         }
         
-        // Update cart count (placeholder function)
-        function updateCartCount() {
-            // This could be enhanced to fetch actual cart count from server
-            console.log('Cart updated');
+        // Update cart count badge
+        function updateCartCount(count) {
+            const badge = document.getElementById('cartBadge');
+            if (count && count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
         }
+        
+        // Load cart count on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Showproducts page loaded');
+            
+            // Fetch cart count from server
+            fetch('CartServlet')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.cartSize > 0) {
+                        updateCartCount(data.cartSize);
+                    }
+                })
+                .catch(err => console.log('Cart count fetch error:', err));
+            
+            setTimeout(() => {
+                const productCards = document.querySelectorAll('.product-card');
+                console.log('Page load check - Found ' + productCards.length + ' products');
+            }, 1000);
+        });
     </script>
 </body>
 </html>
