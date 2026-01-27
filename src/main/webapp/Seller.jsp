@@ -951,11 +951,30 @@ String username = (String) sessionObj.getAttribute("username");
             // In a real application, you would also send this to the server
             // For now, we'll just update the UI
             console.log('Status updated locally for seller:', sellerId, 'to:', newStatus);
+            console.log('sellerId type:', typeof sellerId);
+            console.log('sellerId length:', sellerId ? sellerId.length : 'null/undefined');
+            
+            // Check if sellerId is valid
+            if (!sellerId || sellerId.trim() === '') {
+                console.error('ERROR: sellerId is null or empty');
+                alert('Error: Seller ID is missing. Please try again.');
+                return;
+            }
         }
 
         // Enhanced Accept Product function with Showproducts.jsp integration
         function acceptProductWithShowproducts(sellerId) {
+            alert('DEBUG: acceptProductWithShowproducts called with sellerId: "' + sellerId + '"');
             console.log('acceptProductWithShowproducts called with sellerId:', sellerId);
+            console.log('sellerId type:', typeof sellerId);
+            console.log('sellerId length:', sellerId ? sellerId.length : 'null/undefined');
+            
+            // Check if sellerId is valid
+            if (!sellerId || sellerId.trim() === '') {
+                console.error('ERROR: sellerId is null or empty');
+                alert('Error: Seller ID is missing. Please try again.');
+                return;
+            }
             
             // Close dropdown
             const dropdown = document.getElementById('dropdown' + sellerId);
