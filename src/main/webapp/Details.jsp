@@ -44,6 +44,12 @@ try {
         productPrice = rs.getDouble("price");
         productDescription = rs.getString("description");
         productImage = rs.getString("image");
+        
+        // Debug output
+        System.out.println("Details.jsp - Product ID: " + productId);
+        System.out.println("Details.jsp - Product Name: " + productName);
+        System.out.println("Details.jsp - Image from DB: '" + productImage + "'");
+        System.out.println("Details.jsp - Image path will be: 'product_images/" + productImage + "'");
     }
     
     rs.close();
@@ -700,17 +706,18 @@ try {
             <div class="product-detail-container">
                 <div class="product-image-section">
     <%
+        String imageSrc = "";
         if (productImage != null && !productImage.trim().isEmpty()) {
-    %>
-                    <img src="product_images/<%=productImage%>" alt="<%=productName%>" class="product-image" 
-                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNTAgMTUwSDI1MFYyNTBIMTUwVjE1MFoiIGZpbGw9IiNDQ0NDQ0QiLz4KPHA+PC9wPgo8dGV4dCB4PSIyMDAiIHk9IjMyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4='">
-    <%
+            // Try product_images first (for Addproducts.jsp uploads)
+            imageSrc = "product_images/" + productImage;
+            System.out.println("Details.jsp - Trying image path: " + imageSrc);
         } else {
-    %>
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNTAgMTUwSDI1MFYyNTBIMTUwVjE1MFoiIGZpbGw9IiNDQ0NDQ0QiLz4KPHA+PC9wPgo8dGV4dCB4PSIyMDAiIHk9IjMyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4=" alt="<%=productName%>" class="product-image">
-    <%
+            imageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNTAgMTUwSDI1MFYyNTBIMTUwVjE1MFoiIGZpbGw9IiNDQ0NDQ0QiLz4KPHA+PC9wPgo8dGV4dCB4PSIyMDAiIHk9IjMyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pjo8L3N2Zz4=";
+            System.out.println("Details.jsp - Using default placeholder image");
         }
     %>
+                    <img src="<%=imageSrc%>" alt="<%=productName%>" class="product-image" 
+                         onerror="tryFallbackImage(this, '<%=productImage%>')">
                 </div>
                 <div class="product-info-section">
                     <h2 class="product-name"><%=productName%></h2>
@@ -809,6 +816,24 @@ try {
                         window.location.href = 'Cart.jsp';
                     }, 1000);
                 }, 1000);
+            }
+            
+            // Fallback image function - tries seller_images if product_images fails
+            function tryFallbackImage(img, fileName) {
+                if (!fileName || fileName.trim() === '') {
+                    img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNTAgMTUwSDI1MFYyNTBIMTUwVjE1MFoiIGZpbGw9IiNDQ0NDQ0QiLz4KPHA+PC9wPgo8dGV4dCB4PSIyMDAiIHk9IjMyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4=';
+                    return;
+                }
+                
+                // If current src is product_images, try seller_images
+                if (img.src.includes('product_images/')) {
+                    const newSrc = img.src.replace('product_images/', 'seller_images/');
+                    console.log('Image fallback: trying', newSrc);
+                    img.src = newSrc;
+                } else {
+                    // If seller_images also fails, use placeholder
+                    img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNTAgMTUwSDI1MFYyNTBIMTUwVjE1MFoiIGZpbGw9IiNDQ0NDQ0QiLz4KPHA+PC9wPgo8dGV4dCB4PSIyMDAiIHk9IjMyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4=';
+                }
             }
         </script>
     </body>

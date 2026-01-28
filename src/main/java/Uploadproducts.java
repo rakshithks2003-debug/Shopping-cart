@@ -74,6 +74,11 @@ public class Uploadproducts extends HttpServlet {
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) uploadDir.mkdir();
 
+        // Debug output
+        System.out.println("Uploadproducts - Upload path: " + uploadPath);
+        System.out.println("Uploadproducts - File name: " + fileName);
+        System.out.println("Uploadproducts - Full file path: " + uploadPath + File.separator + fileName);
+
         // Save image
         String filePath = uploadPath + File.separator + fileName;
         filePart.write(filePath);

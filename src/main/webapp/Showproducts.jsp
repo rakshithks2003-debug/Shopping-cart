@@ -223,24 +223,6 @@
             line-height: 1.5;
         }
         
-        .add-to-cart-btn {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-            width: 100%;
-        }
-        
-        .add-to-cart-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
-        }
-        
         .no-products {
             text-align: center;
             padding: 80px 40px;
@@ -398,9 +380,6 @@ try {
                         %>
                         <div class="product-name"><%=productName%></div>
                         <div class="product-price"><%=String.format("%.2f", productPrice)%></div>
-                        <button class="add-to-cart-btn" data-id="<%= productId %>" data-name="<%= safeProductName %>" data-price="<%= productPrice %>" data-image="<%= safeImageFile %>" onclick="addToCartData(this)">
-                            🛒 Add to Cart
-                        </button>
                     </div>
                 </div>
 <%
@@ -531,54 +510,6 @@ try {
             }
         }
         
-        // Add to Cart function using data attributes
-        function addToCartData(button) {
-            const productId = button.getAttribute('data-id');
-            const productName = button.getAttribute('data-name');
-            const price = button.getAttribute('data-price');
-            const image = button.getAttribute('data-image');
-            
-            const originalText = button.innerHTML;
-            
-            // Show loading state
-            button.innerHTML = '⏳ Adding...';
-            button.disabled = true;
-            
-            // Send AJAX request to CartServlet
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'CartServlet', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    // Reset button
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                    
-                    if (xhr.status === 200) {
-                        try {
-                            const response = JSON.parse(xhr.responseText);
-                            if (response.success) {
-                                showNotification(response.message, 'success');
-                                updateCartCount(response.cartSize);
-                            } else {
-                                showNotification(response.message, 'error');
-                            }
-                        } catch (e) {
-                            console.error('Error parsing response:', e);
-                            showNotification('Error adding to cart', 'error');
-                        }
-                    } else {
-                        showNotification('Server error. Please try again.', 'error');
-                    }
-                }
-            };
-            
-            const data = 'action=add&productId=' + encodeURIComponent(productId) + 
-                        '&productName=' + encodeURIComponent(productName) + 
-                        '&price=' + encodeURIComponent(price) + 
-                        '&image=' + encodeURIComponent(image || '');
-            xhr.send(data);
-        }
         
         // Show notification function
         function showNotification(message, type) {
