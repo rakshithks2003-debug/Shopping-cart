@@ -807,13 +807,13 @@ try {
             }
             
             function buyNow() {
-                // Add to cart first, then redirect to cart
+                // Add to cart first, then redirect to payment
                 addToCart();
                 
                 setTimeout(() => {
-                    showNotification('Redirecting to cart...', 'success');
+                    showNotification('Redirecting to payment...', 'success');
                     setTimeout(() => {
-                        window.location.href = 'Cart.jsp';
+                        window.location.href = 'Payment.jsp';
                     }, 1000);
                 }, 1000);
             }
