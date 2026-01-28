@@ -449,10 +449,15 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
             <div class="user-info">👤 <%= username != null ? username : "Admin" %> (<%= userRole != null ? userRole : "Admin" %>)</div>
             
             <div class="nav-buttons">
-                <a href="Dashboard.jsp" class="nav-btn admin">📊 Dashboard</a>
                 <a href="Showproducts.jsp" class="nav-btn primary">🛍️ View Products</a>
                 <a href="admin.jsp" class="nav-btn admin">🔧 Add Products</a>
-                
+            </div>
+            
+            <!-- Back to Dashboard Button -->
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="Dashboard.jsp" style="display: inline-block; padding: 12px 25px; background: linear-gradient(135deg, #4CAF50, #45a049); color: white; text-decoration: none; border-radius: 25px; font-weight: 600; transition: all 0.3s ease; border: 2px solid transparent;">
+                    ← Back to Dashboard
+                </a>
             </div>
         </header>
         

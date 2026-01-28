@@ -87,10 +87,120 @@ if (paymentMethod.trim().isEmpty() || fullName.trim().isEmpty() || email.trim().
 try {
     double totalAmount = Double.parseDouble(totalAmountStr);
     
-    // For now, just return success to test the parameter passing
-    String orderId = "ORD" + System.currentTimeMillis();
+    // Initialize database connection
+    Dbase db = new Dbase();
+    Connection con = db.initailizeDatabase();
     
-    out.print("{\"success\": true, \"message\": \"Debug: Order parameters received successfully\", \"orderId\": \"" + orderId + "\", \"debug\": \"" + debugMsg.toString().replace("\"", "\\\"") + "\"}");
+    if (con != null && !con.isClosed()) {
+        con.setAutoCommit(false); // Start transaction
+        
+        try {
+            // Generate unique order ID
+            String orderId = "ORD" + System.currentTimeMillis();
+            
+            // 1. Insert into orders table
+            String orderSql = "INSERT INTO orders (order_id, user_id, total_amount, status, payment_method) VALUES (?, ?, ?, 'pending', ?)";
+            PreparedStatement orderStmt = con.prepareStatement(orderSql);
+            orderStmt.setString(1, orderId);
+            orderStmt.setString(2, username);
+            orderStmt.setDouble(3, totalAmount);
+            orderStmt.setString(4, paymentMethod);
+            orderStmt.executeUpdate();
+            orderStmt.close();
+            
+            // 2. Get cart items and insert into order_items
+            String cartSql = "SELECT product_id, product_name, price, quantity FROM cart WHERE user_id = ?";
+            PreparedStatement cartStmt = con.prepareStatement(cartSql);
+            cartStmt.setString(1, username);
+            ResultSet cartRs = cartStmt.executeQuery();
+            
+            int itemCount = 0;
+            while (cartRs.next()) {
+                String productId = cartRs.getString("product_id");
+                String productName = cartRs.getString("product_name");
+                double price = cartRs.getDouble("price");
+                int quantity = cartRs.getInt("quantity");
+                
+                String itemSql = "INSERT INTO order_items (order_id, product_id, product_name, price, quantity) VALUES (?, ?, ?, ?, ?)";
+                PreparedStatement itemStmt = con.prepareStatement(itemSql);
+                itemStmt.setString(1, orderId);
+                itemStmt.setString(2, productId);
+                itemStmt.setString(3, productName);
+                itemStmt.setDouble(4, price);
+                itemStmt.setInt(5, quantity);
+                itemStmt.executeUpdate();
+                itemStmt.close();
+                
+                itemCount++;
+            }
+            cartRs.close();
+            cartStmt.close();
+            
+            // 3. Insert shipping information
+            // Try with full_name field first, then fallback to first_name/last_name
+            String shippingSql;
+            try {
+                // Try to insert using full_name field
+                shippingSql = "INSERT INTO order_shipping (order_id, full_name, email, phone, address, city, zip_code, country) VALUES (?, ?, ?, ?, ?, ?, ?, 'India')";
+                PreparedStatement shippingStmt = con.prepareStatement(shippingSql);
+                shippingStmt.setString(1, orderId);
+                shippingStmt.setString(2, fullName);
+                shippingStmt.setString(3, email);
+                shippingStmt.setString(4, phone);
+                shippingStmt.setString(5, address);
+                shippingStmt.setString(6, city);
+                shippingStmt.setString(7, pincode);
+                shippingStmt.executeUpdate();
+                shippingStmt.close();
+            } catch (Exception e) {
+                // If full_name field doesn't exist, use first_name/last_name
+                shippingSql = "INSERT INTO order_shipping (order_id, first_name, last_name, email, phone, address, city, zip_code, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'India')";
+                PreparedStatement shippingStmt = con.prepareStatement(shippingSql);
+                
+                // Split full name into first and last name
+                String firstName = fullName;
+                String lastName = "";
+                if (fullName != null && fullName.contains(" ")) {
+                    String[] nameParts = fullName.split(" ", 2);
+                    firstName = nameParts[0];
+                    lastName = nameParts[1];
+                }
+                
+                shippingStmt.setString(1, orderId);
+                shippingStmt.setString(2, firstName);
+                shippingStmt.setString(3, lastName);
+                shippingStmt.setString(4, email);
+                shippingStmt.setString(5, phone);
+                shippingStmt.setString(6, address);
+                shippingStmt.setString(7, city);
+                shippingStmt.setString(8, pincode);
+                shippingStmt.executeUpdate();
+                shippingStmt.close();
+            }
+            
+            // 4. Clear cart after successful order creation
+            String clearCartSql = "DELETE FROM cart WHERE user_id = ?";
+            PreparedStatement clearCartStmt = con.prepareStatement(clearCartSql);
+            clearCartStmt.setString(1, username);
+            clearCartStmt.executeUpdate();
+            clearCartStmt.close();
+            
+            // Commit transaction
+            con.commit();
+            
+            out.print("{\"success\": true, \"message\": \"Order created successfully with " + itemCount + " items\", \"orderId\": \"" + orderId + "\", \"debug\": \"" + debugMsg.toString().replace("\"", "\\\"") + "\"}");
+            
+        } catch (Exception e) {
+            // Rollback transaction on error
+            con.rollback();
+            throw e;
+        } finally {
+            con.setAutoCommit(true);
+            con.close();
+        }
+    } else {
+        out.print("{\"success\": false, \"message\": \"Database connection failed\", \"debug\": \"" + debugMsg.toString().replace("\"", "\\\"") + "\"}");
+    }
     
 } catch (NumberFormatException e) {
     out.print("{\"success\": false, \"message\": \"Invalid total amount format: " + totalAmountStr + "\", \"debug\": \"" + debugMsg.toString().replace("\"", "\\\"") + "\"}");

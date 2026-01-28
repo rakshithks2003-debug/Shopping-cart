@@ -601,10 +601,8 @@
                             const response = JSON.parse(xhr.responseText);
                             console.log('Server Response:', response);
                             if (response.success) {
-                                showNotification('Order placed successfully! Redirecting...', 'success');
-                                setTimeout(() => {
-                                    window.location.href = 'OrderConfirmation.jsp?orderId=' + response.orderId;
-                                }, 2000);
+                                // Create payment transaction record
+                                createPaymentTransaction(response.orderId, selectedMethod, fullName, email, phone, address, city, pincode);
                             } else {
                                 showNotification(response.message || 'Payment failed', 'error');
                                 payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay ₹<%= String.format("%.2f", finalAmount) %>';
@@ -636,6 +634,68 @@
                         '&totalAmount=' + encodeURIComponent('<%= finalAmount %>');
             
             console.log('Sending data:', data);
+            xhr.send(data);
+        }
+        
+        function createPaymentTransaction(orderId, paymentMethod, fullName, email, phone, address, city, pincode) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'PaymentTransactionServlet', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            console.log('Payment Transaction Response:', response);
+                            if (response.success) {
+                                showNotification('Payment recorded successfully! Redirecting...', 'success');
+                                setTimeout(() => {
+                                    window.location.href = 'OrderConfirmation.jsp?orderId=' + orderId;
+                                }, 2000);
+                            } else {
+                                showNotification('Order created but payment recording failed: ' + response.message, 'error');
+                                setTimeout(() => {
+                                    window.location.href = 'OrderConfirmation.jsp?orderId=' + orderId;
+                                }, 3000);
+                            }
+                        } catch (e) {
+                            console.log('Payment Transaction JSON Parse Error:', e);
+                            showNotification('Order created! Redirecting...', 'success');
+                            setTimeout(() => {
+                                window.location.href = 'OrderConfirmation.jsp?orderId=' + orderId;
+                            }, 2000);
+                        }
+                    } else {
+                        console.log('Payment Transaction HTTP Error:', xhr.status);
+                        showNotification('Order created! Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'OrderConfirmation.jsp?orderId=' + orderId;
+                        }, 2000);
+                    }
+                }
+            };
+            
+            const cardNumber = document.getElementById('cardNumber').value;
+            const cardName = document.getElementById('cardName').value;
+            
+            // Mask card number (show only last 4 digits)
+            let maskedCardNumber = '';
+            if (cardNumber && cardNumber.length > 4) {
+                maskedCardNumber = '****-****-****-' + cardNumber.replace(/\s/g, '').slice(-4);
+            }
+            
+            const data = 'orderId=' + encodeURIComponent(orderId) +
+                        '&paymentMethod=' + encodeURIComponent(paymentMethod) +
+                        '&amount=' + encodeURIComponent('<%= finalAmount %>') +
+                        '&cardNumber=' + encodeURIComponent(maskedCardNumber) +
+                        '&cardholderName=' + encodeURIComponent(cardName) +
+                        '&billingEmail=' + encodeURIComponent(email) +
+                        '&billingPhone=' + encodeURIComponent(phone) +
+                        '&billingAddress=' + encodeURIComponent(address) +
+                        '&billingCity=' + encodeURIComponent(city) +
+                        '&billingPincode=' + encodeURIComponent(pincode);
+            
+            console.log('Sending payment transaction data:', data);
             xhr.send(data);
         }
         

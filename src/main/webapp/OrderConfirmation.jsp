@@ -24,8 +24,12 @@
         Connection con = db.initailizeDatabase();
         
         if (con != null && !con.isClosed()) {
-            // Get order details
-            String orderSql = "SELECT * FROM orders WHERE order_id = ? AND user_id = ?";
+            // Get order details with shipping information
+            String orderSql = "SELECT o.order_id, o.created_at as order_date, o.total_amount, o.payment_method, o.status, " +
+                            "s.first_name, s.last_name, s.email, s.phone, s.address, s.city, s.zip_code as pincode " +
+                            "FROM orders o " +
+                            "LEFT JOIN order_shipping s ON o.order_id = s.order_id " +
+                            "WHERE o.order_id = ? AND o.user_id = ?";
             PreparedStatement orderStmt = con.prepareStatement(orderSql);
             orderStmt.setString(1, orderId);
             orderStmt.setString(2, username);
@@ -37,16 +41,22 @@
                 orderDetails.put("orderDate", orderRs.getString("order_date"));
                 orderDetails.put("totalAmount", orderRs.getDouble("total_amount"));
                 orderDetails.put("paymentMethod", orderRs.getString("payment_method"));
-                orderDetails.put("fullName", orderRs.getString("full_name"));
+                orderDetails.put("status", orderRs.getString("status"));
+                
+                // Combine first and last name
+                String firstName = orderRs.getString("first_name");
+                String lastName = orderRs.getString("last_name");
+                String fullName = (firstName != null ? firstName : "") + (lastName != null ? " " + lastName : "");
+                orderDetails.put("fullName", fullName.trim());
+                
                 orderDetails.put("email", orderRs.getString("email"));
                 orderDetails.put("phone", orderRs.getString("phone"));
                 orderDetails.put("address", orderRs.getString("address"));
                 orderDetails.put("city", orderRs.getString("city"));
                 orderDetails.put("pincode", orderRs.getString("pincode"));
-                orderDetails.put("status", orderRs.getString("status"));
                 
                 // Get order items
-                String itemsSql = "SELECT * FROM order_items WHERE order_id = ?";
+                String itemsSql = "SELECT product_name, price, quantity FROM order_items WHERE order_id = ?";
                 PreparedStatement itemsStmt = con.prepareStatement(itemsSql);
                 itemsStmt.setString(1, orderId);
                 ResultSet itemsRs = itemsStmt.executeQuery();
@@ -56,7 +66,7 @@
                     item.put("productName", itemsRs.getString("product_name"));
                     item.put("price", itemsRs.getDouble("price"));
                     item.put("quantity", itemsRs.getInt("quantity"));
-                    item.put("image", itemsRs.getString("image"));
+                    item.put("image", ""); // No image field in order_items table
                     orderItems.add(item);
                 }
                 

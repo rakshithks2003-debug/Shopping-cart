@@ -10,6 +10,14 @@
         return;
     }
     
+    // Get sorting parameters
+    String sortBy = request.getParameter("sortBy");
+    String sortOrder = request.getParameter("sortOrder");
+    
+    // Set defaults
+    if (sortBy == null) sortBy = "cart_id";
+    if (sortOrder == null) sortOrder = "DESC";
+    
     // Load cart items from database
     List<Map<String, Object>> cartItems = new ArrayList<>();
     try {
@@ -17,7 +25,8 @@
         Connection con = db.initailizeDatabase();
         
         if (con != null && !con.isClosed()) {
-            String sql = "SELECT product_id, product_name, price, quantity, image FROM cart WHERE user_id = ? ORDER BY cart_id DESC";
+            // Build dynamic SQL query with sorting
+            String sql = "SELECT product_id, product_name, price, quantity, image FROM cart WHERE user_id = ? ORDER BY " + sortBy + " " + sortOrder;
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
@@ -187,6 +196,60 @@
             font-size: 1.3rem;
             font-weight: 700;
             color: #2c3e50;
+        }
+        
+        /* Sorting Controls */
+        .sorting-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .sort-dropdown {
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .sort-dropdown:hover {
+            border-color: #667eea;
+        }
+        
+        .sort-dropdown:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .sort-btn {
+            padding: 8px 12px;
+            background: #f8f9ff;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .sort-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .sort-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
         }
         
         .item-count {
@@ -555,8 +618,24 @@
             <div class="cart-layout">
                 <div class="cart-items-section">
                     <div class="section-header">
-                        <h2 class="section-title">Cart Items</h2>
-                        <span class="item-count"><%= cartItems.size() %> <%= cartItems.size() == 1 ? "item" : "items" %></span>
+                        <div>
+                            <h2 class="section-title">Cart Items</h2>
+                            <span class="item-count"><%= cartItems.size() %> <%= cartItems.size() == 1 ? "item" : "items" %></span>
+                        </div>
+                        <div class="sorting-controls">
+                            <select class="sort-dropdown" onchange="window.location.href='Cart.jsp?sortBy=' + this.value + '&sortOrder=<%= sortOrder %>'">
+                                <option value="cart_id" <%= "cart_id".equals(sortBy) ? "selected" : "" %>>Sort by Added Time</option>
+                                <option value="product_name" <%= "product_name".equals(sortBy) ? "selected" : "" %>>Sort by Name</option>
+                                <option value="price" <%= "price".equals(sortBy) ? "selected" : "" %>>Sort by Price</option>
+                                <option value="quantity" <%= "quantity".equals(sortBy) ? "selected" : "" %>>Sort by Quantity</option>
+                            </select>
+                            <a href="Cart.jsp?sortBy=<%= sortBy %>&sortOrder=ASC" class="sort-btn <%= "ASC".equals(sortOrder) ? "active" : "" %>">
+                                <i class="fas fa-sort-alpha-down"></i> Asc
+                            </a>
+                            <a href="Cart.jsp?sortBy=<%= sortBy %>&sortOrder=DESC" class="sort-btn <%= "DESC".equals(sortOrder) ? "active" : "" %>">
+                                <i class="fas fa-sort-alpha-down-alt"></i> Desc
+                            </a>
+                        </div>
                     </div>
                     <%
                     double total = 0;

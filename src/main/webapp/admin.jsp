@@ -23,6 +23,14 @@ out.println("Session ID: " +
 SessionId);
 
 String username = (String) session.getAttribute("username");
+
+// Get sorting parameters
+String sortBy = request.getParameter("sortBy");
+String sortOrder = request.getParameter("sortOrder");
+
+// Set defaults
+if (sortBy == null) sortBy = "name";
+if (sortOrder == null) sortOrder = "ASC";
 %>
 <!DOCTYPE html>
 <html>
@@ -189,6 +197,79 @@ String username = (String) session.getAttribute("username");
     
     .update-section {
         background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Sorting Controls */
+    .sorting-controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .sort-dropdown {
+        padding: 10px 15px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 180px;
+        backdrop-filter: blur(5px);
+    }
+    
+    .sort-dropdown:hover {
+        border-color: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .sort-dropdown:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.7);
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+    }
+    
+    .sort-dropdown option {
+        background: #333;
+        color: white;
+    }
+    
+    .sort-btn {
+        padding: 10px 15px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        color: white;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        backdrop-filter: blur(5px);
+    }
+    
+    .sort-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .sort-btn.active {
+        background: rgba(255, 255, 255, 0.4);
+        border-color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .products-section {
         backdrop-filter: blur(20px);
         padding: 30px;
         border-radius: 20px;
@@ -403,6 +484,22 @@ String username = (String) session.getAttribute("username");
         <div id="update-section" class="update-section">
             <h2 style="color: #2196F3; margin-bottom: 20px;">🔄 Update Product Items</h2>
             
+            <!-- Sorting Controls -->
+            <div class="sorting-controls">
+                <select class="sort-dropdown" onchange="window.location.href='admin.jsp#update-section?sortBy=' + this.value + '&sortOrder=<%= sortOrder %>'">
+                    <option value="name" <%= "name".equals(sortBy) ? "selected" : "" %>>Sort by Name</option>
+                    <option value="id" <%= "id".equals(sortBy) ? "selected" : "" %>>Sort by ID</option>
+                    <option value="price" <%= "price".equals(sortBy) ? "selected" : "" %>>Sort by Price</option>
+                    <option value="category_id" <%= "category_id".equals(sortBy) ? "selected" : "" %>>Sort by Category</option>
+                </select>
+                <a href="admin.jsp#update-section?sortBy=<%= sortBy %>&sortOrder=ASC" class="sort-btn <%= "ASC".equals(sortOrder) ? "active" : "" %>">
+                    <i class="fas fa-sort-alpha-down"></i> Asc
+                </a>
+                <a href="admin.jsp#update-section?sortBy=<%= sortBy %>&sortOrder=DESC" class="sort-btn <%= "DESC".equals(sortOrder) ? "active" : "" %>">
+                    <i class="fas fa-sort-alpha-down-alt"></i> Desc
+                </a>
+            </div>
+            
             <div class="form-grid">
                 <div class="form-field">
                     <div class="field-header">
@@ -434,7 +531,7 @@ String username = (String) session.getAttribute("username");
 try {
     Dbase db = new Dbase();
     Connection con = db.initailizeDatabase();
-    PreparedStatement ps = con.prepareStatement("SELECT id, name, price, description, category_id FROM product ORDER BY name");
+    PreparedStatement ps = con.prepareStatement("SELECT id, name, price, description, category_id FROM product ORDER BY " + sortBy + " " + sortOrder);
     ResultSet rs = ps.executeQuery();
     
     while(rs.next()) {
