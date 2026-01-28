@@ -569,16 +569,18 @@
                         
                         total += price * quantity;
                         
-                        String imageSrc = "product_images/" + image;
+                        String imageSrc;
                         if (image == null || image.isEmpty()) {
                             imageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik00MCAzMEg2MFY1MEg0MFYzMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iNTAiIHk9IjcwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEyIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+";
+                        } else {
+                            imageSrc = request.getContextPath() + "/product_images/" + image;
                         }
                         int prevQty = quantity - 1;
                         int nextQty = quantity + 1;
                         String itemImageOnError = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik00MCAzMEg2MFY1MEg0MFYzMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iNTAiIHk9IjcwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEyIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+";
                     %>
                     <div class="cart-item">
-                        <img src="<%= imageSrc %>" alt="<%= productName %>" class="item-image" onerror="this.src='<%= itemImageOnError %>'">
+                        <img src="<%= imageSrc %>" alt="<%= productName %>" class="item-image" onerror="tryFallbackImage(this, '<%= image %>');">
                         <div class="item-info">
                             <div class="item-name"><%= productName %></div>
                             <div class="item-price">₹<%= String.format("%.2f", price) %></div>
@@ -758,6 +760,24 @@
                     document.body.removeChild(notification);
                 }
             }, 3000);
+        }
+        
+        // Fallback image function - tries seller_images if product_images fails
+        function tryFallbackImage(img, fileName) {
+            if (!fileName || fileName.trim() === '') {
+                img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik00MCAzMEg2MFY1MEg0MFYzMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iNTAiIHk9IjcwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEyIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+';
+                return;
+            }
+            
+            // If current src is product_images, try seller_images
+            if (img.src.includes('product_images/')) {
+                const newSrc = img.src.replace('product_images/', 'seller_images/');
+                console.log('Cart image fallback: trying', newSrc);
+                img.src = newSrc;
+            } else {
+                // If seller_images also fails, use placeholder
+                img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik00MCAzMEg2MFY1MEg0MFYzMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iNTAiIHk9IjcwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEyIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+';
+            }
         }
     </script>
 </body>
