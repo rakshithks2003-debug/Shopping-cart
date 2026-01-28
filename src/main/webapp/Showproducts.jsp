@@ -1,3 +1,4 @@
+
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*, products.Dbase" %>
 <%
@@ -223,6 +224,23 @@
             line-height: 1.5;
         }
         
+        .add-to-cart-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .add-to-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+        
         .no-products {
             text-align: center;
             padding: 80px 40px;
@@ -380,6 +398,9 @@ try {
                         %>
                         <div class="product-name"><%=productName%></div>
                         <div class="product-price"><%=String.format("%.2f", productPrice)%></div>
+                        <button class="add-to-cart-btn" data-id="<%= productId %>" data-name="<%= safeProductName %>" data-price="<%= productPrice %>" data-image="<%= safeImageFile %>" onclick="addToCartData(this)">
+                            🛒 Add to Cart
+                        </button>
                     </div>
                 </div>
 <%
@@ -508,6 +529,51 @@ try {
                 // If seller_images also fails, use placeholder
                 img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz=';
             }
+        }
+        
+        // Add to Cart function using data attributes
+        function addToCartData(button) {
+            const productId = button.getAttribute('data-id');
+            const productName = button.getAttribute('data-name');
+            const price = button.getAttribute('data-price');
+            const image = button.getAttribute('data-image');
+            
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            button.innerHTML = '⏳ Adding...';
+            button.disabled = true;
+            
+            // Send AJAX request to AddToCart.jsp
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'AddToCart.jsp', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    // Reset button
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    
+                    if (xhr.status === 200) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.success) {
+                                showNotification(response.message, 'success');
+                            } else {
+                                showNotification(response.message, 'error');
+                            }
+                        } catch (e) {
+                            console.error('Error parsing response:', e);
+                            showNotification('Error adding to cart', 'error');
+                        }
+                    } else {
+                        showNotification('Server error. Please try again.', 'error');
+                    }
+                }
+            };
+            
+            const data = 'productId=' + encodeURIComponent(productId);
+            xhr.send(data);
         }
         
         
