@@ -755,9 +755,9 @@ try {
                 button.innerHTML = '⏳ Adding...';
                 button.disabled = true;
                 
-                // Send AJAX request to AddToCart.jsp
+                // Send AJAX request to AddToCartServlet
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'AddToCart.jsp', true);
+                xhr.open('POST', 'AddToCartServlet', true);
                 xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState === 4) {

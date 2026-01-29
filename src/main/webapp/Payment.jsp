@@ -590,7 +590,7 @@
             
             // Send order data to server
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'CreateOrderDebug.jsp', true);
+            xhr.open('POST', 'OrderServlet', true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
