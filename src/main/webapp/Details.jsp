@@ -29,6 +29,7 @@ String productName = "";
 double productPrice = 0.0;
 String productDescription = "";
 String productImage = "";
+String[] productImages = new String[0]; // Array to hold multiple images
 boolean productFound = false;
 
 try {
@@ -44,6 +45,22 @@ try {
         productPrice = rs.getDouble("price");
         productDescription = rs.getString("description");
         productImage = rs.getString("image");
+        
+        // Handle multiple images for slider
+        if (productImage != null && !productImage.trim().isEmpty()) {
+            if (productImage.contains(",")) {
+                productImages = productImage.split(",");
+                for (int i = 0; i < productImages.length; i++) {
+                    productImages[i] = productImages[i].trim();
+                }
+                System.out.println("Details.jsp - Multiple images found: " + productImages.length);
+            } else {
+                productImages = new String[]{productImage.trim()};
+                System.out.println("Details.jsp - Single image found");
+            }
+        } else {
+            System.out.println("Details.jsp - No image found in database");
+        }
         
         // Debug output
         System.out.println("Details.jsp - Product ID: " + productId);
@@ -197,6 +214,111 @@ try {
         .product-image:hover {
             transform: scale(1.05);
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Image Slider Styles */
+        .image-slider-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+        
+        .image-slider {
+            position: relative;
+            width: 100%;
+            height: 450px;
+            overflow: hidden;
+            border-radius: 20px;
+        }
+        
+        .slider-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        .slider-image.active {
+            opacity: 1;
+        }
+        
+        .slider-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+        
+        .slider-dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+        
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider-nav:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .slider-nav.prev {
+            left: 15px;
+        }
+        
+        .slider-nav.next {
+            right: 15px;
+        }
+        
+        .image-counter {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            z-index: 10;
         }
         
         .product-info-section {
@@ -706,18 +828,62 @@ try {
             <div class="product-detail-container">
                 <div class="product-image-section">
     <%
-        String imageSrc = "";
-        if (productImage != null && !productImage.trim().isEmpty()) {
-            // Try product_images first (for Addproducts.jsp uploads)
-            imageSrc = "product_images/" + productImage;
-            System.out.println("Details.jsp - Trying image path: " + imageSrc);
+        // Check if we have multiple images for slider
+        if (productImages.length > 1) {
+            // Multiple images - show slider
+    %>
+                    <div class="image-slider-container" id="sliderData" data-total-slides="<%=productImages.length%>">
+                        <div class="image-slider" id="imageSlider">
+    <%
+            for (int i = 0; i < productImages.length; i++) {
+                String imgSrc = "product_images/" + productImages[i].trim();
+                String activeClass = (i == 0) ? "active" : "";
+    %>
+                            <img src="<%=imgSrc%>" alt="<%=productName%> - Image <%=i+1%>" 
+                                 class="slider-image <%=activeClass%>" 
+                                 onerror="tryFallbackImage(this, '<%=productImages[i].trim()%>')">
+    <%
+            }
+    %>
+                        </div>
+                        
+                        <!-- Navigation arrows -->
+                        <button class="slider-nav prev" id="prevBtn">❮</button>
+                        <button class="slider-nav next" id="nextBtn">❯</button>
+                        
+                        <!-- Image counter -->
+                        <div class="image-counter" id="imageCounter">1 / <%=productImages.length%></div>
+                        
+                        <!-- Dot indicators -->
+                        <div class="slider-controls" id="sliderControls">
+    <%
+            for (int i = 0; i < productImages.length; i++) {
+                String activeClass = (i == 0) ? "active" : "";
+    %>
+                            <span class="slider-dot <%=activeClass%>" data-slide="<%=i%>"></span>
+    <%
+            }
+    %>
+                        </div>
+                    </div>
+    <%
         } else {
-            imageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNTAgMTUwSDI1MFYyNTBIMTUwVjE1MFoiIGZpbGw9IiNDQ0NDQ0QiLz4KPHA+PC9wPgo8dGV4dCB4PSIyMDAiIHk9IjMyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pjo8L3N2Zz4=";
-            System.out.println("Details.jsp - Using default placeholder image");
-        }
+            // Single image - show normal image
+            String imageSrc = "";
+            if (productImage != null && !productImage.trim().isEmpty()) {
+                // Try product_images first (for Addproducts.jsp uploads)
+                imageSrc = "product_images/" + productImage;
+                System.out.println("Details.jsp - Trying image path: " + imageSrc);
+            } else {
+                imageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNTAgMTUwSDI1MFYyNTBIMTUwVjE1MFoiIGZpbGw9IiNDQ0NDQ0QiLz4KPHA+PC9wPgo8dGV4dCB4PSIyMDAiIHk9IjMyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pjo8L3N2Zz4=";
+                System.out.println("Details.jsp - Using default placeholder image");
+            }
     %>
                     <img src="<%=imageSrc%>" alt="<%=productName%>" class="product-image" 
                          onerror="tryFallbackImage(this, '<%=productImage%>')">
+    <%
+        }
+    %>
                 </div>
                 <div class="product-info-section">
                     <h2 class="product-name"><%=productName%></h2>
@@ -746,6 +912,122 @@ try {
         <div class="notification" id="notification"></div>
         
         <script>
+            // Image Slider Functions
+            let currentSlideIndex = 0;
+            // Get total slides from data attribute to avoid JSP expression in JS
+            const totalSlides = parseInt(document.getElementById('sliderData').dataset.totalSlides) || 1;
+            
+            function changeSlide(direction) {
+                let newSlideIndex = currentSlideIndex + direction;
+                
+                // Add circular navigation (wrap-around)
+                if (newSlideIndex < 0) {
+                    newSlideIndex = totalSlides - 1;
+                } else if (newSlideIndex >= totalSlides) {
+                    newSlideIndex = 0;
+                }
+                
+                currentSlide(newSlideIndex);
+            }
+            
+            function currentSlide(slideIndex) {
+                // Update current slide index
+                currentSlideIndex = slideIndex;
+                
+                // Update images
+                const images = document.querySelectorAll('.slider-image');
+                images.forEach((img, index) => {
+                    if (index === slideIndex) {
+                        img.classList.add('active');
+                    } else {
+                        img.classList.remove('active');
+                    }
+                });
+                
+                // Update dots
+                const dots = document.querySelectorAll('.slider-dot');
+                dots.forEach((dot, index) => {
+                    if (index === slideIndex) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+                
+                // Update counter
+                const counter = document.getElementById('imageCounter');
+                if (counter) {
+                    counter.textContent = (slideIndex + 1) + ' / ' + totalSlides;
+                }
+            }
+            
+            // Add event listeners when DOM is loaded
+            document.addEventListener('DOMContentLoaded', function() {
+                // Add click event listeners to navigation buttons
+                const prevBtn = document.getElementById('prevBtn');
+                const nextBtn = document.getElementById('nextBtn');
+                
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function() {
+                        changeSlide(-1);
+                    });
+                }
+                
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function() {
+                        changeSlide(1);
+                    });
+                }
+                
+                // Add click event listeners to dots
+                const dots = document.querySelectorAll('.slider-dot');
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', function() {
+                        currentSlide(index);
+                    });
+                });
+                
+                // Add keyboard navigation support
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'ArrowLeft') {
+                        changeSlide(-1);
+                    } else if (event.key === 'ArrowRight') {
+                        changeSlide(1);
+                    }
+                });
+                
+                // Add touch/swipe support for mobile
+                let touchStartX = 0;
+                let touchEndX = 0;
+                
+                const sliderContainer = document.querySelector('.image-slider-container');
+                if (sliderContainer) {
+                    sliderContainer.addEventListener('touchstart', function(event) {
+                        touchStartX = event.changedTouches[0].screenX;
+                    }, false);
+                    
+                    sliderContainer.addEventListener('touchend', function(event) {
+                        touchEndX = event.changedTouches[0].screenX;
+                        handleSwipe();
+                    }, false);
+                }
+                
+                function handleSwipe() {
+                    const swipeThreshold = 50;
+                    const diff = touchStartX - touchEndX;
+                    
+                    if (Math.abs(diff) > swipeThreshold) {
+                        if (diff > 0) {
+                            // Swipe left - go to next slide
+                            changeSlide(1);
+                        } else {
+                            // Swipe right - go to previous slide
+                            changeSlide(-1);
+                        }
+                    }
+                }
+            });
+            
             function addToCart() {
                 const productId = '<%=productId%>';
                 const button = event.target;
