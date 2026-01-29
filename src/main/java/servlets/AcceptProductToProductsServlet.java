@@ -60,7 +60,6 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                 ResultSet rsSeller = psSeller.executeQuery();
                 
                 if (rsSeller.next()) {
-                    String usedColumn = "sid";
                     
                     // DEBUG: Print all available columns and their values
                     debugInfo.append(" DEBUG: Available columns in seller table: ");
@@ -75,10 +74,25 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                     
                     // Get data - try multiple possible column names for product name
                     String productName = "";
+                    String brandName = ""; // This will hold the brand from seller table
                     double price = 0.0;
                     String description = "";
                     String image = "";
                     String categoryId = "";
+                    
+                    // First, get the brand field from seller table for the product_brand field
+                    try { brandName = rsSeller.getString("brand"); } catch (Exception e) { 
+                        debugInfo.append(" DEBUG: 'brand' column failed:").append(e.getMessage());
+                    }
+                    if (brandName == null || brandName.trim().isEmpty()) {
+                        try { brandName = rsSeller.getString("product_brand"); } catch (Exception e) { 
+                            debugInfo.append(" DEBUG: 'product_brand' column failed:").append(e.getMessage());
+                        }
+                    }
+                    if (brandName == null || brandName.trim().isEmpty()) {
+                        brandName = "Unknown Brand"; // Fallback
+                        debugInfo.append(" DEBUG: Using fallback brand:").append(brandName);
+                    }
                     
                     // Try different possible column names for product name
                     if (productName == null || productName.trim().isEmpty()) {
@@ -153,7 +167,7 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                         debugInfo.append(" DEBUG: Using fallback Category_id:").append(categoryId);
                     }
                     
-                    debugInfo.append(" DEBUG: Final data to insert: Name='").append(productName).append("' Price:").append(price).append(" Description='").append(description).append("' Image='").append(image).append("' Category_id='").append(categoryId).append("'");
+                    debugInfo.append(" DEBUG: Final data to insert: Name='").append(productName).append("' Brand='").append(brandName).append("' Price:").append(price).append(" Description='").append(description).append("' Image='").append(image).append("' Category_id='").append(categoryId).append("'");
                     
                     // Move seller data to products table - using correct column names
                     // First, get the next available ID for the product table
@@ -170,14 +184,15 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                     
                     debugInfo.append(" DEBUG: Using product ID:").append(nextProductId);
                     
-                    String insertQuery = "INSERT INTO product (id, name, price, description, image, Category_id) VALUES (?, ?, ?, ?, ?, ?)";
+                    String insertQuery = "INSERT INTO product (id, name, brand, price, description, image, Category_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement psInsert = con.prepareStatement(insertQuery);
                     psInsert.setInt(1, nextProductId);
                     psInsert.setString(2, productName);
-                    psInsert.setDouble(3, price);
-                    psInsert.setString(4, description);
-                    psInsert.setString(5, image);
-                    psInsert.setString(6, categoryId); // Use extracted Category_id instead of hardcoded 1
+                    psInsert.setString(3, brandName); // Set brand to seller's brand field
+                    psInsert.setDouble(4, price);
+                    psInsert.setString(5, description);
+                    psInsert.setString(6, image);
+                    psInsert.setString(7, categoryId); // Use extracted Category_id instead of hardcoded 1
                     
                     int rowsInserted = psInsert.executeUpdate();
                     debugInfo.append(" DEBUG: INSERT result:").append(rowsInserted).append(" rows affected");

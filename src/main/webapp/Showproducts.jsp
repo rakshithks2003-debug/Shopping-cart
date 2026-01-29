@@ -445,11 +445,11 @@ try {
         String sql;
         
         if (category != null && !category.trim().isEmpty()) {
-            sql = "SELECT id, name, price, image, description FROM product WHERE category_id = ? ORDER BY id DESC";
+            sql = "SELECT id, name, brand, price, image, description FROM product WHERE category_id = ? ORDER BY id DESC";
             ps = con.prepareStatement(sql);
             ps.setString(1, category);
         } else {
-            sql = "SELECT id, name, price, image, description FROM product ORDER BY id DESC";
+            sql = "SELECT id, name, brand, price, image, description FROM product ORDER BY id DESC";
             ps = con.prepareStatement(sql);
         }
         
@@ -483,13 +483,13 @@ try {
 %>
                     <div class="product-image-wrapper">
                         <div class="product-images-container">
-                            <img id="productImage_<%=rs.getString("id")%>" class="product-image" src="<%=firstImageSrc%>" alt="<%=rs.getString("name")%>" 
+                            <img id="productImage_<%=rs.getString("id")%>" class="product-image" src="<%=firstImageSrc%>" alt="<%=rs.getString("brand")%>" 
                                  onclick="window.location.href='Details.jsp?id=<%=rs.getString("id")%>'"
                                  onerror="tryFallbackImage(this, '<%=imageArray.length > 0 ? imageArray[0] : ""%>')">
                         </div>
                     </div>
                     <div class="product-info">
-                        <div class="product-name"><%=rs.getString("name")%></div>
+                        <div class="product-name"><%=rs.getString("brand")%></div>
                         <div class="product-price"><%=String.format("%.2f", rs.getDouble("price"))%></div>
                     </div>
                 </div>

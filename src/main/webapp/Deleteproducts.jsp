@@ -50,7 +50,7 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                 int productId = -1;
                 
                 try {
-                    checkPs = con.prepareStatement("SELECT id, name FROM product WHERE name = ?");
+                    checkPs = con.prepareStatement("SELECT id, name, brand FROM product WHERE brand = ?");
                     checkPs.setString(1, productName);
                     checkRs = checkPs.executeQuery();
                     
@@ -73,7 +73,7 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                     int result = 0;
                     
                     try {
-                        ps = con.prepareStatement("DELETE FROM product WHERE name = ?");
+                        ps = con.prepareStatement("DELETE FROM product WHERE brand = ?");
                         ps.setString(1, productName);
                         result = ps.executeUpdate();
                         System.out.println("Delete with NAME affected " + result + " rows");
@@ -93,7 +93,7 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                     System.out.println("No product found with name: " + productName);
                     
                     // Show all available product names for debugging
-                    PreparedStatement allPs = con.prepareStatement("SELECT id, name FROM product ORDER BY name");
+                    PreparedStatement allPs = con.prepareStatement("SELECT id, name, brand FROM product ORDER BY brand");
                     ResultSet allRs = allPs.executeQuery();
                     StringBuilder availableProducts = new StringBuilder("Available products: ");
                     int productCount = 0;
@@ -101,15 +101,15 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                     while (allRs.next()) {
                         productCount++;
                         String id = allRs.getString("id");
-                        String name = allRs.getString("name");
+                        String brand = allRs.getString("brand");
                         
                         // Debug each product
-                        System.out.println("Product " + productCount + " - ID: " + id + ", Name: " + name);
+                        System.out.println("Product " + productCount + " - ID: " + id + ", Brand: " + brand);
                         
-                        // Handle null name gracefully
-                        String displayName = (name != null && !name.trim().isEmpty() ? name : "No Name");
+                        // Handle null brand gracefully
+                        String displayBrand = (brand != null && !brand.trim().isEmpty() ? brand : "No Brand");
                         
-                        availableProducts.append(displayName).append(", ");
+                        availableProducts.append(displayBrand).append(", ");
                     }
                     allRs.close();
                     allPs.close();
@@ -475,7 +475,7 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Product Name</th>
+                            <th>Product Brand</th>
                             <th>Category ID</th>
                             <th>Price</th>
                             <th>Description</th>
@@ -506,7 +506,7 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                             </tr>
                         <%
                             } else {
-                                PreparedStatement ps = con.prepareStatement("SELECT id, name, category_id, price, description FROM product ORDER BY id DESC");
+                                PreparedStatement ps = con.prepareStatement("SELECT id, name, brand, category_id, price, description FROM product ORDER BY id DESC");
                                 ResultSet rs = ps.executeQuery();
                                 
                                 boolean hasProducts = false;
@@ -515,14 +515,14 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                         %>
                             <tr>
                                 <td class="product-id">#<%= rs.getString("id") %></td>
-                                <td class="product-name"><%= rs.getString("name") %></td>
+                                <td class="product-name"><%= rs.getString("brand") %></td>
                                 <td class="category-id"><%= rs.getString("category_id") %></td>
                                 <td class="product-price"><%= String.format("%.2f", rs.getDouble("price")) %></td>
                                 <td class="product-description"><%= rs.getString("description") != null ? rs.getString("description") : "No description" %></td>
                                 <td>
                                     <form action="Deleteproducts.jsp" method="post" 
                                           onsubmit="return confirm('Are you sure you want to delete this product?')">
-                                        <input type="hidden" name="productName" value="<%= rs.getString("name") %>">
+                                        <input type="hidden" name="productName" value="<%= rs.getString("brand") %>">
                                         <button type="submit" class="delete-btn">🗑️ Delete</button>
                                     </form>
                                 </td>

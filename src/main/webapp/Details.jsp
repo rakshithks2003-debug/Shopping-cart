@@ -26,6 +26,7 @@ if (productId == null || productId.trim().isEmpty()) {
 
 // Product details variables
 String productName = "";
+String productBrand = "";
 double productPrice = 0.0;
 String productDescription = "";
 String productImage = "";
@@ -35,13 +36,14 @@ boolean productFound = false;
 try {
     Dbase db = new Dbase();
     Connection con = db.initailizeDatabase();
-    PreparedStatement ps = con.prepareStatement("SELECT id, name, price, description, image FROM product WHERE id = ?");
+    PreparedStatement ps = con.prepareStatement("SELECT id, name, brand, price, description, image FROM product WHERE id = ?");
     ps.setString(1, productId);
     ResultSet rs = ps.executeQuery();
     
     if (rs.next()) {
         productFound = true;
         productName = rs.getString("name");
+        productBrand = rs.getString("brand");
         productPrice = rs.getDouble("price");
         productDescription = rs.getString("description");
         productImage = rs.getString("image");
@@ -82,7 +84,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Details - <%= productName %></title>
+    <title>Product Details - <%= productBrand %></title>
     <style>
         * {
             margin: 0;
@@ -839,7 +841,7 @@ try {
                 String imgSrc = "product_images/" + productImages[i].trim();
                 String activeClass = (i == 0) ? "active" : "";
     %>
-                            <img src="<%=imgSrc%>" alt="<%=productName%> - Image <%=i+1%>" 
+                            <img src="<%=imgSrc%>" alt="<%=productBrand%> - Image <%=i+1%>" 
                                  class="slider-image <%=activeClass%>" 
                                  onerror="tryFallbackImage(this, '<%=productImages[i].trim()%>')">
     <%
@@ -879,14 +881,14 @@ try {
                 System.out.println("Details.jsp - Using default placeholder image");
             }
     %>
-                    <img src="<%=imageSrc%>" alt="<%=productName%>" class="product-image" 
+                    <img src="<%=imageSrc%>" alt="<%=productBrand%>" class="product-image" 
                          onerror="tryFallbackImage(this, '<%=productImage%>')">
     <%
         }
     %>
                 </div>
                 <div class="product-info-section">
-                    <h2 class="product-name"><%=productName%></h2>
+                    <h2 class="product-name"><%=productBrand%></h2>
                     <div class="product-price"><%=String.format("%.2f", productPrice)%></div>
                     <div class="product-description"><%=productDescription != null ? productDescription : "No description available."%></div>
                     <div class="product-actions">
