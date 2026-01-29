@@ -299,6 +299,121 @@ String username = (sessionObj != null) ? (String) sessionObj.getAttribute("usern
         min-height: 100px;
     }
 
+    /* Multiple Image Upload Styles */
+    .image-upload-container {
+        position: relative;
+    }
+
+    .image-upload-info {
+        margin-top: 8px;
+        color: #666;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .image-preview-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 2px dashed #e1e5e9;
+        min-height: 140px;
+        align-items: start;
+    }
+
+    .image-preview-container.empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        font-style: italic;
+        grid-template-columns: 1fr;
+    }
+
+    .image-preview-item {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .image-preview-item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .image-preview-item img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .image-preview-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        color: white;
+        padding: 8px 5px 5px;
+        font-size: 0.7rem;
+        text-align: center;
+    }
+
+    .image-preview-remove {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #dc3545;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .image-preview-remove:hover {
+        background: #dc3545;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .image-upload-status {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .image-upload-status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .image-upload-status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
     @media (max-width: 768px) {
         .form-grid {
             flex-direction: column;
@@ -412,13 +527,21 @@ String username = (sessionObj != null) ? (String) sessionObj.getAttribute("usern
                                placeholder="Enter category ID" required>
                     </div>
 
-                    <div class="form-field">
+                    <div class="form-field" style="flex: 1 1 100%;">
                         <div class="field-header">
                             <span class="field-icon">🖼️</span>
-                            <label class="field-label" for="image">Image</label>
+                            <label class="field-label" for="images">Product Images</label>
                         </div>
-                        <input type="file" class="form-input" id="image" name="image" 
-                               accept="image/*" required>
+                        <div class="image-upload-container">
+                            <input type="file" class="form-input" id="images" name="images" 
+                                   accept="image/*" multiple required>
+                            <div class="image-upload-info">
+                                <small>📁 You can select multiple images at once (Max 5MB each, max 10 images)</small>
+                            </div>
+                            <div id="imagePreview" class="image-preview-container">
+                                <!-- Image previews will be shown here -->
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-field">
@@ -457,6 +580,84 @@ String username = (sessionObj != null) ? (String) sessionObj.getAttribute("usern
     </div>
 
     <script>
+        // Multiple Image Upload Functionality
+        const imageInput = document.getElementById('images');
+        const imagePreview = document.getElementById('imagePreview');
+        let selectedFiles = [];
+
+        // Initialize empty state
+        updateImagePreview();
+
+        // Handle file selection
+        imageInput.addEventListener('change', function(e) {
+            selectedFiles = Array.from(e.target.files);
+            updateImagePreview();
+        });
+
+        // Update image preview
+        function updateImagePreview() {
+            if (selectedFiles.length === 0) {
+                imagePreview.innerHTML = '<div class="empty-preview">📷 No images selected</div>';
+                imagePreview.classList.add('empty');
+            } else {
+                imagePreview.classList.remove('empty');
+                imagePreview.innerHTML = '';
+                
+                selectedFiles.forEach((file, index) => {
+                    const previewItem = createImagePreview(file, index);
+                    imagePreview.appendChild(previewItem);
+                });
+            }
+        }
+
+        // Create image preview element
+        function createImagePreview(file, index) {
+            const previewItem = document.createElement('div');
+            previewItem.className = 'image-preview-item';
+            
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.alt = file.name;
+            
+            const info = document.createElement('div');
+            info.className = 'image-preview-info';
+            info.textContent = formatFileSize(file.size);
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'image-preview-remove';
+            removeBtn.innerHTML = '×';
+            removeBtn.onclick = function() {
+                removeImage(index);
+            };
+            
+            previewItem.appendChild(img);
+            previewItem.appendChild(info);
+            previewItem.appendChild(removeBtn);
+            
+            return previewItem;
+        }
+
+        // Remove image from selection
+        function removeImage(index) {
+            selectedFiles.splice(index, 1);
+            
+            // Update the file input
+            const dt = new DataTransfer();
+            selectedFiles.forEach(file => dt.items.add(file));
+            imageInput.files = dt.files;
+            
+            updateImagePreview();
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
         // Form validation
         document.getElementById('sellerForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -471,7 +672,7 @@ String username = (sessionObj != null) ? (String) sessionObj.getAttribute("usern
             const categoryId = document.getElementById('categoryId').value.trim();
             const price = document.getElementById('price').value.trim();
             const description = document.getElementById('description').value.trim();
-            const imageFile = document.getElementById('image').files[0];
+            const imageFiles = document.getElementById('images').files;
             
             // Validation errors array
             let errors = [];
@@ -523,18 +724,28 @@ String username = (sessionObj != null) ? (String) sessionObj.getAttribute("usern
                 errors.push('Description must be at least 10 characters long');
             }
             
-            // Validate image
-            if (!imageFile) {
-                errors.push('Please select an image file');
+            // Validate images
+            if (!imageFiles || imageFiles.length === 0) {
+                errors.push('Please select at least one image file');
             } else {
-                // Check file type - allow any image format
-                if (!imageFile.type.startsWith('image/')) {
-                    errors.push('Please select a valid image file');
+                // Check maximum number of images
+                if (imageFiles.length > 10) {
+                    errors.push('You can upload maximum 10 images at once');
                 }
                 
-                // Check file size (max 5MB)
-                if (imageFile.size > 5 * 1024 * 1024) {
-                    errors.push('Image size must be less than 5MB');
+                // Validate each image
+                for (let i = 0; i < imageFiles.length; i++) {
+                    const file = imageFiles[i];
+                    
+                    // Check file type - allow any image format
+                    if (!file.type.startsWith('image/')) {
+                        errors.push(`File "${file.name}" is not a valid image file`);
+                    }
+                    
+                    // Check file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        errors.push(`File "${file.name}" size must be less than 5MB`);
+                    }
                 }
             }
             
@@ -625,6 +836,10 @@ String username = (sessionObj != null) ? (String) sessionObj.getAttribute("usern
             
             // Reset form
             document.getElementById('sellerForm').reset();
+            
+            // Clear image previews
+            selectedFiles = [];
+            updateImagePreview();
             
             // Show success message
             const successDiv = document.createElement('div');

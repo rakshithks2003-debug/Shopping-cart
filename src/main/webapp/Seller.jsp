@@ -333,7 +333,7 @@ String username = (String) sessionObj.getAttribute("username");
             <th>Category</th>
             <th>Category ID</th>
             <th>Price</th>
-            <th>Image</th>
+            <th>Images</th>
             <th>Description</th>
             <th>Actions</th>
             <th>Status</th>
@@ -380,7 +380,27 @@ String username = (String) sessionObj.getAttribute("username");
                     <td><%= rs.getString("Category") %></td>
                     <td><%= rs.getString("Category_id") %></td>
                     <td><%= rs.getString("price") %></td>
-                    <td><% if(rs.getString("image") != null && !rs.getString("image").isEmpty()) { %><img src="seller_images/<%= rs.getString("image") %>" width="50" height="50" style="border-radius: 8px;"><% } else { %>No Image<% } %></td>
+                    <td>
+                        <% 
+                        String images = rs.getString("image");
+                        if(images != null && !images.isEmpty()) {
+                            String[] imageArray = images.split(",");
+                            for(int i = 0; i < imageArray.length && i < 3; i++) { // Show max 3 images
+                                String imageName = imageArray[i].trim();
+                                if(!imageName.isEmpty()) {
+                        %>
+                                    <img src="seller_images/<%= imageName %>" width="40" height="40" style="border-radius: 6px; margin: 2px; border: 1px solid #ddd;" title="<%= imageName %>">
+                        <%
+                                }
+                            }
+                            if(imageArray.length > 3) {
+                        %>
+                                <span style="font-size: 11px; color: #666; margin-left: 5px;">+<%= imageArray.length - 3 %> more</span>
+                        <%
+                            }
+                        } else {
+                        %>No Image<% } %>
+                    </td>
                     <td><%= rs.getString("description") != null ? rs.getString("description").substring(0, Math.min(50, rs.getString("description").length())) + (rs.getString("description").length() > 50 ? "..." : "") : "" %></td>
                     <td>
                         <div class="action-buttons">

@@ -201,8 +201,119 @@ String username = (String) sessionObg.getAttribute("username");
         transform: scale(1.1);
     }
     
+    /* Multiple Images Display */
+    .product-images-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .product-image-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.9);
+        color: #333;
+        border: none;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+        backdrop-filter: blur(5px);
+    }
+    
+    .product-image-nav:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .product-image-nav.prev {
+        left: 10px;
+    }
+    
+    .product-image-nav.next {
+        right: 10px;
+    }
+    
+    .product-image-nav.disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        transform: translateY(-50%);
+    }
+    
+    .product-image-nav.disabled:hover {
+        background: rgba(255, 255, 255, 0.9);
+        transform: translateY(-50%);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .product-image-counter {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        z-index: 5;
+        backdrop-filter: blur(10px);
+    }
+    
+    .product-thumbnails {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        background: rgba(0, 0, 0, 0.6);
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+        max-width: 90%;
+        overflow-x: auto;
+        z-index: 5;
+    }
+    
+    .product-thumbnail {
+        width: 24px;
+        height: 24px;
+        object-fit: cover;
+        border-radius: 4px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+    
+    .product-thumbnail:hover {
+        border-color: #667eea;
+        transform: scale(1.1);
+    }
+    
+    .product-thumbnail.active {
+        border-color: #667eea;
+        box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.3);
+    }
+    
     .product-info {
         padding: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .product-name {
@@ -352,18 +463,30 @@ try {
                 <div class="product-card">
 <%
         String imageFileName = rs.getString("image");
-        String imageSrc = "";
+        String[] imageArray = {};
         
+        // Parse multiple images from comma-separated string
         if (imageFileName != null && !imageFileName.trim().isEmpty()) {
-            imageSrc = "product_images/" + imageFileName;
+            imageArray = imageFileName.split(",");
+            // Trim whitespace from each image name
+            for (int i = 0; i < imageArray.length; i++) {
+                imageArray[i] = imageArray[i].trim();
+            }
+        }
+        
+        String firstImageSrc = "";
+        if (imageArray.length > 0) {
+            firstImageSrc = "product_images/" + imageArray[0];
         } else {
-            imageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+";
+            firstImageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+";
         }
 %>
                     <div class="product-image-wrapper">
-                        <img class="product-image" src="<%=imageSrc%>" alt="<%=rs.getString("name")%>" 
-                             onclick="window.location.href='Details.jsp?id=<%=rs.getString("id")%>'"
-                             onerror="tryFallbackImage(this, '<%=imageFileName%>')">
+                        <div class="product-images-container">
+                            <img id="productImage_<%=rs.getString("id")%>" class="product-image" src="<%=firstImageSrc%>" alt="<%=rs.getString("name")%>" 
+                                 onclick="window.location.href='Details.jsp?id=<%=rs.getString("id")%>'"
+                                 onerror="tryFallbackImage(this, '<%=imageArray.length > 0 ? imageArray[0] : ""%>')">
+                        </div>
                     </div>
                     <div class="product-info">
                         <div class="product-name"><%=rs.getString("name")%></div>
@@ -417,6 +540,178 @@ try {
     </div>
     
     <script>
+        // Store product images data
+        let productImagesData = {};
+        
+        // Initialize product images from JSP
+        <%
+        // Re-run the query to get all product images for JavaScript
+        try {
+            Dbase db2 = new Dbase();
+            Connection con2 = null;
+            
+            try {
+                con2 = db2.initailizeDatabase();
+            } catch (Exception e) {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                con2 = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/mscart", "root", "123456");
+            }
+            
+            if (con2 != null && !con2.isClosed()) {
+                PreparedStatement ps2;
+                String sql2;
+                
+                if (category != null && !category.trim().isEmpty()) {
+                    sql2 = "SELECT id, image FROM product WHERE category_id = ? ORDER BY id DESC";
+                    ps2 = con2.prepareStatement(sql2);
+                    ps2.setString(1, category);
+                } else {
+                    sql2 = "SELECT id, image FROM product ORDER BY id DESC";
+                    ps2 = con2.prepareStatement(sql2);
+                }
+                
+                ResultSet rs2 = ps2.executeQuery();
+                
+                while(rs2.next()) {
+                    String productId = rs2.getString("id");
+                    String imageFileName = rs2.getString("image");
+                    String[] imageArray = {};
+                    
+                    if (imageFileName != null && !imageFileName.trim().isEmpty()) {
+                        imageArray = imageFileName.split(",");
+                        for (int i = 0; i < imageArray.length; i++) {
+                            imageArray[i] = imageArray[i].trim();
+                        }
+                    }
+                    
+                    out.print("productImagesData['" + productId + "'] = [");
+                    for (int i = 0; i < imageArray.length; i++) {
+                        if (i > 0) out.print(",");
+                        out.print("'" + imageArray[i].replace("'", "\\'") + "'");
+                    }
+                    out.print("];");
+                }
+                
+                rs2.close();
+                ps2.close();
+                con2.close();
+            }
+        } catch (Exception e) {
+            // Handle error silently
+        }
+        %>
+        
+        // Store current image indices for each product
+        let currentImageIndices = {};
+        
+        // Initialize product images on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            Object.keys(productImagesData).forEach(productId => {
+                currentImageIndices[productId] = 0;
+                generateProductThumbnails(productId);
+            });
+        });
+        
+        // Navigate product images with arrows
+        function navigateProductImage(productId, direction, event) {
+            event.stopPropagation(); // Prevent card click
+            
+            const images = productImagesData[productId];
+            if (!images || images.length <= 1) return;
+            
+            currentImageIndices[productId] += direction;
+            
+            // Wrap around
+            if (currentImageIndices[productId] < 0) {
+                currentImageIndices[productId] = images.length - 1;
+            } else if (currentImageIndices[productId] >= images.length) {
+                currentImageIndices[productId] = 0;
+            }
+            
+            updateProductImageUI(productId);
+        }
+        
+        // Update product image UI
+        function updateProductImageUI(productId) {
+            const images = productImagesData[productId];
+            const currentIndex = currentImageIndices[productId];
+            
+            if (images && images.length > 0 && currentIndex >= 0 && currentIndex < images.length) {
+                const imageName = images[currentIndex];
+                const mainImage = document.getElementById('productImage_' + productId);
+                const imageCounter = document.getElementById('imageCounter_' + productId);
+                const prevBtn = document.getElementById('prevBtn_' + productId);
+                const nextBtn = document.getElementById('nextBtn_' + productId);
+                
+                if (mainImage) {
+                    mainImage.src = 'product_images/' + imageName;
+                    mainImage.alt = 'Product Image ' + (currentIndex + 1);
+                    mainImage.setAttribute('onerror', `tryFallbackImage(this, '${imageName}')`);
+                }
+                
+                if (imageCounter) {
+                    imageCounter.textContent = `${currentIndex + 1} / ${images.length}`;
+                }
+                
+                // Update arrow states
+                if (prevBtn && nextBtn) {
+                    if (images.length <= 1) {
+                        prevBtn.classList.add('disabled');
+                        nextBtn.classList.add('disabled');
+                    } else {
+                        prevBtn.classList.remove('disabled');
+                        nextBtn.classList.remove('disabled');
+                    }
+                }
+                
+                updateProductThumbnails(productId);
+            }
+        }
+        
+        // Generate thumbnails for a product
+        function generateProductThumbnails(productId) {
+            const images = productImagesData[productId];
+            const thumbnailsContainer = document.getElementById('productThumbnails_' + productId);
+            
+            if (!thumbnailsContainer || !images || images.length <= 1) return;
+            
+            thumbnailsContainer.innerHTML = '';
+            
+            images.forEach((imageName, index) => {
+                const thumb = document.createElement('img');
+                thumb.src = 'product_images/' + imageName;
+                thumb.className = 'product-thumbnail' + (index === currentImageIndices[productId] ? ' active' : '');
+                thumb.onclick = (event) => {
+                    event.stopPropagation();
+                    goToProductImage(productId, index);
+                };
+                thumb.onmouseover = () => thumb.style.cursor = 'pointer';
+                thumb.setAttribute('onerror', `tryFallbackImage(this, '${imageName}')`);
+                thumbnailsContainer.appendChild(thumb);
+            });
+        }
+        
+        // Go to specific product image
+        function goToProductImage(productId, index) {
+            currentImageIndices[productId] = index;
+            updateProductImageUI(productId);
+        }
+        
+        // Update product thumbnails
+        function updateProductThumbnails(productId) {
+            const thumbnails = document.querySelectorAll('#productThumbnails_' + productId + ' .product-thumbnail');
+            const currentIndex = currentImageIndices[productId];
+            
+            thumbnails.forEach((thumb, index) => {
+                if (index === currentIndex) {
+                    thumb.classList.add('active');
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+        }
+        
         // Fallback image function
         function tryFallbackImage(img, fileName) {
             if (!fileName || fileName.trim() === '') {
@@ -429,7 +724,7 @@ try {
                 console.log('Image fallback: trying', newSrc);
                 img.src = newSrc;
             } else {
-                img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz=';
+                img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4=';
             }
         }
     </script>

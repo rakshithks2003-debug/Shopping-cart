@@ -8,6 +8,9 @@ import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -56,7 +59,7 @@ public class SellerUploadServlet extends HttpServlet {
         String categoryId = request.getParameter("categoryId");
         String price = request.getParameter("price");
         String description = request.getParameter("description");
-        String imageFileName = "";
+        String imageFileNames = ""; // Will store comma-separated image names
 
         // Generate seller ID if not provided
         if (sellerId == null || sellerId.trim().isEmpty()) {
@@ -103,22 +106,43 @@ public class SellerUploadServlet extends HttpServlet {
                 // Create table if not exists (optional safety)
               
 
-                // Handle file upload
-                Part filePart = request.getPart("image");
-                if (filePart != null && filePart.getSize() > 0) {
-                    String fileName = filePart.getSubmittedFileName();
-                    String fileExtension = fileName.substring(fileName.lastIndexOf("."));
-                    imageFileName = sellerId + "_" + System.currentTimeMillis() + fileExtension;
-                    
-                    String uploadPath = getServletContext().getRealPath("") + "seller_images";
-                    File uploadDir = new File(uploadPath);
-                    if (!uploadDir.exists()) uploadDir.mkdirs();
-                    
-                    File file = new File(uploadPath, imageFileName);
-                    try (InputStream input = filePart.getInputStream()) {
-                        Files.copy(input, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                // Handle multiple file uploads
+                Collection<Part> fileParts = request.getParts();
+                List<String> uploadedImages = new ArrayList<>();
+                String uploadPath = getServletContext().getRealPath("") + "seller_images";
+                File uploadDir = new File(uploadPath);
+                if (!uploadDir.exists()) uploadDir.mkdirs();
+                
+                System.out.println("=== DEBUG: Multiple Image Upload ===");
+                System.out.println("Upload path: " + uploadPath);
+                System.out.println("Total parts received: " + fileParts.size());
+                
+                int imageCount = 0;
+                for (Part filePart : fileParts) {
+                    System.out.println("Part name: " + filePart.getName() + ", size: " + filePart.getSize());
+                    if (filePart.getName().equals("images") && filePart.getSize() > 0) {
+                        String fileName = filePart.getSubmittedFileName();
+                        System.out.println("Processing file: " + fileName);
+                        if (fileName != null && !fileName.trim().isEmpty()) {
+                            String fileExtension = fileName.substring(fileName.lastIndexOf("."));
+                            String imageFileName = sellerId + "_" + System.currentTimeMillis() + "_" + imageCount + fileExtension;
+                            
+                            File file = new File(uploadPath, imageFileName);
+                            try (InputStream input = filePart.getInputStream()) {
+                                Files.copy(input, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                System.out.println("Saved file: " + imageFileName);
+                            }
+                            
+                            uploadedImages.add(imageFileName);
+                            imageCount++;
+                        }
                     }
                 }
+                
+                // Convert list to comma-separated string
+                imageFileNames = String.join(",", uploadedImages);
+                System.out.println("Final image string: " + imageFileNames);
+                System.out.println("=== END DEBUG ===");
 
                 // Insert new seller (10 columns, 10 placeholders)
                 String sql = "INSERT INTO seller (sid, full_name, email_address, phone_number, product_brand, Category, Category_id, price, description, image) " +
@@ -134,11 +158,17 @@ public class SellerUploadServlet extends HttpServlet {
                 ps.setString(7, categoryId);
                 ps.setString(8, price);
                 ps.setString(9, description);
-                ps.setString(10, imageFileName);
+                ps.setString(10, imageFileNames);
                 
                 int result = ps.executeUpdate();
                 if (result > 0) {
-                    message = "Seller added successfully!";
+                    if (uploadedImages.size() > 1) {
+                        message = "Seller added successfully with " + uploadedImages.size() + " images!";
+                    } else if (uploadedImages.size() == 1) {
+                        message = "Seller added successfully with 1 image!";
+                    } else {
+                        message = "Seller added successfully (no images uploaded)!";
+                    }
                     messageType = "success";
                 } else {
                     message = "Failed to add seller.";
