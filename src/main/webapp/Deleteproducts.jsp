@@ -969,7 +969,7 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
 <body>
 
     <!-- Back to Home Button -->
-    <a href="Dashboard.jsp" class="back-to-home-btn-left">
+    <a href ="Dashboard.jsp" class="back-to-home-btn-left">
         <i class="fas fa-home"></i> Back to Home
     </a>
 
