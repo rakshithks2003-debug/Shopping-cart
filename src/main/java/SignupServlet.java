@@ -49,9 +49,10 @@ public class SignupServlet extends HttpServlet {
             //     out.println("</body></html>");
             // } else {
                 // Insert new user directly without checking for duplicates
-                PreparedStatement insertPs = con.prepareStatement("INSERT INTO users(username, password ) VALUES(?, ?)");
+                PreparedStatement insertPs = con.prepareStatement("INSERT INTO users(username, password, role) VALUES(?, ?, ?)");
                 insertPs.setString(1, username);
                 insertPs.setString(2, password);
+                insertPs.setString(3, "user"); // Default role for new signups
                 int result = insertPs.executeUpdate();
                 
                 if (result > 0) {

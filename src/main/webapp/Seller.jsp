@@ -430,35 +430,6 @@ String username = (String) sessionObj.getAttribute("username");
                                             <i class="fas fa-times"></i> Reject
                                         </a>
                                     </div>
-                                    
-                                    <!-- Advanced Actions Section -->
-                                    <div class="dropdown-section">
-                                        <div class="section-title">
-                                            <i class="fas fa-cogs"></i> Advanced Actions
-                                        </div>
-                                        <a href="#" class="dropdown-item move-item" onclick="showApprovedSuccess('Move to Products clicked for <%= rs.getString("sid") %>'); return false;">
-                                            <i class="fas fa-arrow-right"></i> Move to Products
-                                        </a>
-                                        <a href="#" class="dropdown-item view-item" onclick="showApprovedSuccess('View clicked for <%= rs.getString("sid") %>'); return false;">
-                                            <i class="fas fa-eye"></i> View Full Details
-                                        </a>
-                                    </div>
-                                    
-                                    <!-- Management Section -->
-                                    <div class="dropdown-section">
-                                        <div class="section-title">
-                                            <i class="fas fa-tools"></i> Management
-                                        </div>
-                                        <a href="#" class="dropdown-item delete-item" onclick="deleteSeller('<%= rs.getString("sid") %>'); return false;">
-                                            <i class="fas fa-trash"></i> Delete Seller
-                                        </a>
-                                        <a href="#" class="dropdown-item duplicate-item" onclick="showApprovedSuccess('Duplicate clicked for <%= rs.getString("sid") %>'); return false;">
-                                            <i class="fas fa-copy"></i> Duplicate Entry
-                                        </a>
-                                        <a href="#" class="dropdown-item export-item" onclick="showApprovedSuccess('Export clicked for <%= rs.getString("sid") %>'); return false;">
-                                            <i class="fas fa-download"></i> Export Data
-                                        </a>
-                                    </div>
                                 </div>
                             </div>
                         </div>

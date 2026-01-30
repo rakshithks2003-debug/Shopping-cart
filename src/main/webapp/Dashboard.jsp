@@ -280,10 +280,10 @@ tr:hover {
         <a href="Seller.jsp">👤 Seller</a>
         <a href="Sellerupload.jsp">👤 Sellerupload</a>
 <% } %>
-        <a href="#">📦 Orders</a>
+        
         <a href="#payment-history">💳 Payment History</a>
 <% if ("admin".equals(userRole)) { %>
-        <a href="#">👥 Users</a>
+        <a href="UserRoleManagement.jsp">👥 Users</a>
 <% } %>
         <a href="LogoutServlet">🚪 Logout</a>
     </div>
