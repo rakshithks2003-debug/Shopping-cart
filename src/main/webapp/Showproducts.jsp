@@ -60,6 +60,32 @@ String username = (String) sessionObg.getAttribute("username");
         background: linear-gradient(135deg, #45a049, #3d8b40);
     }
     
+    .back-to-home-btn-left {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        padding: 12px 20px;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        transition: all 0.3s ease;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 2px solid transparent;
+    }
+    
+    .back-to-home-btn-left:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        background: linear-gradient(135deg, #45a049, #3d8b40);
+    }
+    
     .container {
         max-width: 1200px;
         margin: 0 auto;
@@ -390,15 +416,17 @@ String username = (String) sessionObg.getAttribute("username");
 </style>
 </head>
 <body>
-    <a href="Dashboard.jsp" class="back-button">← Back to Dashboard</a>
-    
+    <!-- Back to Home Button -->
+    <a href="Dashboard.jsp" class="back-to-home-btn-left">
+        <i class="fas fa-home"></i> Back to Home
+    </a>
+
     <div class="container">
         <header>
             <h1>🛍️ Mini Shopping cart</h1>
             <p class="subtitle">Browse our amazing cuisine</p>
             
             <div class="nav-buttons">
-                <a href="Dashboard.jsp" class="nav-btn" style="background: linear-gradient(135deg, #4CAF50, #45a049); color: white;">← Dashboard</a>
                 <a href="Cart.jsp" class="nav-btn cart" id="cartButton">
                     🛒 My Cart
                     <span class="cart-badge" id="cartBadge" style="display: none;">0</span>

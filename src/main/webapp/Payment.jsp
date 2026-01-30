@@ -8,6 +8,9 @@
         response.sendRedirect("Login.html");
         return;
     }
+    String SessionId = session.getId();
+    out.println("Session ID: " +
+    SessionId);
     
     // Load cart items from database
     List<Map<String, Object>> cartItems = new ArrayList<>();
@@ -17,7 +20,7 @@
         Connection con = db.initailizeDatabase();
         
         if (con != null && !con.isClosed()) {
-            String sql = "SELECT product_id, product_name, price, quantity, image FROM cart WHERE user_id = ? ORDER BY cart_id DESC";
+            String sql = "SELECT c.product_id, c.price, c.quantity, c.image, p.name as product_name, p.brand as product_brand FROM cart c JOIN product p ON c.product_id = p.id WHERE c.user_id = ? ORDER BY c.cart_id DESC";
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
@@ -26,12 +29,14 @@
                 Map<String, Object> item = new HashMap<>();
                 String productId = rs.getString("product_id");
                 String productName = rs.getString("product_name");
+                String productBrand = rs.getString("product_brand");
                 double price = rs.getDouble("price");
                 int quantity = rs.getInt("quantity");
                 String image = rs.getString("image");
                 
                 item.put("productId", productId);
                 item.put("productName", productName);
+                item.put("productBrand", productBrand);
                 item.put("price", price);
                 item.put("quantity", quantity);
                 item.put("image", image);
@@ -441,21 +446,55 @@
                     <% for (Map<String, Object> item : cartItems) { 
                         String productId = (String) item.get("productId");
                         String productName = (String) item.get("productName");
+                        String productBrand = (String) item.get("productBrand");
                         double price = (Double) item.get("price");
                         int quantity = (Integer) item.get("quantity");
                         String image = (String) item.get("image");
                         
                         String imageSrc;
-                        if (image == null || image.isEmpty()) {
-                            imageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MFY0MEgyMFYyMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iMzAiIHk9IjQ1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEwIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+";
+                        String fallbackImage = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MFY0MEgyMFYyMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iMzAiIHk9IjQ1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEwIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+";
+                        
+                        if (image == null || image.trim().isEmpty()) {
+                            imageSrc = fallbackImage;
                         } else {
-                            imageSrc = request.getContextPath() + "/product_images/" + image;
+                            String cleanImage = image.trim().replace(" ", "%20");
+                            String contextPath = request.getContextPath();
+                            if (contextPath == null || contextPath.equals("")) {
+                                contextPath = "";
+                            }
+                            if (!contextPath.endsWith("/")) {
+                                contextPath += "/";
+                            }
+                            
+                            // Try multiple possible paths
+                            String[] possiblePaths = {
+                                contextPath + "product_images/" + cleanImage,
+                                contextPath + "seller_images/" + cleanImage,
+                                "product_images/" + cleanImage,
+                                "seller_images/" + cleanImage,
+                                contextPath + "images/" + cleanImage,
+                                "images/" + cleanImage
+                            };
+                            
+                            // Use the first path (primary)
+                            imageSrc = possiblePaths[0];
+                            
+                            // Debug all possible paths
+                            System.out.println("=== PAYMENT IMAGE DEBUG INFO ===");
+                            System.out.println("Original image: " + image);
+                            System.out.println("Clean image: " + cleanImage);
+                            System.out.println("Context path: '" + contextPath + "'");
+                            System.out.println("Primary path: " + imageSrc);
+                            for (int i = 0; i < possiblePaths.length; i++) {
+                                System.out.println("Path " + (i+1) + ": " + possiblePaths[i]);
+                            }
+                            System.out.println("===============================");
                         }
                     %>
                         <div class="order-item">
-                            <img src="<%= imageSrc %>" alt="<%= productName %>" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MFY0MEgyMFYyMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iMzAiIHk9IjQ1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEwIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+';">
+                            <img src="<%= imageSrc %>" alt="<%= productBrand != null ? productBrand : productName %>" class="order-item-image" onerror="tryFallbackImage(this, '<%= image %>');">
                             <div class="order-item-details">
-                                <div class="order-item-name"><%= productName %></div>
+                                <div class="order-item-name"><%= productBrand != null ? productBrand : (productName != null ? productName : "Unknown Brand") %></div>
                                 <div class="order-item-price">₹<%= String.format("%.2f", price) %> × <%= quantity %></div>
                             </div>
                             <div class="order-item-quantity">₹<%= String.format("%.2f", price * quantity) %></div>
@@ -709,6 +748,87 @@
                 notification.style.display = 'none';
             }, 5000);
         }
+        
+        // Enhanced fallback image function - tries multiple paths systematically
+        function tryFallbackImage(img, fileName) {
+            console.log('=== PAYMENT IMAGE FALLBACK START ===');
+            console.log('Fallback triggered for:', fileName);
+            console.log('Current image src:', img.src);
+            
+            if (!fileName || fileName.trim() === '') {
+                console.log('No filename provided, using placeholder');
+                img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MFY0MEgyMFYyMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iMzAiIHk9IjQ1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEwIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+';
+                return;
+            }
+            
+            const cleanFileName = fileName.trim().replace(" ", "%20");
+            let attemptCount = 0;
+            
+            // Define all possible paths to try
+            const possiblePaths = [
+                img.src.replace(/.*product_images\//, 'product_images/'), // Remove context, try direct
+                img.src.replace(/.*seller_images\//, 'seller_images/'), // Remove context, try direct
+                img.src.replace(/.*images\//, 'images/'), // Remove context, try direct
+                'product_images/' + cleanFileName,
+                'seller_images/' + cleanFileName,
+                'images/' + cleanFileName,
+                '/product_images/' + cleanFileName,
+                '/seller_images/' + cleanFileName,
+                '/images/' + cleanFileName
+            ];
+            
+            // Try each path
+            function tryNextPath() {
+                if (attemptCount >= possiblePaths.length) {
+                    console.log('All fallback attempts failed, using placeholder');
+                    img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MFY0MEgyMFYyMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iMzAiIHk9IjQ1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEwIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+';
+                    return;
+                }
+                
+                const nextPath = possiblePaths[attemptCount];
+                console.log(`Attempt ${attemptCount + 1}: trying path: ${nextPath}`);
+                
+                // Create a new image to test the path
+                const testImg = new Image();
+                testImg.onload = function() {
+                    console.log(`SUCCESS: Path ${attemptCount + 1} worked: ${nextPath}`);
+                    img.src = nextPath;
+                };
+                testImg.onerror = function() {
+                    console.log(`FAILED: Path ${attemptCount + 1} failed: ${nextPath}`);
+                    attemptCount++;
+                    tryNextPath();
+                };
+                testImg.src = nextPath;
+            }
+            
+            // Start trying paths
+            tryNextPath();
+        }
+        
+        // Add image loading verification
+        function verifyImageLoading() {
+            const images = document.querySelectorAll('.order-item-image');
+            console.log('Verifying', images.length, 'payment images...');
+            
+            images.forEach((img, index) => {
+                // Check if image loaded successfully
+                if (img.complete && img.naturalHeight !== 0) {
+                    console.log(`Payment Image ${index + 1} loaded successfully:`, img.src);
+                } else {
+                    console.log(`Payment Image ${index + 1} failed to load:`, img.src);
+                    // Trigger fallback manually if needed
+                    if (img.naturalHeight === 0) {
+                        img.onerror();
+                    }
+                }
+            });
+        }
+        
+        // Run verification after page loads
+        window.addEventListener('load', function() {
+            setTimeout(verifyImageLoading, 1000);
+        });
     </script>
 </body>
 </html>

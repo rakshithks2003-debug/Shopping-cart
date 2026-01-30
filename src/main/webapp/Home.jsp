@@ -406,7 +406,7 @@ String username = (String) sessionObg.getAttribute("username");
         </div>
         <div class="slide">
             <img src="https://images.unsplash.com/photo-1605462863863-10d9e47e15ee?w=1600&h=500&fit=crop" alt="Mobile Fusion">
-            <div class="slider-text">Mobile Fusion</div>
+            <div class="slider-text"> Fashion</div>
         </div>
         <div class="slide">
             <img src="https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=1600&h=500&fit=crop" alt="Sports Shoes">
@@ -414,7 +414,7 @@ String username = (String) sessionObg.getAttribute("username");
         </div>
         <div class="slide">
             <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600&h=500&fit=crop" alt="Smart Mobiles">
-            <div class="slider-text">Smart Mobiles</div>
+            <div class="slider-text">Beauty products</div>
         </div>
     </div>
 </div>

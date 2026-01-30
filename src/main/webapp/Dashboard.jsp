@@ -283,7 +283,7 @@ tr:hover {
         
         <a href="#payment-history">💳 Payment History</a>
 <% if ("admin".equals(userRole)) { %>
-        <a href="UserRoleManagement.jsp">👥 Users</a>
+        
 <% } %>
         <a href="LogoutServlet">🚪 Logout</a>
     </div>
