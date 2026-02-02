@@ -21,6 +21,8 @@ String username = (String) sessionObg.getAttribute("username");
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Show Products - Mini Shopping cart</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="css/back-button-styles.css">
 <style>
     * {
         margin: 0;
@@ -60,6 +62,9 @@ String username = (String) sessionObg.getAttribute("username");
         background: linear-gradient(135deg, #45a049, #3d8b40);
     }
     
+    /* ========================================
+       BACK TO HOME BUTTON STYLES
+       ======================================== */
     .back-to-home-btn-left {
         position: fixed;
         top: 20px;
@@ -78,14 +83,167 @@ String username = (String) sessionObg.getAttribute("username");
         align-items: center;
         gap: 8px;
         border: 2px solid transparent;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        cursor: pointer;
+        white-space: nowrap;
+        text-transform: none;
+        letter-spacing: 0.5px;
     }
-    
+
     .back-to-home-btn-left:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
         background: linear-gradient(135deg, #45a049, #3d8b40);
+        border-color: rgba(255, 255, 255, 0.1);
+        text-decoration: none;
+        color: white;
     }
-    
+
+    .back-to-home-btn-left:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
+        transition: all 0.1s ease;
+    }
+
+    .back-to-home-btn-left:focus {
+        outline: none;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3), 0 0 0 3px rgba(76, 175, 80, 0.2);
+    }
+
+    /* Icon styling */
+    .back-to-home-btn-left i {
+        font-size: 16px;
+        margin-right: 2px;
+        transition: transform 0.3s ease;
+    }
+
+    .back-to-home-btn-left:hover i {
+        transform: scale(1.1);
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .back-to-home-btn-left {
+            top: 15px;
+            left: 15px;
+            padding: 10px 16px;
+            font-size: 13px;
+            border-radius: 20px;
+        }
+        
+        .back-to-home-btn-left i {
+            font-size: 14px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .back-to-home-btn-left {
+            top: 10px;
+            left: 10px;
+            padding: 8px 14px;
+            font-size: 12px;
+            border-radius: 18px;
+            gap: 6px;
+        }
+        
+        .back-to-home-btn-left i {
+            font-size: 13px;
+        }
+    }
+
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+        .back-to-home-btn-left {
+            border: 2px solid #ffffff;
+            background: #4CAF50;
+        }
+        
+        .back-to-home-btn-left:hover {
+            background: #45a049;
+            border: 2px solid #ffffff;
+        }
+    }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+        .back-to-home-btn-left {
+            transition: none;
+        }
+        
+        .back-to-home-btn-left:hover {
+            transform: none;
+            transition: none;
+        }
+        
+        .back-to-home-btn-left i {
+            transition: none;
+        }
+        
+        .back-to-home-btn-left:hover i {
+            transform: none;
+        }
+    }
+
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+        .back-to-home-btn-left {
+            background: linear-gradient(135deg, #45a049, #3d8b40);
+            box-shadow: 0 4px 15px rgba(69, 160, 73, 0.4);
+        }
+        
+        .back-to-home-btn-left:hover {
+            background: linear-gradient(135deg, #3d8b40, #2e7d32);
+            box-shadow: 0 6px 20px rgba(69, 160, 73, 0.5);
+        }
+    }
+
+    /* Print styles */
+    @media print {
+        .back-to-home-btn-left {
+            display: none !important;
+        }
+    }
+
+    /* Loading state */
+    .back-to-home-btn-left.loading {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .back-to-home-btn-left.loading i::before {
+        content: "\f110"; /* fa-spinner */
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Success state */
+    .back-to-home-btn-left.success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        animation: pulse 0.5s ease;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    /* Error state */
+    .back-to-home-btn-left.error {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        animation: shake 0.5s ease;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
     .container {
         max-width: 1200px;
         margin: 0 auto;
@@ -417,9 +575,7 @@ String username = (String) sessionObg.getAttribute("username");
 </head>
 <body>
     <!-- Back to Home Button -->
-    <a href="Dashboard.jsp" class="back-to-home-btn-left">
-        <i class="fas fa-home"></i> Back to Home
-    </a>
+   <a href="javascript:history.back()" class="back-to-home-btn-left" aria-label="Go back to previous page"><i class="fas fa-home"></i> Back </a>
 
     <div class="container">
         <header>
@@ -444,6 +600,16 @@ String username = (String) sessionObg.getAttribute("username");
                 <div class="section-header">
                     <h2 class="section-title">Featured Products</h2>
                     <p class="section-subtitle">Discover our Accurated collection of premium items</p>
+                    
+                    <!-- Category Filter -->
+                    <div class="category-filter" style="margin-top: 30px; text-align: center;">
+                        <label for="categorySelect" style="font-size: 1.1rem; font-weight: 600; color: #333; margin-right: 10px;">Filter by Category:</label>
+                        <select id="categorySelect" onchange="filterByCategory()" style="padding: 10px 15px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1rem; background: #f8f9fa; cursor: pointer;">
+                            <option value="">All Categories</option>
+                            <option value="Mo">📱 Mobile</option>
+                            <option value="Ms">👞 Men Shoe</option>
+                        </select>
+                    </div>
                 </div>
                 
                 <div class="products-grid">
@@ -570,6 +736,31 @@ try {
     <script>
         // Store product images data
         let productImagesData = {};
+        
+        // Function to filter by category
+        function filterByCategory() {
+            const categorySelect = document.getElementById('categorySelect');
+            const selectedCategory = categorySelect.value;
+            
+            if (selectedCategory === '') {
+                // Show all products
+                window.location.href = 'Showproducts.jsp';
+            } else {
+                // Filter by selected category
+                window.location.href = 'Showproducts.jsp?category=' + encodeURIComponent(selectedCategory);
+            }
+        }
+        
+        // Set the selected category option based on URL parameter
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category');
+            const categorySelect = document.getElementById('categorySelect');
+            
+            if (category && categorySelect) {
+                categorySelect.value = category;
+            }
+        });
         
         // Initialize product images from JSP
         <%

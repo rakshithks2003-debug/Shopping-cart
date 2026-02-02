@@ -3,26 +3,15 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="products.*"%>
 <%@ page import="jakarta.servlet.http.HttpSession" %>
-<%
-// Check if user is logged in
-HttpSession sessionObg = request.getSession(false);
-if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null || 
-    !(Boolean) sessionObg.getAttribute("isLoggedIn")) {
-    response.sendRedirect("Login.html");
-    return;
-}
-String SessionId = session.getId();
-out.println("Session ID: " +
-SessionId);
-// Check if user has admin role
-String userRole = (String) sessionObg.getAttribute("userRole");
-if (!"admin".equals(userRole)) {
-    response.sendRedirect("users.html");
-    return;
-}
 
-String username = (String) sessionObg.getAttribute("username");
+<%
+    String username = null;
+    HttpSession sessionObj = request.getSession(false);
+    if (sessionObj != null) {
+        username = (String) sessionObj.getAttribute("username");
+    }
 %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -856,7 +845,6 @@ String username = (String) sessionObg.getAttribute("username");
                     <label for="category_id">Category</label>
                     <select id="category_id" name="category_id" required style="width: 100%; padding: 12px 16px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1rem; background: #f8f9fa;">
                         <option value="">Select Category</option>
-                       
                         <option value="Mo">📱 Mobile</option>
                         <option value="Ms">👞 Men Shoe</option>
                         <option value="Lp">💻 Laptop</option>

@@ -27,13 +27,25 @@ public class Loginservlet extends HttpServlet {
 			String n=request.getParameter("username");
 			String p=request.getParameter("password");
 			
+			// First check users table for admin and customer roles
 			PreparedStatement ps=con.prepareStatement("select username, role from users where username=? and password=?");
 			ps.setString(1, n);
 			ps.setString(2, p);
 			ResultSet rs=ps.executeQuery();
-			if(rs.next())
-			{
-				String userRole = rs.getString("role");
+			
+			boolean authenticated = false;
+			String userRole = null;
+			
+			if(rs.next()) {
+				userRole = rs.getString("role");
+				authenticated = true;
+			} else {
+				authenticated = false;
+			}
+			rs.close();
+			ps.close();
+			
+			if(authenticated) {
 				
 				// Create session and store user data
 				HttpSession session = request.getSession();
@@ -44,6 +56,9 @@ public class Loginservlet extends HttpServlet {
 				// Redirect based on role
 				if ("admin".equals(userRole)) {
 					RequestDispatcher rd=request.getRequestDispatcher("Home.jsp");
+					rd.forward(request,response);
+				} else if ("seller".equals(userRole)) {
+					RequestDispatcher rd=request.getRequestDispatcher("SellerDashboard.jsp");
 					rd.forward(request,response);
 				} else {
 					RequestDispatcher rd=request.getRequestDispatcher("Home.jsp");

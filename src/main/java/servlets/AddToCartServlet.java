@@ -56,7 +56,7 @@ public class AddToCartServlet extends HttpServlet {
             Connection con = db.initailizeDatabase();
             
             // Check if product exists
-            PreparedStatement checkPs = con.prepareStatement("SELECT id, name, price, image FROM product WHERE id = ?");
+            PreparedStatement checkPs = con.prepareStatement("SELECT id, name, brand, price, image FROM product WHERE id = ?");
             checkPs.setString(1, productId);
             ResultSet rs = checkPs.executeQuery();
             
@@ -69,6 +69,7 @@ public class AddToCartServlet extends HttpServlet {
             }
             
             String productName = rs.getString("name");
+            String productBrand = rs.getString("brand");
             double productPrice = rs.getDouble("price");
             String productImage = rs.getString("image");
             rs.close();
@@ -90,7 +91,7 @@ public class AddToCartServlet extends HttpServlet {
                 updatePs.executeUpdate();
                 updatePs.close();
                 
-                out.print("{\"success\": true, \"message\": \"" + escapeJson(productName) + " quantity updated in cart\"}");
+                out.print("{\"success\": true, \"message\": \"" + escapeJson(productBrand) + " quantity updated in cart\"}");
             } else {
                 // Insert new item if doesn't exist
                 PreparedStatement insertPs = con.prepareStatement("INSERT INTO cart (user_id, product_id, product_name, price, image, quantity) VALUES (?, ?, ?, ?, ?, 1)");
@@ -102,7 +103,7 @@ public class AddToCartServlet extends HttpServlet {
                 insertPs.executeUpdate();
                 insertPs.close();
                 
-                out.print("{\"success\": true, \"message\": \"" + escapeJson(productName) + " added to cart\"}");
+                out.print("{\"success\": true, \"message\": \"" + escapeJson(productBrand) + " added to cart\"}");
             }
             
             cartRs.close();

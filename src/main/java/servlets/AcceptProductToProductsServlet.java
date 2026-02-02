@@ -169,24 +169,12 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                     
                     debugInfo.append(" DEBUG: Final data to insert: Name='").append(productName).append("' Brand='").append(brandName).append("' Price:").append(price).append(" Description='").append(description).append("' Image='").append(image).append("' Category_id='").append(categoryId).append("'");
                     
-                    // Move seller data to products table - using correct column names
-                    // First, get the next available ID for the product table
-                    String getMaxIdQuery = "SELECT COALESCE(MAX(id), 0) + 1 as nextId FROM product";
-                    PreparedStatement psMaxId = con.prepareStatement(getMaxIdQuery);
-                    ResultSet rsMaxId = psMaxId.executeQuery();
-                    
-                    int nextProductId = 1;
-                    if (rsMaxId.next()) {
-                        nextProductId = rsMaxId.getInt("nextId");
-                    }
-                    rsMaxId.close();
-                    psMaxId.close();
-                    
-                    debugInfo.append(" DEBUG: Using product ID:").append(nextProductId);
+                    // Move seller data to products table - using seller's sid as product id
+                    debugInfo.append(" DEBUG: Using seller's sid as product ID:").append(sellerId);
                     
                     String insertQuery = "INSERT INTO product (id, name, brand, price, description, image, Category_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement psInsert = con.prepareStatement(insertQuery);
-                    psInsert.setInt(1, nextProductId);
+                    psInsert.setString(1, sellerId); // Use seller's sid as product id
                     psInsert.setString(2, productName);
                     psInsert.setString(3, brandName); // Set brand to seller's brand field
                     psInsert.setDouble(4, price);
@@ -199,6 +187,20 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                     psInsert.close();
                     
                     if (rowsInserted > 0) {
+                        // Insert seller ID into approved_sellers table when approved
+                        try {
+                            String insertApprovedSellerQuery = "INSERT INTO approved_sellers (sid, approval_date) VALUES (?, CURRENT_TIMESTAMP)";
+                            PreparedStatement psApprovedSeller = con.prepareStatement(insertApprovedSellerQuery);
+                            psApprovedSeller.setString(1, sellerId);
+                            int approvedRowsInserted = psApprovedSeller.executeUpdate();
+                            psApprovedSeller.close();
+                            
+                            debugInfo.append(" DEBUG: Approved seller record inserted:").append(approvedRowsInserted).append(" rows affected");
+                        } catch (Exception e) {
+                            debugInfo.append(" DEBUG: Error inserting approved seller:").append(e.getMessage());
+                            // Continue even if approved_sellers insertion fails
+                        }
+                        
                         // Remove from seller table using the correct sid column
                         String deleteQuery = "DELETE FROM seller WHERE sid = ?";
                         PreparedStatement psDelete = con.prepareStatement(deleteQuery);
