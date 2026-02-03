@@ -689,7 +689,16 @@ String username = (sessionObj != null) ? (String) sessionObj.getAttribute("usern
 
                     <div class="form-field">
                         <div class="field-header">
-                            <span class="field-icon">📂</span>
+                            <span class="field-icon">�</span>
+                            <label class="field-label" for="productName">Product Name</label>
+                        </div>
+                        <input type="text" class="form-input" id="productName" name="productName" 
+                               placeholder="Enter product name" required>
+                    </div>
+
+                    <div class="form-field">
+                        <div class="field-header">
+                            <span class="field-icon">�</span>
                             <label class="field-label" for="category">Category</label>
                         </div>
                         <select class="form-select" id="category" name="category" required>
@@ -846,6 +855,7 @@ String username = (sessionObj != null) ? (String) sessionObj.getAttribute("usern
             const email = document.getElementById('email').value.trim();
             const phone = document.getElementById('phone').value.trim();
             const productBrand = document.getElementById('productBrand').value.trim();
+            const productName = document.getElementById('productName').value.trim();
             const category = document.getElementById('category').value;
             const categoryId = document.getElementById('categoryId').value.trim();
             const price = document.getElementById('price').value.trim();
@@ -880,6 +890,11 @@ String username = (sessionObj != null) ? (String) sessionObj.getAttribute("usern
             // Validate product brand
             if (!productBrand || productBrand.length < 2) {
                 errors.push('Product brand must be at least 2 characters long');
+            }
+            
+            // Validate product name
+            if (!productName || productName.length < 2) {
+                errors.push('Product name must be at least 2 characters long');
             }
             
             // Validate category

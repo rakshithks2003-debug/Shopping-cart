@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -31,6 +32,8 @@ public class AcceptProductToProductsServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         
         String sellerId = request.getParameter("sellerId");
+        // This is now actually the PID from the seller table
+        String pid = sellerId;
         
         // For debugging: Store debug info in a variable
         StringBuilder debugInfo = new StringBuilder();
@@ -53,13 +56,68 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                 
-                // Use the correct table and column names: seller table with sid column
-                String getSellerQuery = "SELECT * FROM seller WHERE sid = ?";
+                // Debug: Check if PID column exists and show all sellers
+                System.out.println("=== DEBUG: AcceptProductToProductsServlet - Checking PID column ===");
+                System.out.println("Looking for PID: '" + pid + "'");
+                
+                // Check if PID column exists
+                boolean pidColumnExists = false;
+                try {
+                    ResultSetMetaData tableMeta = con.createStatement().executeQuery("SELECT * FROM seller LIMIT 1").getMetaData();
+                    for (int i = 1; i <= tableMeta.getColumnCount(); i++) {
+                        if ("pid".equalsIgnoreCase(tableMeta.getColumnName(i))) {
+                            pidColumnExists = true;
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    System.out.println("Could not check table structure: " + e.getMessage());
+                }
+                
+                System.out.println("PID column exists: " + pidColumnExists);
+                
+                Statement debugStmt = con.createStatement();
+                ResultSet allSellers = debugStmt.executeQuery("SELECT sid, full_name" + (pidColumnExists ? ", pid" : "") + " FROM seller ORDER BY sid");
+                System.out.println("All sellers in database:");
+                boolean foundAny = false;
+                while (allSellers.next()) {
+                    foundAny = true;
+                    String dbSid = allSellers.getString("sid");
+                    String dbPid = pidColumnExists ? allSellers.getString("pid") : null;
+                    String dbName = allSellers.getString("full_name");
+                    boolean isMatch = (dbPid != null && dbPid.equals(pid));
+                    System.out.println("  - SID: '" + dbSid + "', PID: '" + (dbPid != null ? dbPid : "NULL") + "', Name: " + dbName + (isMatch ? " <-- MATCH!" : ""));
+                }
+                allSellers.close();
+                debugStmt.close();
+                
+                if (!foundAny) {
+                    System.out.println("NO SELLERS FOUND IN DATABASE!");
+                }
+                
+                System.out.println("=== END DEBUG ===");
+
+                // Ensure status column exists in seller table
+                try {
+                    Statement alterStmt = con.createStatement();
+                    alterStmt.executeUpdate("ALTER TABLE seller ADD COLUMN status VARCHAR(20) DEFAULT 'pending'");
+                    System.out.println("Added status column to seller table");
+                    alterStmt.close();
+                } catch (Exception e) {
+                    System.out.println("Status column already exists or couldn't be added: " + e.getMessage());
+                }
+                
+                // Use PID directly as the product ID without complex searching
+                String getSellerQuery = "SELECT * FROM seller WHERE pid = ?";
                 PreparedStatement psSeller = con.prepareStatement(getSellerQuery);
-                psSeller.setString(1, sellerId);
+                psSeller.setString(1, pid);
                 ResultSet rsSeller = psSeller.executeQuery();
                 
                 if (rsSeller.next()) {
+                    
+                    // Get the actual SID from the seller record
+                    String actualSid = rsSeller.getString("sid");
+                    debugInfo.append(" DEBUG: Found seller - SID: ").append(actualSid).append(", PID: ").append(pid);
                     
                     // DEBUG: Print all available columns and their values
                     debugInfo.append(" DEBUG: Available columns in seller table: ");
@@ -72,8 +130,9 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                         debugInfo.append("Column").append(i).append(":").append(columnName).append("='").append(columnValue).append("' ");
                     }
                     
-                    // Get data - try multiple possible column names for product name
-                    String productName = "";
+                    // Get data - separate variables for name and product_name columns
+                    String name = ""; // For product table 'name' column
+                    String productName = ""; // For product table 'product_name' column
                     String brandName = ""; // This will hold the brand from seller table
                     double price = 0.0;
                     String description = "";
@@ -94,40 +153,42 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                         debugInfo.append(" DEBUG: Using fallback brand:").append(brandName);
                     }
                     
-                    // Try different possible column names for product name
-                    if (productName == null || productName.trim().isEmpty()) {
-                        try { productName = rsSeller.getString("full_name"); } catch (Exception e) { 
-                            debugInfo.append(" DEBUG: 'full_name' column failed:").append(e.getMessage());
+                    // Get value for 'name' column - prioritize full_name (seller's name)
+                    try { name = rsSeller.getString("full_name"); } catch (Exception e) { 
+                        debugInfo.append(" DEBUG: 'full_name' column failed for name:").append(e.getMessage());
+                    }
+                    if (name == null || name.trim().isEmpty()) {
+                        try { name = rsSeller.getString("name"); } catch (Exception e) { 
+                            debugInfo.append(" DEBUG: 'name' column failed for name:").append(e.getMessage());
                         }
+                    }
+                    if (name == null || name.trim().isEmpty()) {
+                        name = "Product " + sellerId; // Fallback for name
+                        debugInfo.append(" DEBUG: Using fallback name:").append(name);
+                    }
+                    
+                    // Get value for 'product_name' column - prioritize product_name (actual product name)
+                    try { productName = rsSeller.getString("product_name"); } catch (Exception e) { 
+                        debugInfo.append(" DEBUG: 'product_name' column failed:").append(e.getMessage());
                     }
                     if (productName == null || productName.trim().isEmpty()) {
                         try { productName = rsSeller.getString("product_brand"); } catch (Exception e) { 
-                            debugInfo.append(" DEBUG: 'product_brand' column failed:").append(e.getMessage());
-                        }
-                    }
-                    if (productName == null || productName.trim().isEmpty()) {
-                        try { productName = rsSeller.getString("name"); } catch (Exception e) { 
-                            debugInfo.append(" DEBUG: 'name' column failed:").append(e.getMessage());
-                        }
-                    }
-                    if (productName == null || productName.trim().isEmpty()) {
-                        try { productName = rsSeller.getString("product_name"); } catch (Exception e) { 
-                            debugInfo.append(" DEBUG: 'product_name' column failed:").append(e.getMessage());
+                            debugInfo.append(" DEBUG: 'product_brand' column failed for product_name:").append(e.getMessage());
                         }
                     }
                     if (productName == null || productName.trim().isEmpty()) {
                         try { productName = rsSeller.getString("title"); } catch (Exception e) { 
-                            debugInfo.append(" DEBUG: 'title' column failed:").append(e.getMessage());
+                            debugInfo.append(" DEBUG: 'title' column failed for product_name:").append(e.getMessage());
                         }
                     }
                     if (productName == null || productName.trim().isEmpty()) {
                         try { productName = rsSeller.getString("product_title"); } catch (Exception e) { 
-                            debugInfo.append(" DEBUG: 'product_title' column failed:").append(e.getMessage());
+                            debugInfo.append(" DEBUG: 'product_title' column failed for product_name:").append(e.getMessage());
                         }
                     }
                     if (productName == null || productName.trim().isEmpty()) {
-                        productName = "Product " + sellerId; // Fallback
-                        debugInfo.append(" DEBUG: Using fallback name:").append(productName);
+                        productName = name; // Use name as fallback for product_name
+                        debugInfo.append(" DEBUG: Using name as fallback for product_name:").append(productName);
                     }
                     
                     // Get price
@@ -167,20 +228,22 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                         debugInfo.append(" DEBUG: Using fallback Category_id:").append(categoryId);
                     }
                     
-                    debugInfo.append(" DEBUG: Final data to insert: Name='").append(productName).append("' Brand='").append(brandName).append("' Price:").append(price).append(" Description='").append(description).append("' Image='").append(image).append("' Category_id='").append(categoryId).append("'");
+                    debugInfo.append(" DEBUG: Final data to insert: Name='").append(name).append("' ProductName='").append(productName).append("' Brand='").append(brandName).append("' Price:").append(price).append(" Description='").append(description).append("' Image='").append(image).append("' Category_id='").append(categoryId).append("'");
                     
-                    // Move seller data to products table - using seller's sid as product id
-                    debugInfo.append(" DEBUG: Using seller's sid as product ID:").append(sellerId);
+                    // Move seller data to products table - inserting SID as ID and PID as PID
+                    debugInfo.append(" DEBUG: Inserting product with ID=").append(actualSid).append(" and PID=").append(pid);
                     
-                    String insertQuery = "INSERT INTO product (id, name, brand, price, description, image, Category_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    String insertQuery = "INSERT INTO product (id, pid, name, brand, price, description, image, Category_id, product_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement psInsert = con.prepareStatement(insertQuery);
-                    psInsert.setString(1, sellerId); // Use seller's sid as product id
-                    psInsert.setString(2, productName);
-                    psInsert.setString(3, brandName); // Set brand to seller's brand field
-                    psInsert.setDouble(4, price);
-                    psInsert.setString(5, description);
-                    psInsert.setString(6, image);
-                    psInsert.setString(7, categoryId); // Use extracted Category_id instead of hardcoded 1
+                    psInsert.setString(1, actualSid); // Use seller's SID as product id
+                    psInsert.setString(2, pid); // Insert PID as separate column
+                    psInsert.setString(3, name); // Use seller's name for 'name' column
+                    psInsert.setString(4, brandName); // Set brand to seller's brand field
+                    psInsert.setDouble(5, price);
+                    psInsert.setString(6, description);
+                    psInsert.setString(7, image);
+                    psInsert.setString(8, categoryId); // Use extracted Category_id instead of hardcoded 1
+                    psInsert.setString(9, productName); // Use product name for 'product_name' column
                     
                     int rowsInserted = psInsert.executeUpdate();
                     debugInfo.append(" DEBUG: INSERT result:").append(rowsInserted).append(" rows affected");
@@ -191,22 +254,24 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                         try {
                             String insertApprovedSellerQuery = "INSERT INTO approved_sellers (sid, approval_date) VALUES (?, CURRENT_TIMESTAMP)";
                             PreparedStatement psApprovedSeller = con.prepareStatement(insertApprovedSellerQuery);
-                            psApprovedSeller.setString(1, sellerId);
+                            psApprovedSeller.setString(1, actualSid); // Use actual SID from database
                             int approvedRowsInserted = psApprovedSeller.executeUpdate();
                             psApprovedSeller.close();
                             
-                            debugInfo.append(" DEBUG: Approved seller record inserted:").append(approvedRowsInserted).append(" rows affected");
+                            debugInfo.append(" DEBUG: Approved seller record inserted with SID:").append(actualSid).append(" rows:").append(approvedRowsInserted);
                         } catch (Exception e) {
                             debugInfo.append(" DEBUG: Error inserting approved seller:").append(e.getMessage());
                             // Continue even if approved_sellers insertion fails
                         }
                         
-                        // Remove from seller table using the correct sid column
-                        String deleteQuery = "DELETE FROM seller WHERE sid = ?";
-                        PreparedStatement psDelete = con.prepareStatement(deleteQuery);
-                        psDelete.setString(1, sellerId);
-                        psDelete.executeUpdate();
-                        psDelete.close();
+                        // Update seller status instead of deleting the record
+                        String updateStatusQuery = "UPDATE seller SET status = 'approved' WHERE sid = ?";
+                        PreparedStatement psUpdateStatus = con.prepareStatement(updateStatusQuery);
+                        psUpdateStatus.setString(1, actualSid); // Use actual SID from database
+                        int updatedRows = psUpdateStatus.executeUpdate();
+                        psUpdateStatus.close();
+                        
+                        debugInfo.append(" DEBUG: Updated seller status to 'approved' with SID:").append(actualSid).append(" rows:").append(updatedRows);
                         
                         success = true;
                         message = "Product approved successfully - now available in Showproducts.jsp";
@@ -219,8 +284,8 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                     rsSeller.close();
                     psSeller.close();
                 } else {
-                    message = "Seller not found with ID: " + sellerId + " in seller table (using sid column)";
-                    debugInfo.append(" DEBUG: No seller found with sid='").append(sellerId).append("'");
+                    message = "Seller not found with PID: " + pid + " in seller table (using pid column)";
+                    debugInfo.append(" DEBUG: No seller found with pid='").append(pid).append("'");
                 }
                 
                 con.close();

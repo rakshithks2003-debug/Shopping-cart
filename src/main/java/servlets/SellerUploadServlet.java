@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,6 +56,7 @@ public class SellerUploadServlet extends HttpServlet {
         String email = request.getParameter("email");
         String phone = request.getParameter("phone");
         String productBrand = request.getParameter("productBrand");
+        String productName = request.getParameter("productName");
         String category = request.getParameter("category");
         String categoryId = request.getParameter("categoryId");
         String price = request.getParameter("price");
@@ -65,6 +67,10 @@ public class SellerUploadServlet extends HttpServlet {
         if (sellerId == null || sellerId.trim().isEmpty()) {
             sellerId = "S" + (System.currentTimeMillis() % 1000000);
         }
+        
+        // Generate 4-digit PID automatically
+        String pid = String.format("%04d", (int)(Math.random() * 10000));
+        System.out.println("Generated PID: " + pid + " for seller: " + sellerId);
 
         // Validate required fields
         if (name == null || name.trim().isEmpty() ||
@@ -86,10 +92,36 @@ public class SellerUploadServlet extends HttpServlet {
                 Dbase db = new Dbase();
                 Connection con = db.initailizeDatabase();
                 
-                // Create table if not exists (optional safety)
+                // Debug: Check existing table structure and data
                 try (Statement stmt = con.createStatement()) {
+                    // Show all existing sellers before insertion
+                    System.out.println("=== DEBUG: Existing sellers in database ===");
+                    ResultSet existingSellers = stmt.executeQuery("SELECT sid, full_name FROM seller ORDER BY sid");
+                    while (existingSellers.next()) {
+                        System.out.println("Found seller - SID: " + existingSellers.getString("sid") + ", Name: " + existingSellers.getString("full_name"));
+                    }
+                    existingSellers.close();
+                    System.out.println("=== END DEBUG: Existing sellers ===");
+                    
+                    // Check table structure
+                    try {
+                        ResultSet tableInfo = stmt.executeQuery("DESCRIBE seller");
+                        System.out.println("=== TABLE STRUCTURE ===");
+                        while (tableInfo.next()) {
+                            System.out.println("Column: " + tableInfo.getString("Field") + 
+                                             ", Type: " + tableInfo.getString("Type") + 
+                                             ", Key: " + tableInfo.getString("Key") + 
+                                             ", Extra: " + tableInfo.getString("Extra"));
+                        }
+                        tableInfo.close();
+                        System.out.println("=== END TABLE STRUCTURE ===");
+                    } catch (Exception e) {
+                        System.out.println("Could not get table structure: " + e.getMessage());
+                    }
+                    
                     String createTableSQL = "CREATE TABLE IF NOT EXISTS seller (" +
-                        "sid VARCHAR(20) , " +
+                        "sid VARCHAR(20), " +
+                        "pid VARCHAR(10), " +
                         "full_name VARCHAR(100) NOT NULL, " +
                         "email_address VARCHAR(100) NOT NULL, " +
                         "phone_number VARCHAR(20) NOT NULL, " +
@@ -144,30 +176,74 @@ public class SellerUploadServlet extends HttpServlet {
                 System.out.println("Final image string: " + imageFileNames);
                 System.out.println("=== END DEBUG ===");
 
-                // Insert new seller (10 columns, 10 placeholders)
-                String sql = "INSERT INTO seller (sid, full_name, email_address, phone_number, product_brand, Category, Category_id, price, description, image) " +
-                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                // Try to insert with duplicate sid handling
+                String sql = "INSERT INTO seller (sid, pid, full_name, email_address, phone_number, product_brand, Category, Category_id, price, description, image,product_name) " +
+                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 PreparedStatement ps = con.prepareStatement(sql);
                 
                 ps.setString(1, sellerId);
-                ps.setString(2, name);
-                ps.setString(3, email);
-                ps.setString(4, phone);
-                ps.setString(5, productBrand);
-                ps.setString(6, category);
-                ps.setString(7, categoryId);
-                ps.setString(8, price);
-                ps.setString(9, description);
-                ps.setString(10, imageFileNames);
+                ps.setString(2, pid);
+                ps.setString(3, name);
+                ps.setString(4, email);
+                ps.setString(5, phone);
+                ps.setString(6, productBrand);
+                ps.setString(7, category);
+                ps.setString(8, categoryId);
+                ps.setString(9, price);
+                ps.setString(10, description);
+                ps.setString(11, imageFileNames);
+                ps.setString(12, productName);
                 
-                int result = ps.executeUpdate();
+                int result = 0;
+                try {
+                    result = ps.executeUpdate();
+                    System.out.println("Successfully inserted seller with sid: " + sellerId);
+                    
+                    // Verify the insertion by querying the database
+                    PreparedStatement verifyPs = con.prepareStatement("SELECT sid FROM seller WHERE sid = ?");
+                    verifyPs.setString(1, sellerId);
+                    ResultSet verifyRs = verifyPs.executeQuery();
+                    if (verifyRs.next()) {
+                        System.out.println("VERIFICATION: Seller with sid '" + sellerId + "' found in database after insertion");
+                    } else {
+                        System.out.println("VERIFICATION ERROR: Seller with sid '" + sellerId + "' NOT found in database after insertion");
+                    }
+                    verifyRs.close();
+                    verifyPs.close();
+                    
+                } catch (Exception e) {
+                    // If insertion fails due to primary key constraint, try to update existing record
+                    System.out.println("Insertion failed, trying to handle duplicate sid: " + e.getMessage());
+                    
+                    // Try to create a new unique sid by adding timestamp
+                    String newSellerId = sellerId + "_" + System.currentTimeMillis();
+                    ps.setString(1, newSellerId);
+                    ps.setString(12, productName); // Also set product_name for duplicate case
+                    result = ps.executeUpdate();
+                    System.out.println("Successfully inserted seller with new sid: " + newSellerId);
+                    
+                    // Verify the new insertion
+                    PreparedStatement verifyPs = con.prepareStatement("SELECT sid FROM seller WHERE sid = ?");
+                    verifyPs.setString(1, newSellerId);
+                    ResultSet verifyRs = verifyPs.executeQuery();
+                    if (verifyRs.next()) {
+                        System.out.println("VERIFICATION: Seller with new sid '" + newSellerId + "' found in database after insertion");
+                    } else {
+                        System.out.println("VERIFICATION ERROR: Seller with new sid '" + newSellerId + "' NOT found in database after insertion");
+                    }
+                    verifyRs.close();
+                    verifyPs.close();
+                    
+                    // Update the sellerId variable for response message
+                    sellerId = newSellerId;
+                }
                 if (result > 0) {
                     if (uploadedImages.size() > 1) {
-                        message = "Seller added successfully with " + uploadedImages.size() + " images!";
+                        message = "Seller added successfully with PID: " + pid + " and " + uploadedImages.size() + " images!";
                     } else if (uploadedImages.size() == 1) {
-                        message = "Seller added successfully with 1 image!";
+                        message = "Seller added successfully with PID: " + pid + " and 1 image!";
                     } else {
-                        message = "Seller added successfully (no images uploaded)!";
+                        message = "Seller added successfully with PID: " + pid + " (no images uploaded)!";
                     }
                     messageType = "success";
                 } else {

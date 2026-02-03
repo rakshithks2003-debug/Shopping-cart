@@ -511,6 +511,7 @@ String username = (String) sessionObj.getAttribute("username");
             <th>Full Name</th>
             <th>Email</th>
             <th>Phone</th>
+            <th>Product Name</th>
             <th>Brand</th>
             <th>Category</th>
             <th>Category ID</th>
@@ -554,10 +555,14 @@ String username = (String) sessionObj.getAttribute("username");
                 totalSellers++;
         %>
                 <tr data-name="<%= rs.getString("full_name").toLowerCase() %>" data-email="<%= rs.getString("email_address").toLowerCase() %>">
-                    <td><%= rs.getString("sid") %></td>
+                    <td>
+                    <%= rs.getString("sid") %>
+                    <br><small style="color: #64748b; font-weight: 600;">PID: <%= rs.getString("pid") %></small>
+                </td>
                     <td><%= rs.getString("full_name") %></td>
                     <td><%= rs.getString("email_address") %></td>
                     <td><%= rs.getString("phone_number") %></td>
+                    <td><%= rs.getString("product_name") != null ? rs.getString("product_name") : "No Product Name" %></td>
                     <td><%= rs.getString("product_brand") %></td>
                     <td><%= rs.getString("Category") %></td>
                     <td><%= rs.getString("Category_id") %></td>
@@ -585,40 +590,10 @@ String username = (String) sessionObj.getAttribute("username");
                     </td>
                     <td><%= rs.getString("description") != null ? rs.getString("description").substring(0, Math.min(50, rs.getString("description").length())) + (rs.getString("description").length() > 50 ? "..." : "") : "" %></td>
                     <td>
-                        <div class="action-buttons">
-                            <div class="dropdown">
-                                <button class="dropdown-btn" onclick="toggleDropdown('dropdown<%= rs.getString("sid") %>')">
-                                    <i class="fas fa-cog"></i> Actions
-                                    <i class="fas fa-chevron-down"></i>
-                                </button>
-                                <!-- Direct delete button for testing -->
-                                <button onclick="deleteSellerDirect('<%= rs.getString("sid") %>', 'delete')" style="margin-left: 2px; padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer;" title="Delete Seller">🗑️</button>
-                                <div class="dropdown-content" id="dropdown<%= rs.getString("sid") %>">
-                                    <!-- Quick Actions Section -->
-                                    <div class="dropdown-section">
-                                        <div class="section-title">
-                                            <i class="fas fa-bolt"></i> Quick Actions
-                                        </div>
-                                        <a href="#" class="dropdown-item approve-item" onclick="acceptProductWithShowproducts('<%= rs.getString("sid") %>'); return false;">
-                                            <i class="fas fa-check"></i> Accept Product
-                                        </a>
-                                        <a href="#" class="dropdown-item approve-item" onclick="acceptProductWithShowproducts('<%= rs.getString("sid") %>'); return false;">
-                                            <i class="fas fa-check-circle"></i> Approved
-                                        </a>
-                                        <a href="#" class="dropdown-item pending-item" onclick="updateSellerStatus('<%= rs.getString("sid") %>', 'pending'); return false;">
-                                            <i class="fas fa-clock"></i> Pending
-                                        </a>
-                                        <a href="#" class="dropdown-item reject-item" onclick="updateSellerStatus('<%= rs.getString("sid") %>', 'rejected'); return false;">
-                                            <i class="fas fa-times"></i> Reject
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
                         <%
                         String sellerStatus = "pending"; // Default status
+                        String currentSid = rs.getString("sid");
+                        String currentPid = rs.getString("pid");
                         try {
                             // Try to get status from database if status column exists
                             String statusFromDb = rs.getString("status");
@@ -628,7 +603,42 @@ String username = (String) sessionObj.getAttribute("username");
                         } catch (Exception e) {
                             // Status column doesn't exist, use default
                         }
-                        
+                        %>
+                        <div class="action-buttons">
+                            <div class="dropdown">
+                                <button class="dropdown-btn" onclick="toggleDropdown('dropdown<%= currentSid %>')">
+                                    <i class="fas fa-cog"></i> Actions
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <!-- Direct delete button for testing -->
+                                <button onclick="deleteSellerDirect('<%= currentSid %>', 'delete')" style="margin-left: 2px; padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer;" title="Delete Seller">🗑️</button>
+                                <div class="dropdown-content" id="dropdown<%= currentSid %>">
+                                    <!-- Quick Actions Section -->
+                                    <div class="dropdown-section">
+                                        <div class="section-title">
+                                            <i class="fas fa-bolt"></i> Quick Actions
+                                        </div>
+                                        <% if (!"approved".equals(sellerStatus) && !"moved_to_products".equals(sellerStatus)) { %>
+                                            <a href="#" class="dropdown-item approve-item" onclick="acceptProductWithShowproducts('<%= currentPid %>'); return false;">
+                                                <i class="fas fa-check"></i> Accept Product
+                                            </a>
+                                        <% } %>
+                                        <a href="#" class="dropdown-item approve-item" onclick="acceptProductWithShowproducts('<%= currentPid %>'); return false;">
+                                            <i class="fas fa-check-circle"></i> Approved
+                                        </a>
+                                        <a href="#" class="dropdown-item pending-item" onclick="updateSellerStatus('<%= currentSid %>', 'pending'); return false;">
+                                            <i class="fas fa-clock"></i> Pending
+                                        </a>
+                                        <a href="#" class="dropdown-item reject-item" onclick="updateSellerStatus('<%= currentSid %>', 'rejected'); return false;">
+                                            <i class="fas fa-times"></i> Reject
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <%
                         // Determine status badge class and text
                         String statusBadgeClass = "status-pending";
                         String statusText = "Pending";
@@ -644,7 +654,7 @@ String username = (String) sessionObj.getAttribute("username");
                             statusText = "Moved to Products";
                         }
                         %>
-                        <span id="status-<%= rs.getString("sid") %>" class="status-badge <%= statusBadgeClass %>">
+                        <span id="status-<%= currentSid %>" class="status-badge <%= statusBadgeClass %>">
                             <%= statusText %>
                         </span>
                     </td>
