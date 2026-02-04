@@ -112,15 +112,14 @@ public class Uploadproducts extends HttpServlet {
             String allImages = String.join(",", imageNames);
 
             // Insert product with all images as comma-separated string
-            String sql = "INSERT INTO product(id, name, price, description, image, category_id, brand) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO product(id, price, description, image, category_id, brand) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, id);
-            ps.setString(2, name);
-            ps.setString(3, priceStr); // Store price as string to match database column
-            ps.setString(4, description != null ? description : "");
-            ps.setString(5, allImages); // Store all images as comma-separated string
-            ps.setString(6, category_id);
-            ps.setString(7, brand);
+            ps.setString(2, priceStr); // Store price as string to match database column
+            ps.setString(3, description != null ? description : "");
+            ps.setString(4, allImages); // Store all images as comma-separated string
+            ps.setString(5, category_id);
+            ps.setString(6, brand);
 
             ps.executeUpdate();
 

@@ -36,13 +36,13 @@ boolean productFound = false;
 try {
     Dbase db = new Dbase();
     Connection con = db.initailizeDatabase();
-    PreparedStatement ps = con.prepareStatement("SELECT id, name, brand, price, description, image FROM product WHERE id = ?");
+    PreparedStatement ps = con.prepareStatement("SELECT id, product_name, brand, price, description, image FROM product WHERE id = ?");
     ps.setString(1, productId);
     ResultSet rs = ps.executeQuery();
     
     if (rs.next()) {
         productFound = true;
-        productName = rs.getString("name");
+        productName = rs.getString("product_name");
         productBrand = rs.getString("brand");
         productPrice = rs.getDouble("price");
         productDescription = rs.getString("description");

@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import jakarta.servlet.ServletException;
@@ -56,62 +57,13 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                 
-                // Debug: Check if PID column exists and show all sellers
-                System.out.println("=== DEBUG: AcceptProductToProductsServlet - Checking PID column ===");
-                System.out.println("Looking for PID: '" + pid + "'");
-                
-                // Check if PID column exists
-                boolean pidColumnExists = false;
-                try {
-                    ResultSetMetaData tableMeta = con.createStatement().executeQuery("SELECT * FROM seller LIMIT 1").getMetaData();
-                    for (int i = 1; i <= tableMeta.getColumnCount(); i++) {
-                        if ("pid".equalsIgnoreCase(tableMeta.getColumnName(i))) {
-                            pidColumnExists = true;
-                            break;
-                        }
-                    }
-                } catch (Exception e) {
-                    System.out.println("Could not check table structure: " + e.getMessage());
-                }
-                
-                System.out.println("PID column exists: " + pidColumnExists);
-                
-                Statement debugStmt = con.createStatement();
-                ResultSet allSellers = debugStmt.executeQuery("SELECT sid, full_name" + (pidColumnExists ? ", pid" : "") + " FROM seller ORDER BY sid");
-                System.out.println("All sellers in database:");
-                boolean foundAny = false;
-                while (allSellers.next()) {
-                    foundAny = true;
-                    String dbSid = allSellers.getString("sid");
-                    String dbPid = pidColumnExists ? allSellers.getString("pid") : null;
-                    String dbName = allSellers.getString("full_name");
-                    boolean isMatch = (dbPid != null && dbPid.equals(pid));
-                    System.out.println("  - SID: '" + dbSid + "', PID: '" + (dbPid != null ? dbPid : "NULL") + "', Name: " + dbName + (isMatch ? " <-- MATCH!" : ""));
-                }
-                allSellers.close();
-                debugStmt.close();
-                
-                if (!foundAny) {
-                    System.out.println("NO SELLERS FOUND IN DATABASE!");
-                }
-                
-                System.out.println("=== END DEBUG ===");
-
-                // Ensure status column exists in seller table
-                try {
-                    Statement alterStmt = con.createStatement();
-                    alterStmt.executeUpdate("ALTER TABLE seller ADD COLUMN status VARCHAR(20) DEFAULT 'pending'");
-                    System.out.println("Added status column to seller table");
-                    alterStmt.close();
-                } catch (Exception e) {
-                    System.out.println("Status column already exists or couldn't be added: " + e.getMessage());
-                }
-                
-                // Use PID directly as the product ID without complex searching
-                String getSellerQuery = "SELECT * FROM seller WHERE pid = ?";
+                // Use PID directly as the product ID with more specific query to avoid duplicates
+                String getSellerQuery = "SELECT * FROM seller WHERE pid = ? ORDER BY sid DESC LIMIT 1";
                 PreparedStatement psSeller = con.prepareStatement(getSellerQuery);
                 psSeller.setString(1, pid);
                 ResultSet rsSeller = psSeller.executeQuery();
+                
+                debugInfo.append(" DEBUG: Executed query: ").append(getSellerQuery).append(" with PID='").append(pid).append("'");
                 
                 if (rsSeller.next()) {
                     
@@ -119,19 +71,7 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                     String actualSid = rsSeller.getString("sid");
                     debugInfo.append(" DEBUG: Found seller - SID: ").append(actualSid).append(", PID: ").append(pid);
                     
-                    // DEBUG: Print all available columns and their values
-                    debugInfo.append(" DEBUG: Available columns in seller table: ");
-                    ResultSetMetaData rsMeta = rsSeller.getMetaData();
-                    int columnCount = rsMeta.getColumnCount();
-                    
-                    for (int i = 1; i <= columnCount; i++) {
-                        String columnName = rsMeta.getColumnName(i);
-                        String columnValue = rsSeller.getString(i);
-                        debugInfo.append("Column").append(i).append(":").append(columnName).append("='").append(columnValue).append("' ");
-                    }
-                    
                     // Get data - separate variables for name and product_name columns
-                    String name = ""; // For product table 'name' column
                     String productName = ""; // For product table 'product_name' column
                     String brandName = ""; // This will hold the brand from seller table
                     double price = 0.0;
@@ -151,20 +91,6 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                     if (brandName == null || brandName.trim().isEmpty()) {
                         brandName = "Unknown Brand"; // Fallback
                         debugInfo.append(" DEBUG: Using fallback brand:").append(brandName);
-                    }
-                    
-                    // Get value for 'name' column - prioritize full_name (seller's name)
-                    try { name = rsSeller.getString("full_name"); } catch (Exception e) { 
-                        debugInfo.append(" DEBUG: 'full_name' column failed for name:").append(e.getMessage());
-                    }
-                    if (name == null || name.trim().isEmpty()) {
-                        try { name = rsSeller.getString("name"); } catch (Exception e) { 
-                            debugInfo.append(" DEBUG: 'name' column failed for name:").append(e.getMessage());
-                        }
-                    }
-                    if (name == null || name.trim().isEmpty()) {
-                        name = "Product " + sellerId; // Fallback for name
-                        debugInfo.append(" DEBUG: Using fallback name:").append(name);
                     }
                     
                     // Get value for 'product_name' column - prioritize product_name (actual product name)
@@ -187,8 +113,8 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                         }
                     }
                     if (productName == null || productName.trim().isEmpty()) {
-                        productName = name; // Use name as fallback for product_name
-                        debugInfo.append(" DEBUG: Using name as fallback for product_name:").append(productName);
+                        productName = "Product " + sellerId; // Use name as fallback for product_name
+                        debugInfo.append(" DEBUG: Using fallback for product_name:").append(productName);
                     }
                     
                     // Get price
@@ -204,7 +130,16 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                     }
                     
                     // Get image
-                    try { image = rsSeller.getString("image"); } catch (Exception e) { 
+                    try { 
+                        image = rsSeller.getString("image"); 
+                        debugInfo.append(" DEBUG: Retrieved image='").append(image).append("'");
+                        if (image == null || image.trim().isEmpty()) {
+                            debugInfo.append(" DEBUG: Image is null or empty, checking for other image columns");
+                            try { image = rsSeller.getString("images"); } catch (Exception e2) { 
+                                debugInfo.append(" DEBUG: 'images' column also failed:").append(e2.getMessage());
+                            }
+                        }
+                    } catch (Exception e) { 
                         debugInfo.append(" DEBUG: 'image' column failed:").append(e.getMessage());
                         image = "";
                     }
@@ -228,50 +163,37 @@ public class AcceptProductToProductsServlet extends HttpServlet {
                         debugInfo.append(" DEBUG: Using fallback Category_id:").append(categoryId);
                     }
                     
-                    debugInfo.append(" DEBUG: Final data to insert: Name='").append(name).append("' ProductName='").append(productName).append("' Brand='").append(brandName).append("' Price:").append(price).append(" Description='").append(description).append("' Image='").append(image).append("' Category_id='").append(categoryId).append("'");
+                    debugInfo.append(" DEBUG: Final data to insert: ProductName='").append(productName).append("' Brand='").append(brandName).append("' Price:").append(price).append(" Description='").append(description).append("' Image='").append(image).append("' Category_id='").append(categoryId).append("'");
                     
-                    // Move seller data to products table - inserting SID as ID and PID as PID
-                    debugInfo.append(" DEBUG: Inserting product with ID=").append(actualSid).append(" and PID=").append(pid);
+                    // Generate a unique 4-digit product ID
+                    String uniqueProductId = generateFourDigitId(con);
+                    debugInfo.append(" DEBUG: Generated 4-digit product ID: ").append(uniqueProductId);
                     
-                    String insertQuery = "INSERT INTO product (id, pid, name, brand, price, description, image, Category_id, product_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    String insertQuery = "INSERT INTO product (id, pid, brand, price, description, image, Category_id, product_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement psInsert = con.prepareStatement(insertQuery);
-                    psInsert.setString(1, actualSid); // Use seller's SID as product id
+                    psInsert.setString(1, uniqueProductId); // Use 4-digit product ID
                     psInsert.setString(2, pid); // Insert PID as separate column
-                    psInsert.setString(3, name); // Use seller's name for 'name' column
-                    psInsert.setString(4, brandName); // Set brand to seller's brand field
-                    psInsert.setDouble(5, price);
-                    psInsert.setString(6, description);
-                    psInsert.setString(7, image);
-                    psInsert.setString(8, categoryId); // Use extracted Category_id instead of hardcoded 1
-                    psInsert.setString(9, productName); // Use product name for 'product_name' column
+                    psInsert.setString(3, brandName); // Set brand to seller's brand field
+                    psInsert.setDouble(4, price);
+                    psInsert.setString(5, description);
+                    psInsert.setString(6, image);
+                    psInsert.setString(7, categoryId); // Use extracted Category_id instead of hardcoded 1
+                    psInsert.setString(8, productName); // Use product name for 'product_name' column
                     
                     int rowsInserted = psInsert.executeUpdate();
                     debugInfo.append(" DEBUG: INSERT result:").append(rowsInserted).append(" rows affected");
                     psInsert.close();
                     
                     if (rowsInserted > 0) {
-                        // Insert seller ID into approved_sellers table when approved
-                        try {
-                            String insertApprovedSellerQuery = "INSERT INTO approved_sellers (sid, approval_date) VALUES (?, CURRENT_TIMESTAMP)";
-                            PreparedStatement psApprovedSeller = con.prepareStatement(insertApprovedSellerQuery);
-                            psApprovedSeller.setString(1, actualSid); // Use actual SID from database
-                            int approvedRowsInserted = psApprovedSeller.executeUpdate();
-                            psApprovedSeller.close();
-                            
-                            debugInfo.append(" DEBUG: Approved seller record inserted with SID:").append(actualSid).append(" rows:").append(approvedRowsInserted);
-                        } catch (Exception e) {
-                            debugInfo.append(" DEBUG: Error inserting approved seller:").append(e.getMessage());
-                            // Continue even if approved_sellers insertion fails
-                        }
-                        
-                        // Update seller status instead of deleting the record
-                        String updateStatusQuery = "UPDATE seller SET status = 'approved' WHERE sid = ?";
+                        // Update seller status for the specific product only (not all products with same SID)
+                        String updateStatusQuery = "UPDATE seller SET status = 'approved' WHERE sid = ? AND pid = ?";
                         PreparedStatement psUpdateStatus = con.prepareStatement(updateStatusQuery);
                         psUpdateStatus.setString(1, actualSid); // Use actual SID from database
+                        psUpdateStatus.setString(2, pid); // Also use PID to target specific product
                         int updatedRows = psUpdateStatus.executeUpdate();
                         psUpdateStatus.close();
                         
-                        debugInfo.append(" DEBUG: Updated seller status to 'approved' with SID:").append(actualSid).append(" rows:").append(updatedRows);
+                        debugInfo.append(" DEBUG: Updated seller status to 'approved' with SID:").append(actualSid).append(" and PID:").append(pid).append(" rows:").append(updatedRows);
                         
                         success = true;
                         message = "Product approved successfully - now available in Showproducts.jsp";
@@ -311,6 +233,60 @@ public class AcceptProductToProductsServlet extends HttpServlet {
         
         out.print(jsonResponse.toString());
         out.flush();
+    }
+    
+    /**
+     * Generates a unique 4-digit product ID
+     * @param con Database connection
+     * @return Unique 4-digit product ID as String
+     * @throws SQLException If database error occurs
+     */
+    private String generateFourDigitId(Connection con) throws SQLException {
+        PreparedStatement checkStmt = null;
+        ResultSet rs = null;
+        
+        try {
+            // Generate random 4-digit number (1000-9999)
+            int randomId;
+            String productId;
+            boolean isUnique = false;
+            
+            // Keep trying until we find a unique ID
+            do {
+                randomId = 1000 + (int)(Math.random() * 9000); // Generate 4-digit number
+                productId = String.valueOf(randomId);
+                
+                // Check if this ID already exists in the product table
+                String checkQuery = "SELECT id FROM product WHERE id = ?";
+                checkStmt = con.prepareStatement(checkQuery);
+                checkStmt.setString(1, productId);
+                rs = checkStmt.executeQuery();
+                
+                // If no record found, the ID is unique
+                if (!rs.next()) {
+                    isUnique = true;
+                }
+                
+                // Clean up for next iteration
+                if (rs != null) rs.close();
+                if (checkStmt != null) checkStmt.close();
+                
+            } while (!isUnique);
+            
+            return productId;
+            
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            // Ensure resources are closed
+            try {
+                if (rs != null) rs.close();
+                if (checkStmt != null) checkStmt.close();
+            } catch (SQLException e) {
+                // Log error but don't throw
+                System.err.println("Error closing resources in generateFourDigitId: " + e.getMessage());
+            }
+        }
     }
     
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 

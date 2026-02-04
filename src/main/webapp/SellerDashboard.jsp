@@ -483,7 +483,7 @@ try {
             <a href="SellerProducts.jsp">
                 <i class="fas fa-box"></i> My Products
             </a>
-            <a href="SAddproduct.jsp">
+            <a href="AddProduct.jsp">
                 <i class="fas fa-plus"></i> Add Product
             </a>
             <a href="SellerOrders.jsp">

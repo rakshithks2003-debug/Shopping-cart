@@ -639,11 +639,11 @@ try {
         String sql;
         
         if (category != null && !category.trim().isEmpty()) {
-            sql = "SELECT id, name, brand, price, image, description FROM product WHERE category_id = ? ORDER BY id DESC";
+            sql = "SELECT id, product_name, brand, price, image, description FROM product WHERE category_id = ? ORDER BY id DESC";
             ps = con.prepareStatement(sql);
             ps.setString(1, category);
         } else {
-            sql = "SELECT id, name, brand, price, image, description FROM product ORDER BY id DESC";
+            sql = "SELECT id, product_name, brand, price, image, description FROM product ORDER BY id DESC";
             ps = con.prepareStatement(sql);
         }
         

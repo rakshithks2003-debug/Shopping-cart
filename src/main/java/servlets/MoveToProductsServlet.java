@@ -58,15 +58,14 @@ public class MoveToProductsServlet extends HttpServlet {
 
             // Move seller data to product table
             PreparedStatement insertPs = con.prepareStatement(
-                "INSERT INTO product (id, name, price, image, description, category_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?)");
+                "INSERT INTO product (id, price, image, description, category_id) " +
+                "VALUES (?, ?, ?, ?, ?)");
             
             insertPs.setString(1, checkRs.getString("id"));
-            insertPs.setString(2, checkRs.getString("product_brand") + " " + checkRs.getString("Category"));
-            insertPs.setString(3, checkRs.getString("price"));
-            insertPs.setString(4, checkRs.getString("image"));
-            insertPs.setString(5, checkRs.getString("description"));
-            insertPs.setString(6, checkRs.getString("Category_id"));
+            insertPs.setString(2, checkRs.getString("price"));
+            insertPs.setString(3, checkRs.getString("image"));
+            insertPs.setString(4, checkRs.getString("description"));
+            insertPs.setString(5, checkRs.getString("Category_id"));
             
             int result = insertPs.executeUpdate();
             

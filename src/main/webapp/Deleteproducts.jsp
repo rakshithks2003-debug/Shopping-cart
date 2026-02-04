@@ -22,11 +22,11 @@ String deleteMessage = "";
 String messageType = "";
 
 if ("POST".equalsIgnoreCase(request.getMethod())) {
-    String productPid = request.getParameter("productPid");
+    String productName = request.getParameter("productName");
     
-    System.out.println("Deleteproducts.jsp: Attempting to delete product with PID: " + productPid);
+    System.out.println("Deleteproducts.jsp: Attempting to delete product with name: " + productName);
     
-    if (productPid != null && !productPid.trim().isEmpty()) {
+    if (productName != null && !productName.trim().isEmpty()) {
         try {
             Dbase db = new Dbase();
             Connection con = null;
@@ -44,57 +44,58 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                 deleteMessage = "Database connection failed!";
                 messageType = "error";
             } else {
-                // First check if product exists by PID
+                // First check if product exists by product_name
                 PreparedStatement checkPs = null;
                 ResultSet checkRs = null;
                 boolean productFound = false;
                 int productId = -1;
+                String foundPid = null;
                 
                 try {
-                    checkPs = con.prepareStatement("SELECT id, pid, name, brand FROM product WHERE pid = ?");
-                    checkPs.setString(1, productPid);
+                    checkPs = con.prepareStatement("SELECT id, pid, product_name, brand FROM product WHERE product_name = ?");
+                    checkPs.setString(1, productName);
                     checkRs = checkPs.executeQuery();
                     
                     if (checkRs.next()) {
                         productFound = true;
                         productId = checkRs.getInt("id");
-                        String foundPid = checkRs.getString("pid");
-                        System.out.println("Found product with PID: " + productPid + " - ID: " + productId);
+                        foundPid = checkRs.getString("pid");
+                        System.out.println("Found product with name: " + productName + " - ID: " + productId + ", PID: " + foundPid);
                     }
                 } catch (Exception e) {
-                    System.out.println("PID check failed: " + e.getMessage());
+                    System.out.println("Product name check failed: " + e.getMessage());
                 } finally {
                     if (checkRs != null) checkRs.close();
                     if (checkPs != null) checkPs.close();
                 }
                 
                 if (productFound) {
-                    // Delete the product using the PID
+                    // Delete the product using the product_name
                     PreparedStatement ps = null;
                     int result = 0;
                     
                     try {
-                        ps = con.prepareStatement("DELETE FROM product WHERE pid = ?");
-                        ps.setString(1, productPid);
+                        ps = con.prepareStatement("DELETE FROM product WHERE product_name = ?");
+                        ps.setString(1, productName);
                         result = ps.executeUpdate();
-                        System.out.println("Delete with PID affected " + result + " rows");
+                        System.out.println("Delete with product_name affected " + result + " rows");
                         
                     } finally {
                         if (ps != null) ps.close();
                     }
                     
                     if (result > 0) {
-                        deleteMessage = "Product with PID '" + productPid + "' deleted successfully!";
+                        deleteMessage = "Product '" + productName + "' deleted successfully!";
                         messageType = "success";
                     } else {
                         deleteMessage = "Failed to delete product. Try checking database permissions.";
                         messageType = "error";
                     }
                 } else {
-                    System.out.println("No product found with PID: " + productPid);
+                    System.out.println("No product found with name: " + productName);
                     
                     // Show all available product names for debugging
-                    PreparedStatement allPs = con.prepareStatement("SELECT id, pid, product_name, brand FROM product ORDER BY pid");
+                    PreparedStatement allPs = con.prepareStatement("SELECT id, pid, product_name, brand FROM product ORDER BY product_name");
                     ResultSet allRs = allPs.executeQuery();
                     StringBuilder availableProducts = new StringBuilder("Available products: ");
                     int productCount = 0;
@@ -148,7 +149,7 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
             messageType = "error";
         }
     } else {
-        deleteMessage = "Invalid product PID: " + productPid;
+        deleteMessage = "Invalid product name: " + productName;
         messageType = "error";
     }
 }
@@ -549,7 +550,7 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                                 <td>
                                     <form action="Deleteproducts.jsp" method="post" 
                                           onsubmit="return confirm('Are you sure you want to delete this product?')">
-                                        <input type="hidden" name="productPid" value="<%= rs.getString("pid") %>">
+                                        <input type="hidden" name="productName" value="<%= rs.getString("product_name") %>">
                                         <button type="submit" class="delete-btn">🗑️ Delete</button>
                                     </form>
                                 </td>
