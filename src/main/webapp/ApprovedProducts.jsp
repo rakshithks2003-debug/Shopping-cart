@@ -418,10 +418,6 @@ try {
                                         class="btn-approve" title="Approve and move to main store">
                                     <i class="fas fa-check"></i> Approve
                                 </button>
-                                <button onclick="viewDetails('<%= product.get("id") %>')" 
-                                        class="btn-details" title="View full details">
-                                    <i class="fas fa-eye"></i> Details
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -464,11 +460,6 @@ try {
                 
                 xhr.send('productId=' + encodeURIComponent(productId) + '&productName=' + encodeURIComponent(productName));
             }
-        }
-        
-        function viewDetails(productId) {
-            // Open product details in a new window or modal
-            window.open('ProductDetails.jsp?id=' + productId, '_blank', 'width=800,height=600,scrollbars=yes');
         }
     </script>
 </body>

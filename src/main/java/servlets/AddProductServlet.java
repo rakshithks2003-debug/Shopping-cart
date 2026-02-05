@@ -95,13 +95,8 @@ public class AddProductServlet extends HttpServlet {
                     System.err.println("Error checking/adding seller table columns: " + e.getMessage());
                 }
                 
-                // Check if product ID already exists in Sproduct table
-                String checkQuery = "SELECT id FROM Sproduct WHERE id = ?";
-                PreparedStatement checkStmt = con.prepareStatement(checkQuery);
-                checkStmt.setString(1, productId);
-                ResultSet rs = checkStmt.executeQuery();
-                
-                if (rs.next()) {
+                // Skip duplicate check - allow same Product IDs
+                if (false) { // Always false to skip duplicate check
                     message = "Product ID already exists. Please use a different ID.";
                 } else {
                     // Handle file uploads
@@ -166,8 +161,6 @@ public class AddProductServlet extends HttpServlet {
                     }
                 }
                 
-                rs.close();
-                checkStmt.close();
                 con.close();
             }
         } catch (Exception e) {
