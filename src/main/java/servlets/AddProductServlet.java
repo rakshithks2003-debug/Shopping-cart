@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +20,8 @@ import jakarta.servlet.http.Part;
 
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 2, // 2MB
-    maxFileSize = 1024 * 1024 * 10,      // 10MB
-    maxRequestSize = 1024 * 1024 * 50    // 50MB
+    maxFileSize = 1024 * 1024 * 15,      // 15MB per image
+    maxRequestSize = 1024 * 1024 * 200   // 200MB total (supports 13+ images)
 )
 @WebServlet("/AddProductServlet")
 public class AddProductServlet extends HttpServlet {
@@ -102,13 +103,20 @@ public class AddProductServlet extends HttpServlet {
                     // Handle file uploads
                     List<String> imagePaths = new ArrayList<>();
                     try {
+                        int imageCount = 0;
                         for (Part part : request.getParts()) {
                             if (part.getName().equals("productImage") && part.getSize() > 0) {
                                 String fileName = part.getSubmittedFileName();
                                 if (fileName != null && !fileName.isEmpty()) {
-                                    // Create unique filename
+                                    // Validate file type
+                                    if (!fileName.toLowerCase().matches(".*\\.(jpg|jpeg|png|gif|webp)$")) {
+                                        message = "Invalid file type: " + fileName + ". Only JPG, PNG, GIF, and WEBP images are allowed.";
+                                        break;
+                                    }
+                                    
+                                    // Create unique filename with counter
                                     String timestamp = String.valueOf(System.currentTimeMillis());
-                                    String uniqueFileName = productId + "_" + timestamp + "_" + fileName;
+                                    String uniqueFileName = productId + "_" + timestamp + "_" + (imageCount + 1) + "_" + fileName;
                                     
                                     // Save to product_images directory
                                     String uploadPath = getServletContext().getRealPath("") + "product_images";
@@ -117,47 +125,63 @@ public class AddProductServlet extends HttpServlet {
                                         uploadDir.mkdir();
                                     }
                                     
-                                    String filePath = uploadPath + java.io.File.separator + uniqueFileName;
-                                    part.write(filePath);
+                                    java.io.File file = new java.io.File(uploadDir, uniqueFileName);
+                                    part.write(file.getAbsolutePath());
                                     imagePaths.add(uniqueFileName);
+                                    imageCount++;
+                                    
+                                    System.out.println("DEBUG: Uploaded image " + (imageCount) + ": " + uniqueFileName);
                                 }
                             }
                         }
+                        
+                        if (imagePaths.isEmpty()) {
+                            message = "Please select at least one image.";
+                        } else if (message != null && message.startsWith("Invalid file type")) {
+                            // Image validation failed, don't proceed
+                        } else {
+                            System.out.println("DEBUG: Total images uploaded: " + imageCount);
+                            
+                            // Combine image paths into comma-separated string
+                            String imagePathsStr = String.join(",", imagePaths);
+                            if (imagePathsStr.isEmpty()) {
+                                imagePathsStr = "default.jpg";
+                            }
+                            
+                            // Insert product into Sproduct table
+                            String insertQuery = "INSERT INTO Sproduct (id, pro_id, brand, price, description, image, Category, product_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                            PreparedStatement insertStmt = con.prepareStatement(insertQuery);
+                            
+                            // Generate a unique 4-digit PIN for pro_id
+                            String proId = generateFourDigitPin(con);
+                            
+                            insertStmt.setString(1, productId);           // id
+                            insertStmt.setString(2, proId);               // pro_id (4-digit PIN)
+                            insertStmt.setString(3, brand);               // brand
+                            insertStmt.setDouble(4, Double.parseDouble(price)); // price
+                            insertStmt.setString(5, description);         // description
+                            insertStmt.setString(6, imagePathsStr);       // image
+                            insertStmt.setString(7, category);            // Category
+                            insertStmt.setString(8, productName);         // product_name
+                            
+                            int rowsInserted = insertStmt.executeUpdate();
+                            insertStmt.close();
+                            
+                            System.out.println("DEBUG: Product insertion result: " + rowsInserted + " rows affected");
+                            System.out.println("DEBUG: Inserted product with ID: " + productId + " into Sproduct table");
+                            
+                            if (rowsInserted > 0) {
+                                success = true;
+                                message = "Product added successfully! Product ID: " + productId + ", PIN: " + proId + " (" + imageCount + " images uploaded - Available in Approved Products)";
+                                System.out.println("DEBUG: Product successfully added to Sproduct table with PIN: " + proId);
+                            } else {
+                                message = "Failed to add product - no rows affected";
+                                System.err.println("DEBUG: INSERT failed - no rows affected");
+                            }
+                        }
                     } catch (Exception e) {
+                        message = "Error uploading files: " + e.getMessage();
                         System.err.println("Error uploading files: " + e.getMessage());
-                    }
-                    
-                    // Combine image paths into comma-separated string
-                    String imagePathsStr = String.join(",", imagePaths);
-                    if (imagePathsStr.isEmpty()) {
-                        imagePathsStr = "default.jpg";
-                    }
-                    
-                    // Insert product into Sproduct table
-                    String insertQuery = "INSERT INTO Sproduct (id, brand, price, description, image, Category, product_name) VALUES (?, ?, ?, ?, ?, ?, ?)";
-                    PreparedStatement insertStmt = con.prepareStatement(insertQuery);
-                    
-                    insertStmt.setString(1, productId);           // id
-                    insertStmt.setString(2, brand);               // brand
-                    insertStmt.setDouble(3, Double.parseDouble(price)); // price
-                    insertStmt.setString(4, description);         // description
-                    insertStmt.setString(5, imagePathsStr);       // image
-                    insertStmt.setString(6, category);            // Category
-                    insertStmt.setString(7, productName);         // product_name
-                    
-                    int rowsInserted = insertStmt.executeUpdate();
-                    insertStmt.close();
-                    
-                    System.out.println("DEBUG: Product insertion result: " + rowsInserted + " rows affected");
-                    System.out.println("DEBUG: Inserted product with ID: " + productId + " into Sproduct table");
-                    
-                    if (rowsInserted > 0) {
-                        success = true;
-                        message = "Product added successfully! Product ID: " + productId + " (Available in Approved Products)";
-                        System.out.println("DEBUG: Product successfully added to Sproduct table");
-                    } else {
-                        message = "Failed to add product - no rows affected";
-                        System.err.println("DEBUG: INSERT failed - no rows affected");
                     }
                 }
                 
@@ -182,6 +206,60 @@ public class AddProductServlet extends HttpServlet {
             out.println("<h3>" + message + "</h3>");
             out.println("<p><a href='AddProduct.jsp'>Go Back</a></p>");
             out.println("</body></html>");
+        }
+    }
+    
+    /**
+     * Generates a unique 4-digit PIN for pro_id field
+     * @param con Database connection
+     * @return Unique 4-digit PIN as String
+     * @throws SQLException If database error occurs
+     */
+    private String generateFourDigitPin(Connection con) throws SQLException {
+        PreparedStatement checkStmt = null;
+        ResultSet rs = null;
+        
+        try {
+            // Generate random 4-digit number (1000-9999)
+            int randomPin;
+            String pin;
+            boolean isUnique = false;
+            
+            // Keep trying until we find a unique PIN
+            do {
+                randomPin = 1000 + (int)(Math.random() * 9000); // Generate 4-digit number
+                pin = String.valueOf(randomPin);
+                
+                // Check if this PIN already exists in the Sproduct table
+                String checkQuery = "SELECT pro_id FROM Sproduct WHERE pro_id = ?";
+                checkStmt = con.prepareStatement(checkQuery);
+                checkStmt.setString(1, pin);
+                rs = checkStmt.executeQuery();
+                
+                // If no record found, the PIN is unique
+                if (!rs.next()) {
+                    isUnique = true;
+                }
+                
+                // Clean up for next iteration
+                if (rs != null) rs.close();
+                if (checkStmt != null) checkStmt.close();
+                
+            } while (!isUnique);
+            
+            return pin;
+            
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            // Ensure resources are closed
+            try {
+                if (rs != null) rs.close();
+                if (checkStmt != null) checkStmt.close();
+            } catch (SQLException e) {
+                // Log error but don't throw
+                System.err.println("Error closing resources in generateFourDigitPin: " + e.getMessage());
+            }
         }
     }
     

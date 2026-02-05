@@ -33,22 +33,25 @@ public class ApproveSproductServlet extends HttpServlet {
         String message = "Error approving product";
         
         try {
-            String productId = request.getParameter("productId");
+            String proId = request.getParameter("productId");
             String productName = request.getParameter("productName");
             
-            if (productId == null || productId.trim().isEmpty()) {
-                message = "Product ID is required";
+            if (proId == null || proId.trim().isEmpty()) {
+                message = "Product PIN is required";
             } else {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                 
-                // Get product details from Sproduct table
-                String getSproductQuery = "SELECT id, brand, price, description, image, Category, product_name FROM Sproduct WHERE id = ?";
+                // Get product details from Sproduct table using pro_id
+                String getSproductQuery = "SELECT id, pro_id, brand, price, description, image, Category, product_name FROM Sproduct WHERE pro_id = ?";
                 PreparedStatement psSproduct = con.prepareStatement(getSproductQuery);
-                psSproduct.setString(1, productId);
+                psSproduct.setString(1, proId);
                 ResultSet rsSproduct = psSproduct.executeQuery();
                 
                 if (rsSproduct.next()) {
+                    // Get the original product ID from Sproduct
+                    String originalProductId = rsSproduct.getString("id");
+                    
                     // Generate a unique 4-digit ID for the main product table
                     String uniqueProductId = generateFourDigitId(con);
                     
@@ -57,7 +60,7 @@ public class ApproveSproductServlet extends HttpServlet {
                     PreparedStatement psInsert = con.prepareStatement(insertQuery);
                     
                     psInsert.setString(1, uniqueProductId); // 4-digit ID
-                    psInsert.setString(2, productId); // Original PID from Sproduct
+                    psInsert.setString(2, originalProductId); // Original ID from Sproduct
                     psInsert.setString(3, rsSproduct.getString("brand"));
                     psInsert.setDouble(4, rsSproduct.getDouble("price"));
                     psInsert.setString(5, rsSproduct.getString("description"));
@@ -70,9 +73,9 @@ public class ApproveSproductServlet extends HttpServlet {
                     
                     if (rowsInserted > 0) {
                         // Remove the product from Sproduct table after successful approval
-                        String deleteQuery = "DELETE FROM Sproduct WHERE id = ?";
+                        String deleteQuery = "DELETE FROM Sproduct WHERE pro_id = ?";
                         PreparedStatement psDelete = con.prepareStatement(deleteQuery);
-                        psDelete.setString(1, productId);
+                        psDelete.setString(1, proId);
                         int deletedRows = psDelete.executeUpdate();
                         psDelete.close();
                         

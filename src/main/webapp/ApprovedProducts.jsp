@@ -28,8 +28,8 @@ try {
     Connection con = db.initailizeDatabase();
     
     if (con != null && !con.isClosed()) {
-        String productSql = "SELECT id, brand, price, description, image, Category, product_name " +
-                           "FROM Sproduct ORDER BY id DESC";
+        String productSql = "SELECT id, pro_id, brand, price, description, image, Category, product_name " +
+                           "FROM Sproduct ORDER BY pro_id DESC";
         
         PreparedStatement productStmt = con.prepareStatement(productSql);
         ResultSet productRs = productStmt.executeQuery();
@@ -37,6 +37,7 @@ try {
         while (productRs.next()) {
             java.util.Map<String, Object> product = new java.util.HashMap<>();
             product.put("id", productRs.getString("id"));
+            product.put("pro_id", productRs.getString("pro_id"));
             product.put("brand", productRs.getString("brand"));
             product.put("price", productRs.getDouble("price"));
             product.put("description", productRs.getString("description"));
@@ -259,7 +260,7 @@ try {
         overflow: hidden;
     }
 
-    .btn-approve, .btn-details {
+    .btn-approve, .btn-details, .btn-pending, .btn-rejected {
         padding: 8px 16px;
         border: none;
         border-radius: 6px;
@@ -283,6 +284,26 @@ try {
         transform: translateY(-2px);
     }
 
+    .btn-pending {
+        background: var(--warning);
+        color: white;
+    }
+
+    .btn-pending:hover {
+        background: #d97706;
+        transform: translateY(-2px);
+    }
+
+    .btn-rejected {
+        background: var(--danger);
+        color: white;
+    }
+
+    .btn-rejected:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+    }
+
     .btn-details {
         background: var(--primary);
         color: white;
@@ -291,6 +312,79 @@ try {
     .btn-details:hover {
         background: var(--primary-hover);
         transform: translateY(-2px);
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .btn-dropdown {
+        background: var(--primary);
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 120px;
+    }
+
+    .btn-dropdown:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        min-width: 180px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        border-radius: 6px;
+        right: 0;
+        top: 100%;
+        margin-top: 2px;
+    }
+
+    .dropdown-content a {
+        color: var(--text-main);
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .dropdown-content a:hover {
+        background-color: var(--bg);
+        color: var(--primary);
+    }
+
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .dropdown-item.approve {
+        color: var(--success);
+    }
+
+    .dropdown-item.pending {
+        color: var(--warning);
+    }
+
+    .dropdown-item.rejected {
+        color: var(--danger);
     }
 
     .no-products {
@@ -403,7 +497,7 @@ try {
                             <% } %>
                         </div>
                         <div class="product-details">
-                            <div class="product-id">ID: <%= product.get("id") %></div>
+                            <div class="product-id">PIN: <%= product.get("pro_id") %></div>
                             <div class="product-name"><%= product.get("productName") %></div>
                             <div class="product-brand"><i class="fas fa-tag"></i> <%= product.get("brand") %></div>
                             <div class="product-category"><i class="fas fa-folder"></i> <%= product.get("category") %></div>
@@ -413,11 +507,24 @@ try {
                                    ((String)product.get("description")).substring(0, 100) + "..." : 
                                    product.get("description") %>
                             </div>
-                            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-                                <button onclick="approveProduct('<%= product.get("id") %>')" 
-                                        class="btn-approve" title="Approve and move to main store">
-                                    <i class="fas fa-check"></i> Approve
-                                </button>
+                            <div style="margin-top: 1rem; position: relative;">
+                                <div class="dropdown">
+                                    <button onclick="toggleDropdown('<%= product.get("pro_id") %>')" 
+                                            class="btn-dropdown" title="Product Actions">
+                                        <i class="fas fa-ellipsis-v"></i> Actions
+                                    </button>
+                                    <div id="dropdown-<%= product.get("pro_id") %>" class="dropdown-content">
+                                        <a href="#" onclick="approveProduct('<%= product.get("pro_id") %>')" class="dropdown-item approve">
+                                            <i class="fas fa-check"></i> Approve
+                                        </a>
+                                        <a href="#" onclick="setProductStatus('<%= product.get("pro_id") %>', 'pending')" class="dropdown-item pending">
+                                            <i class="fas fa-clock"></i> Set Pending
+                                        </a>
+                                        <a href="#" onclick="setProductStatus('<%= product.get("pro_id") %>', 'rejected')" class="dropdown-item rejected">
+                                            <i class="fas fa-times"></i> Reject
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -459,6 +566,80 @@ try {
                 };
                 
                 xhr.send('productId=' + encodeURIComponent(productId) + '&productName=' + encodeURIComponent(productName));
+            }
+        }
+        
+        function toggleDropdown(proId) {
+            // Close all other dropdowns first
+            var dropdowns = document.querySelectorAll('.dropdown-content');
+            dropdowns.forEach(function(dropdown) {
+                if (dropdown.id !== 'dropdown-' + proId) {
+                    dropdown.style.display = 'none';
+                }
+            });
+            
+            // Toggle current dropdown
+            var currentDropdown = document.getElementById('dropdown-' + proId);
+            if (currentDropdown.style.display === 'block') {
+                currentDropdown.style.display = 'none';
+            } else {
+                currentDropdown.style.display = 'block';
+            }
+            
+            // Prevent event bubbling
+            event.stopPropagation();
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.matches('.btn-dropdown, .dropdown-content')) {
+                var dropdowns = document.querySelectorAll('.dropdown-content');
+                dropdowns.forEach(function(dropdown) {
+                    dropdown.style.display = 'none';
+                });
+            }
+        });
+        
+        function setProductStatus(proId, status) {
+            // Find product name from card
+            var productCard = event.target.closest('.product-card');
+            var productName = productCard.querySelector('.product-name').textContent;
+            
+            var statusText = status === 'pending' ? 'Pending' : 'Rejected';
+            var confirmMessage = 'Are you sure you want to set "' + productName + '" status to ' + statusText + '?';
+            
+            if (confirm(confirmMessage)) {
+                // Create AJAX request to set product status
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'SetProductStatusServlet', true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            try {
+                                var response = JSON.parse(xhr.responseText);
+                                if (response.success) {
+                                    alert('Product status updated successfully! Status: ' + statusText);
+                                    // Remove product card from display
+                                    productCard.style.opacity = '0.5';
+                                    productCard.style.pointerEvents = 'none';
+                                    setTimeout(function() {
+                                        productCard.remove();
+                                    }, 1000);
+                                } else {
+                                    alert('Error updating product status: ' + response.message);
+                                }
+                            } catch (e) {
+                                alert('Error processing response. Please try again.');
+                            }
+                        } else {
+                            alert('Error communicating with server. Please try again.');
+                        }
+                    }
+                };
+                
+                xhr.send('proId=' + encodeURIComponent(proId) + '&status=' + encodeURIComponent(status));
             }
         }
     </script>
