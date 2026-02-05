@@ -501,8 +501,7 @@ try {
                             <% } %>
                         </div>
                         <div class="product-details">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                <div class="product-id">PIN: <%= product.get("pro_id") %></div>
+                            <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 0.5rem;">
                                 <div class="dropdown">
                                     <button class="btn-dropdown" onclick="toggleDropdown('<%= product.get("pro_id") %>')">
                                         <i class="fas fa-ellipsis-h"></i> Actions
