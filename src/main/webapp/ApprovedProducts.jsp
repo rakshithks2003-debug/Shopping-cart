@@ -314,6 +314,7 @@ try {
         transform: translateY(-2px);
     }
 
+    /* Dropdown Styles */
     .dropdown {
         position: relative;
         display: inline-block;
@@ -347,11 +348,11 @@ try {
         background-color: white;
         min-width: 180px;
         box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-        z-index: 1;
+        z-index: 1000;
         border-radius: 6px;
+        overflow: hidden;
         right: 0;
         top: 100%;
-        margin-top: 2px;
     }
 
     .dropdown-content a {
@@ -360,13 +361,16 @@ try {
         text-decoration: none;
         display: block;
         transition: all 0.3s ease;
-        font-size: 0.875rem;
-        font-weight: 500;
+        border-bottom: 1px solid var(--border);
     }
 
     .dropdown-content a:hover {
         background-color: var(--bg);
         color: var(--primary);
+    }
+
+    .dropdown-content a:last-child {
+        border-bottom: none;
     }
 
     .dropdown-item {
@@ -497,7 +501,25 @@ try {
                             <% } %>
                         </div>
                         <div class="product-details">
-                            <div class="product-id">PIN: <%= product.get("pro_id") %></div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <div class="product-id">PIN: <%= product.get("pro_id") %></div>
+                                <div class="dropdown">
+                                    <button class="btn-dropdown" onclick="toggleDropdown('<%= product.get("pro_id") %>')">
+                                        <i class="fas fa-ellipsis-h"></i> Actions
+                                    </button>
+                                    <div id="dropdown-<%= product.get("pro_id") %>" class="dropdown-content">
+                                        <a href="#" onclick="approveProduct('<%= product.get("pro_id") %>'); event.preventDefault();" class="dropdown-item approve">
+                                            <i class="fas fa-check"></i> Approve
+                                        </a>
+                                        <a href="#" onclick="setProductStatus('<%= product.get("pro_id") %>', 'pending'); event.preventDefault();" class="dropdown-item pending">
+                                            <i class="fas fa-clock"></i> Set Pending
+                                        </a>
+                                        <a href="#" onclick="setProductStatus('<%= product.get("pro_id") %>', 'rejected'); event.preventDefault();" class="dropdown-item rejected">
+                                            <i class="fas fa-times"></i> Reject
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="product-name"><%= product.get("productName") %></div>
                             <div class="product-brand"><i class="fas fa-tag"></i> <%= product.get("brand") %></div>
                             <div class="product-category"><i class="fas fa-folder"></i> <%= product.get("category") %></div>
@@ -507,25 +529,6 @@ try {
                                    ((String)product.get("description")).substring(0, 100) + "..." : 
                                    product.get("description") %>
                             </div>
-                            <div style="margin-top: 1rem; position: relative;">
-                                <div class="dropdown">
-                                    <button onclick="toggleDropdown('<%= product.get("pro_id") %>')" 
-                                            class="btn-dropdown" title="Product Actions">
-                                        <i class="fas fa-ellipsis-v"></i> Actions
-                                    </button>
-                                    <div id="dropdown-<%= product.get("pro_id") %>" class="dropdown-content">
-                                        <a href="#" onclick="approveProduct('<%= product.get("pro_id") %>')" class="dropdown-item approve">
-                                            <i class="fas fa-check"></i> Approve
-                                        </a>
-                                        <a href="#" onclick="setProductStatus('<%= product.get("pro_id") %>', 'pending')" class="dropdown-item pending">
-                                            <i class="fas fa-clock"></i> Set Pending
-                                        </a>
-                                        <a href="#" onclick="setProductStatus('<%= product.get("pro_id") %>', 'rejected')" class="dropdown-item rejected">
-                                            <i class="fas fa-times"></i> Reject
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 <% } %>
@@ -534,6 +537,37 @@ try {
     </div>
     
     <script>
+        function toggleDropdown(proId) {
+            // Close all other dropdowns first
+            var dropdowns = document.querySelectorAll('.dropdown-content');
+            dropdowns.forEach(function(dropdown) {
+                if (dropdown.id !== 'dropdown-' + proId) {
+                    dropdown.style.display = 'none';
+                }
+            });
+            
+            // Toggle current dropdown
+            var currentDropdown = document.getElementById('dropdown-' + proId);
+            if (currentDropdown.style.display === 'block') {
+                currentDropdown.style.display = 'none';
+            } else {
+                currentDropdown.style.display = 'block';
+            }
+            
+            // Prevent event bubbling
+            event.stopPropagation();
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.matches('.btn-dropdown, .dropdown-content')) {
+                var dropdowns = document.querySelectorAll('.dropdown-content');
+                dropdowns.forEach(function(dropdown) {
+                    dropdown.style.display = 'none';
+                });
+            }
+        });
+        
         function approveProduct(productId) {
             // Find the product name from the card
             var productCard = event.target.closest('.product-card');
@@ -568,37 +602,6 @@ try {
                 xhr.send('productId=' + encodeURIComponent(productId) + '&productName=' + encodeURIComponent(productName));
             }
         }
-        
-        function toggleDropdown(proId) {
-            // Close all other dropdowns first
-            var dropdowns = document.querySelectorAll('.dropdown-content');
-            dropdowns.forEach(function(dropdown) {
-                if (dropdown.id !== 'dropdown-' + proId) {
-                    dropdown.style.display = 'none';
-                }
-            });
-            
-            // Toggle current dropdown
-            var currentDropdown = document.getElementById('dropdown-' + proId);
-            if (currentDropdown.style.display === 'block') {
-                currentDropdown.style.display = 'none';
-            } else {
-                currentDropdown.style.display = 'block';
-            }
-            
-            // Prevent event bubbling
-            event.stopPropagation();
-        }
-        
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!event.target.matches('.btn-dropdown, .dropdown-content')) {
-                var dropdowns = document.querySelectorAll('.dropdown-content');
-                dropdowns.forEach(function(dropdown) {
-                    dropdown.style.display = 'none';
-                });
-            }
-        });
         
         function setProductStatus(proId, status) {
             // Find product name from card
