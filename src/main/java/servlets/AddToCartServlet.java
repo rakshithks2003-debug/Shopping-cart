@@ -56,7 +56,7 @@ public class AddToCartServlet extends HttpServlet {
             Connection con = db.initailizeDatabase();
             
             // Check if product exists
-            PreparedStatement checkPs = con.prepareStatement("SELECT id, name, brand, price, image FROM product WHERE id = ?");
+            PreparedStatement checkPs = con.prepareStatement("SELECT id, product_name, brand, price, image FROM product WHERE id = ?");
             checkPs.setString(1, productId);
             ResultSet rs = checkPs.executeQuery();
             
@@ -68,7 +68,7 @@ public class AddToCartServlet extends HttpServlet {
                 return;
             }
             
-            String productName = rs.getString("name");
+            String productName = rs.getString("product_name");
             String productBrand = rs.getString("brand");
             double productPrice = rs.getDouble("price");
             String productImage = rs.getString("image");

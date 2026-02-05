@@ -38,8 +38,8 @@ public class SetProductStatusServlet extends HttpServlet {
         try {
             if (proId == null || proId.trim().isEmpty()) {
                 message = "Product PIN is required";
-            } else if (status == null || (!status.equals("pending") && !status.equals("rejected"))) {
-                message = "Invalid status. Must be 'pending' or 'rejected'";
+            } else if (status == null || (!status.equals("pending") && !status.equals("rejected") && !status.equals("approved"))) {
+                message = "Invalid status. Must be 'approved', 'pending', or 'rejected'";
             } else {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -82,7 +82,7 @@ public class SetProductStatusServlet extends HttpServlet {
                         message = "Product not found or deletion failed";
                     }
                 } else {
-                    // Update product status to pending
+                    // Update product status to approved or pending
                     String updateQuery = "UPDATE Sproduct SET status = ? WHERE pro_id = ?";
                     PreparedStatement updateStmt = con.prepareStatement(updateQuery);
                     updateStmt.setString(1, status);

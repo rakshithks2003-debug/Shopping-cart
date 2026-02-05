@@ -20,7 +20,7 @@
         Connection con = db.initailizeDatabase();
         
         if (con != null && !con.isClosed()) {
-            String sql = "SELECT c.product_id, c.price, c.quantity, c.image, p.name as product_name, p.brand as product_brand FROM cart c JOIN product p ON c.product_id = p.id WHERE c.user_id = ? ORDER BY c.cart_id DESC";
+            String sql = "SELECT c.product_id, c.price, c.quantity, c.image, p.product_name as product_name, p.brand as product_brand FROM cart c JOIN product p ON c.product_id = p.id WHERE c.user_id = ? ORDER BY c.cart_id DESC";
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
