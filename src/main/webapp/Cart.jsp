@@ -29,7 +29,7 @@
         
         if (con != null && !con.isClosed()) {
             // Build dynamic SQL query with sorting - join with product table to get brand
-            String sql = "SELECT c.product_id, c.price, c.quantity, c.image, p.product_name as product_name, p.brand as product_brand FROM cart c JOIN product p ON c.product_id = p.id WHERE c.user_id = ? ORDER BY " + sortBy + " " + sortOrder;
+            String sql = "SELECT c.product_id, c.price, c.quantity, c.image, c.gst, p.product_name as product_name, p.brand as product_brand FROM cart c JOIN product p ON c.product_id = p.id WHERE c.user_id = ? ORDER BY " + sortBy + " " + sortOrder;
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
@@ -42,6 +42,7 @@
                 item.put("price", rs.getDouble("price"));
                 item.put("quantity", rs.getInt("quantity"));
                 item.put("image", rs.getString("image"));
+                item.put("gst", rs.getDouble("gst"));
                 cartItems.add(item);
             }
             
@@ -784,10 +785,12 @@
                 </div>
             </div>
             <div class="nav-actions">
+                <a href="DeliveryTracking.jsp" class="btn btn-outline">
+                    <i class="fas fa-shipping-fast"></i> Track Order
+                </a>
                 <a href="Showproducts.jsp" class="btn btn-outline">
                     <i class="fas fa-arrow-left"></i> Continue Shopping
                 </a>
-               
             </div>
         </div>
         
@@ -827,6 +830,7 @@
                     </div>
                     <%
                     double total = 0;
+                    double totalGST = 0;
                     for (Map<String, Object> item : cartItems) {
                         String productId = (String) item.get("productId");
                         String productName = (String) item.get("productName");
@@ -834,8 +838,10 @@
                         double price = (Double) item.get("price");
                         int quantity = (Integer) item.get("quantity");
                         String image = (String) item.get("image");
+                        double gst = (Double) item.get("gst");
                         
                         total += price * quantity;
+                        totalGST += gst * quantity;
                         
                         String imageSrc;
                         String fallbackImage = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik00MCAzMEg2MFY1MEg0MFYzMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iNTAiIHk9IjcwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEyIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+";
@@ -926,6 +932,11 @@
                         <span class="value">₹50.00</span>
                     </div>
                     
+                    <div class="summary-row">
+                        <span class="label">GST</span>
+                        <span class="value">₹<%= String.format("%.2f", totalGST) %></span>
+                    </div>
+                    
                     <div class="promo-section">
                         <div class="promo-label">
                             <i class="fas fa-tag"></i> Promo Code
@@ -940,15 +951,11 @@
                     
                     <div class="summary-total">
                         <span>Total</span>
-                        <span class="value" id="total">₹<%= String.format("%.2f", total + 50) %></span>
+                        <span class="value" id="total">₹<%= String.format("%.2f", total + 50 + 25) %></span>
                     </div>
                     
                     <button class="checkout-btn" onclick="checkout()">
                         <i class="fas fa-lock"></i> Proceed to Checkout
-                    </button>
-                    
-                    <button class="clear-btn" onclick="clearCart()">
-                        <i class="fas fa-trash-alt"></i> Clear Cart
                     </button>
                 </div>
             </div>

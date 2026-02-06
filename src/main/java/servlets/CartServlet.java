@@ -41,7 +41,8 @@ public class CartServlet extends HttpServlet {
                     "product_name VARCHAR(255) NOT NULL," +
                     "price DECIMAL(10, 2) NOT NULL," +
                     "quantity INT NOT NULL," +
-                    "image VARCHAR(255)" +
+                    "image VARCHAR(255)," +
+                    "gst DECIMAL(10,2) DEFAULT 0.0" +
                 ")";
                 
                 Statement stmt = con.createStatement();

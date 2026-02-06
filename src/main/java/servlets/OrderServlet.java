@@ -169,6 +169,7 @@ public class OrderServlet extends HttpServlet {
                     // 3. Insert shipping information
                     // Try with full_name field first, then fallback to first_name/last_name
                     String shippingSql;
+                    String fullAddress = address + ", " + city + ", " + pincode;
                     try {
                         // Try to insert using full_name field
                         shippingSql = "INSERT INTO order_shipping (order_id, full_name, email, phone, address, city, zip_code, country) VALUES (?, ?, ?, ?, ?, ?, ?, 'India')";
@@ -208,7 +209,17 @@ public class OrderServlet extends HttpServlet {
                         shippingStmt.close();
                     }
                     
-                    // 4. Clear cart after successful order creation
+                    // 4. Insert delivery record when order is placed
+                    String deliverySql = "INSERT INTO delivery (order_id, user_id, total_amount, delivery_status, delivery_address, delivery_person_name, delivery_phone) VALUES (?, ?, ?, 'pending', ?, 'Not Assigned', 'Not Available')";
+                    PreparedStatement deliveryStmt = con.prepareStatement(deliverySql);
+                    deliveryStmt.setString(1, orderId);
+                    deliveryStmt.setString(2, username);
+                    deliveryStmt.setDouble(3, totalAmount);
+                    deliveryStmt.setString(4, fullAddress);
+                    deliveryStmt.executeUpdate();
+                    deliveryStmt.close();
+                    
+                    // 5. Clear cart after successful order creation
                     String clearCartSql = "DELETE FROM cart WHERE user_id = ?";
                     PreparedStatement clearCartStmt = con.prepareStatement(clearCartSql);
                     clearCartStmt.setString(1, username);

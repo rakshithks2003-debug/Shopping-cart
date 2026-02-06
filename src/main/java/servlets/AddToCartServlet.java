@@ -1,3 +1,4 @@
+
 package servlets;
 
 import java.io.IOException;
@@ -94,12 +95,14 @@ public class AddToCartServlet extends HttpServlet {
                 out.print("{\"success\": true, \"message\": \"" + escapeJson(productBrand) + " quantity updated in cart\"}");
             } else {
                 // Insert new item if doesn't exist
-                PreparedStatement insertPs = con.prepareStatement("INSERT INTO cart (user_id, product_id, product_name, price, image, quantity) VALUES (?, ?, ?, ?, ?, 1)");
+                double gstAmount = productPrice * 0.10; // 10% GST
+                PreparedStatement insertPs = con.prepareStatement("INSERT INTO cart (user_id, product_id, product_name, price, image, quantity, gst) VALUES (?, ?, ?, ?, ?, 1, ?)");
                 insertPs.setString(1, username);
                 insertPs.setString(2, productId);
                 insertPs.setString(3, productName);
                 insertPs.setDouble(4, productPrice);
                 insertPs.setString(5, productImage);
+                insertPs.setDouble(6, gstAmount);
                 insertPs.executeUpdate();
                 insertPs.close();
                 

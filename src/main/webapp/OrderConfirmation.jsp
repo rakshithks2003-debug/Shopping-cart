@@ -615,6 +615,9 @@
                 <a href="Cart.jsp" class="btn btn-secondary">
                     <i class="fas fa-shopping-cart"></i> View Cart
                 </a>
+                <a href="DeliveryTracking.jsp?order_id=<%= orderDetails.get("orderId") %>" class="btn btn-info">
+                    <i class="fas fa-truck"></i> Track Order
+                </a>
             </div>
         </div>
     </div>

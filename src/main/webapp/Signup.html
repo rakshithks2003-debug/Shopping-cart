@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Sign Up - Mini Shopping Cart</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     * {
         margin: 0;
@@ -465,6 +467,10 @@
                 <div class="error-message" id="confirmPasswordError"></div>
                 <div class="validation-info">Must match password above</div>
             </div>
+
+            <div class="success-message" id="signupSuccess">
+                <i class="fas fa-check-circle"></i> Signup successful! Redirecting to login...
+            </div>
             
             <button type="submit" id="signupBtn">
                 <span id="btnText">Create Account</span>
@@ -633,6 +639,50 @@ function clearError(inputId) {
     errorElement.style.display = 'none';
 }
 
+function showSuccessMessage() {
+    const successMessage = document.getElementById('signupSuccess');
+    successMessage.style.display = 'block';
+    successMessage.style.animation = 'slideInUp 0.5s ease-out';
+    
+    // Hide loading spinner
+    hideLoading();
+    
+    // Redirect after 2 seconds
+    setTimeout(() => {
+        window.location.href = 'Login.html';
+    }, 2000);
+}
+
+function validateForm() {
+    let isValid = true;
+    
+    // Validate all fields
+    if (!validateUsername()) {
+        isValid = false;
+    }
+    
+    if (!validatePassword()) {
+        isValid = false;
+    }
+    
+    if (!validateConfirmPassword()) {
+        isValid = false;
+    }
+
+    // Show loading state and success message if valid
+    if (isValid) {
+        showLoading();
+        
+        // Simulate successful signup and show success message
+        setTimeout(() => {
+            showSuccessMessage();
+        }, 1500); // Simulate server processing time
+    }
+    
+    // Prevent default form submission
+    return false;
+}
+
 // Add enter key support for form submission
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('signupForm');
@@ -640,13 +690,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') {
             e.preventDefault();
             if (validateForm()) {
-                form.submit();
+                // Simulate successful signup for demo
+                showSuccessMessage();
             }
         }
     });
 
     // Hide loading on page load (in case of refresh)
     hideLoading();
+    
+    // Check if there's a signup success parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('signup') === 'success') {
+        showSuccessMessage();
+    }
 });
 </script>
 </body>

@@ -475,6 +475,7 @@ tr:hover {
         <a href="Sellerupload.jsp">👤 Sellerupload</a>
         <a href="Showproducts.jsp">🛍️ Products</a>
         <a href="ApprovedProducts.jsp">📦 Approved Products</a>
+        <a href="DeliveryTracking.jsp">🚚 Delivery Tracking</a>
 <% } %>
         
         <a href="#payment-history">💳 Payment History</a>

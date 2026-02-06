@@ -54,9 +54,10 @@
         e.printStackTrace();
     }
     
-    // Calculate final amount with shipping
+    // Calculate final amount with shipping and GST
     double shipping = total > 0 ? 50.0 : 0.0;
-    double finalAmount = total + shipping;
+    double gst = 25.0;
+    double finalAmount = total + shipping + gst;
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -723,6 +724,10 @@
                         <div class="summary-row">
                             <span>Shipping</span>
                             <span>₹<%= String.format("%.2f", shipping) %></span>
+                        </div>
+                        <div class="summary-row">
+                            <span>GST</span>
+                            <span>₹25.00</span>
                         </div>
                         <div class="summary-row total">
                             <span>Total Amount</span>
