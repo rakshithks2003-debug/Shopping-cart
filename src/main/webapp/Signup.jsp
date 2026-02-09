@@ -1,0 +1,677 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*, products.Dbase" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up - Mini Shopping Cart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(102, 126, 234, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .background-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+            animation-duration: 8s;
+        }
+
+        .shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+            animation-duration: 10s;
+        }
+
+        .shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+            animation-duration: 7s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 0.3;
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 50px 40px;
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+            width: 420px;
+            position: relative;
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: slideUp 0.8s ease-out, fadeIn 1s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.8s ease-out 0.3s both;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            animation: slideInLeft 0.8s ease-out 0.5s both;
+        }
+
+        .form-group:nth-child(2) {
+            animation-delay: 0.6s;
+        }
+
+        .form-group:nth-child(3) {
+            animation-delay: 0.7s;
+        }
+
+        .form-group:nth-child(4) {
+            animation-delay: 0.8s;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        input[type="text"]:focus + .input-icon,
+        input[type="password"]:focus + .input-icon {
+            color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.8s ease-out 0.9s both;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 30px;
+            animation: fadeIn 0.8s ease-out 1.1s both;
+        }
+
+        .login-link p {
+            color: #666;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .login-link a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .login-link a:hover::after {
+            width: 100%;
+        }
+
+        .login-link a:hover {
+            color: #764ba2;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            display: none;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .input-error {
+            border-color: #e74c3c !important;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .success-message {
+            color: #27ae60;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .validation-info {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 90%;
+                padding: 40px 30px;
+                margin: 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            button {
+                font-size: 1rem;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="container">
+        <div class="logo-section">
+            <div class="logo">🛍️</div>
+            <h1>Join</h1>
+            <p class="subtitle">Mini Shopping Cart</p>
+        </div>
+
+        <%
+        // Get messages from servlet if any
+        String errorMessage = (String) request.getAttribute("errorMessage");
+        String successMessage = (String) request.getAttribute("successMessage");
+        
+        if (errorMessage == null) errorMessage = "";
+        if (successMessage == null) successMessage = "";
+        %>
+
+        <% if (!errorMessage.isEmpty()) { %>
+            <div class="error-message" style="display: block; color: #e74c3c; text-align: center; margin-bottom: 20px;">
+                <i class="fas fa-exclamation-circle"></i> <%= errorMessage %>
+            </div>
+        <% } %>
+
+        <% if (!successMessage.isEmpty()) { %>
+            <div class="success-message" style="display: block; color: #27ae60; text-align: center; margin-bottom: 20px;">
+                <i class="fas fa-check-circle"></i> <%= successMessage %>
+            </div>
+        <% } %>
+
+        <form action="SignupServlet" method="post" id="signupForm" onsubmit="return validateForm()">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <div class="input-wrapper">
+                    <input type="text" id="username" name="username" required 
+                           placeholder="Choose a username" 
+                           onblur="validateUsername()" 
+                           oninput="clearError('username')">
+                    <span class="input-icon">👤</span>
+                </div>
+                <div class="error-message" id="usernameError"></div>
+                <div class="validation-info">3-20 characters, letters and numbers only</div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" name="password" required 
+                           placeholder="Create a password" 
+                           onblur="validatePassword()" 
+                           oninput="clearError('password')">
+                    <span class="input-icon">🔒</span>
+                </div>
+                <div class="error-message" id="passwordError"></div>
+                <div class="validation-info">6-20 characters, letters and numbers</div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="confirmPassword" name="confirmPassword" required 
+                           placeholder="Confirm your password" 
+                           onblur="validateConfirmPassword()" 
+                           oninput="clearError('confirmPassword')">
+                    <span class="input-icon">🔐</span>
+                </div>
+                <div class="error-message" id="confirmPasswordError"></div>
+                <div class="validation-info">Must match password above</div>
+            </div>
+
+            <button type="submit" id="signupBtn">
+                <span id="btnText">Create Account</span>
+                <div class="loading" id="loading"></div>
+            </button>
+        </form>
+
+        <div class="login-link">
+            <p>Already have an account? <a href="Login.html">Login here</a></p>
+            <p style="margin-top: 15px;">Want to sell products? <a href="SellerRegistration.jsp" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; display: inline-block;">Seller Registration</a></p>
+        </div>
+    </div>
+
+<script>
+function validateForm() {
+    let isValid = true;
+    
+    // Validate all fields
+    if (!validateUsername()) {
+        isValid = false;
+    }
+    
+    if (!validatePassword()) {
+        isValid = false;
+    }
+    
+    if (!validateConfirmPassword()) {
+        isValid = false;
+    }
+
+    // Show loading state if valid
+    if (isValid) {
+        showLoading();
+    }
+    
+    return isValid;
+}
+
+function showLoading() {
+    const btnText = document.getElementById('btnText');
+    const loading = document.getElementById('loading');
+    const signupBtn = document.getElementById('signupBtn');
+    
+    btnText.style.display = 'none';
+    loading.style.display = 'block';
+    signupBtn.disabled = true;
+    signupBtn.style.cursor = 'not-allowed';
+}
+
+function hideLoading() {
+    const btnText = document.getElementById('btnText');
+    const loading = document.getElementById('loading');
+    const signupBtn = document.getElementById('signupBtn');
+    
+    btnText.style.display = 'inline';
+    loading.style.display = 'none';
+    signupBtn.disabled = false;
+    signupBtn.style.cursor = 'pointer';
+}
+
+function validateUsername() {
+    const username = document.getElementById('username').value.trim();
+    const usernameError = document.getElementById('usernameError');
+    const usernameInput = document.getElementById('username');
+    
+    // Clear previous error
+    usernameError.style.display = 'none';
+    usernameInput.classList.remove('input-error');
+    
+    // Validation rules
+    if (username.length === 0) {
+        showError('usernameError', 'Username is required');
+        usernameInput.classList.add('input-error');
+        return false;
+    }
+    
+    if (username.length < 3 || username.length > 20) {
+        showError('usernameError', 'Username must be 3-20 characters');
+        usernameInput.classList.add('input-error');
+        return false;
+    }
+    
+    // Allow letters, numbers, and underscores
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!usernameRegex.test(username)) {
+        showError('usernameError', 'Username can only contain letters, numbers, and underscores');
+        usernameInput.classList.add('input-error');
+        return false;
+    }
+    
+    return true;
+}
+
+function validatePassword() {
+    const password = document.getElementById('password').value;
+    const passwordError = document.getElementById('passwordError');
+    const passwordInput = document.getElementById('password');
+    
+    // Clear previous error
+    passwordError.style.display = 'none';
+    passwordInput.classList.remove('input-error');
+    
+    // Validation rules
+    if (password.length === 0) {
+        showError('passwordError', 'Password is required');
+        passwordInput.classList.add('input-error');
+        return false;
+    }
+    
+    if (password.length < 6 || password.length > 20) {
+        showError('passwordError', 'Password must be 6-20 characters');
+        passwordInput.classList.add('input-error');
+        return false;
+    }
+    
+    // Check for at least one letter and one number
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    
+    if (!hasLetter || !hasNumber) {
+        showError('passwordError', 'Password must contain at least one letter and one number');
+        passwordInput.classList.add('input-error');
+        return false;
+    }
+    
+    return true;
+}
+
+function validateConfirmPassword() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const confirmPasswordError = document.getElementById('confirmPasswordError');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    
+    // Clear previous error
+    confirmPasswordError.style.display = 'none';
+    confirmPasswordInput.classList.remove('input-error');
+    
+    // Validation rules
+    if (confirmPassword.length === 0) {
+        showError('confirmPasswordError', 'Please confirm your password');
+        confirmPasswordInput.classList.add('input-error');
+        return false;
+    }
+    
+    if (password !== confirmPassword) {
+        showError('confirmPasswordError', 'Passwords do not match');
+        confirmPasswordInput.classList.add('input-error');
+        return false;
+    }
+    
+    return true;
+}
+
+function showError(elementId, message) {
+    const errorElement = document.getElementById(elementId);
+    errorElement.textContent = message;
+    errorElement.style.display = 'block';
+}
+
+function clearError(inputId) {
+    const inputElement = document.getElementById(inputId);
+    const errorElement = document.getElementById(inputId + 'Error');
+    
+    inputElement.classList.remove('input-error');
+    errorElement.style.display = 'none';
+}
+
+// Add enter key support for form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('signupForm');
+    form.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (validateForm()) {
+                form.submit();
+            }
+        }
+    });
+
+    // Hide loading on page load (in case of refresh)
+    hideLoading();
+});
+</script>
+</body>
+</html>
