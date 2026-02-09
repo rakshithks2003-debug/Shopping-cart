@@ -672,7 +672,11 @@
                         if (image == null || image.trim().isEmpty()) {
                             imageSrc = fallbackImage;
                         } else {
-                            String cleanImage = image.trim().replace(" ", "%20");
+                            // Handle multiple images - only use the first one
+                            String[] imageArray = image.split(",");
+                            String firstImage = imageArray[0].trim();
+                            
+                            String cleanImage = firstImage.trim().replace(" ", "%20");
                             String contextPath = request.getContextPath();
                             if (contextPath == null || contextPath.equals("")) {
                                 contextPath = "";
@@ -697,6 +701,7 @@
                             // Debug all possible paths
                             System.out.println("=== PAYMENT IMAGE DEBUG INFO ===");
                             System.out.println("Original image: " + image);
+                            System.out.println("Using first image: " + firstImage);
                             System.out.println("Clean image: " + cleanImage);
                             System.out.println("Context path: '" + contextPath + "'");
                             System.out.println("Primary path: " + imageSrc);

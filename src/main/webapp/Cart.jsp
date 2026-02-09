@@ -830,7 +830,7 @@
                     </div>
                     <%
                     double total = 0;
-                    double totalGST = 0;
+                    double totalGST = 25.0; // Fixed GST amount of 25 rupees
                     for (Map<String, Object> item : cartItems) {
                         String productId = (String) item.get("productId");
                         String productName = (String) item.get("productName");
@@ -838,10 +838,9 @@
                         double price = (Double) item.get("price");
                         int quantity = (Integer) item.get("quantity");
                         String image = (String) item.get("image");
-                        double gst = (Double) item.get("gst");
+                        // Note: Individual item GST is no longer used for calculation
                         
                         total += price * quantity;
-                        totalGST += gst * quantity;
                         
                         String imageSrc;
                         String fallbackImage = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik00MCAzMEg2MFY1MEg0MFYzMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iNTAiIHk9IjcwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEyIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+";
@@ -849,7 +848,11 @@
                         if (image == null || image.trim().isEmpty()) {
                             imageSrc = fallbackImage;
                         } else {
-                            String cleanImage = image.trim().replace(" ", "%20");
+                            // Handle multiple images - only use the first one
+                            String[] imageArray = image.split(",");
+                            String firstImage = imageArray[0].trim();
+                            
+                            String cleanImage = firstImage.trim().replace(" ", "%20");
                             String contextPath = request.getContextPath();
                             if (contextPath == null || contextPath.equals("")) {
                                 contextPath = "";
@@ -874,6 +877,7 @@
                             // Debug all possible paths
                             System.out.println("=== IMAGE DEBUG INFO ===");
                             System.out.println("Original image: " + image);
+                            System.out.println("Using first image: " + firstImage);
                             System.out.println("Clean image: " + cleanImage);
                             System.out.println("Context path: '" + contextPath + "'");
                             System.out.println("Primary path: " + imageSrc);
@@ -933,8 +937,8 @@
                     </div>
                     
                     <div class="summary-row">
-                        <span class="label">GST</span>
-                        <span class="value">₹<%= String.format("%.2f", totalGST) %></span>
+                        <span class="label">GST (Fixed)</span>
+                        <span class="value">₹25.00</span>
                     </div>
                     
                     <div class="promo-section">

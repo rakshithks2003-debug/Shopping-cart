@@ -590,7 +590,17 @@
                     if (image == null || image.isEmpty()) {
                         imageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNSAxNUgzNVYzNUgxNVYxNVoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iMjUiIHk9IjQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjgiPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4=";
                     } else {
-                        imageSrc = request.getContextPath() + "/product_images/" + image;
+                        // Handle multiple images - only use the first one
+                        String[] imageArray = image.split(",");
+                        String firstImage = imageArray[0].trim();
+                        imageSrc = "product_images/" + firstImage;
+                        
+                        // Debug output
+                        System.out.println("=== ORDER CONFIRMATION IMAGE DEBUG ===");
+                        System.out.println("Original image string: " + image);
+                        System.out.println("First image: " + firstImage);
+                        System.out.println("Final image src: " + imageSrc);
+                        System.out.println("=====================================");
                     }
                 %>
                     <div class="order-item">

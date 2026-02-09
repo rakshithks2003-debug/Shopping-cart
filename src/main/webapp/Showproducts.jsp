@@ -600,22 +600,10 @@ String username = (String) sessionObg.getAttribute("username");
                 <div class="section-header">
                     <h2 class="section-title">Featured Products</h2>
                     <p class="section-subtitle">Discover our Accurated collection of premium items</p>
-                    
-                    <!-- Category Filter -->
-                    <div class="category-filter" style="margin-top: 30px; text-align: center;">
-                        <label for="categorySelect" style="font-size: 1.1rem; font-weight: 600; color: #333; margin-right: 10px;">Filter by Category:</label>
-                        <select id="categorySelect" onchange="filterByCategory()" style="padding: 10px 15px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1rem; background: #f8f9fa; cursor: pointer;">
-                            <option value="">All Categories</option>
-                            <option value="Mo">📱 Mobile</option>
-                            <option value="Ms">👞 Men Shoe</option>
-                        </select>
-                    </div>
                 </div>
                 
                 <div class="products-grid">
 <%
-String category = request.getParameter("category");
-
 try {
     Dbase db = new Dbase();
     Connection con = null;
@@ -637,12 +625,20 @@ try {
     } else {
         PreparedStatement ps;
         String sql;
+        String category = request.getParameter("category");
         
+        // Debug: Show what category is being filtered
         if (category != null && !category.trim().isEmpty()) {
-            sql = "SELECT id, product_name, brand, price, image, description FROM product WHERE category_id = ? ORDER BY id DESC";
+            System.out.println("Filtering products by category: " + category);
+        }
+        
+        // Filter by category if parameter is provided
+        if (category != null && !category.trim().isEmpty()) {
+            sql = "SELECT id, product_name, brand, price, image, description FROM product WHERE Category_id = ? ORDER BY id DESC";
             ps = con.prepareStatement(sql);
             ps.setString(1, category);
         } else {
+            // Show all products if no category filter
             sql = "SELECT id, product_name, brand, price, image, description FROM product ORDER BY id DESC";
             ps = con.prepareStatement(sql);
         }
@@ -672,7 +668,7 @@ try {
         if (imageArray.length > 0) {
             firstImageSrc = "product_images/" + imageArray[0];
         } else {
-            firstImageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+";
+            firstImageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIiLz4KPHBhdGggZD0iTTEzNy41IDkzLjc1TDE1MCAxMDYuMjVMMTYyLjUgOTMuNzVMMTc1IDExMi41SDE1MEgxMjVMMTM3LjUgOTMuNzVaIiBmaWxsPSIjQ0NDQ0NDIiLz4KPHRleHQgeD0iMTUwIiB5PSIxNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5OTk5OTkiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtZmFtaWx5PSJBcmlhbCI+Tm8gSW1hZ2U8L3RleHQ+Cjwvc3ZnPg==";
         }
 %>
                     <div class="product-image-wrapper">
@@ -694,7 +690,7 @@ try {
 %>
                 <div class="no-products">
                     <h3>📦 No items Yet</h3>
-                    <p>Start by adding your first item to the gallery!</p>
+                    <p>Start by adding your first item to gallery!</p>
                 </div>
 <%
         }
@@ -737,37 +733,13 @@ try {
         // Store product images data
         let productImagesData = {};
         
-        // Function to filter by category
-        function filterByCategory() {
-            const categorySelect = document.getElementById('categorySelect');
-            const selectedCategory = categorySelect.value;
-            
-            if (selectedCategory === '') {
-                // Show all products
-                window.location.href = 'Showproducts.jsp';
-            } else {
-                // Filter by selected category
-                window.location.href = 'Showproducts.jsp?category=' + encodeURIComponent(selectedCategory);
-            }
-        }
-        
-        // Set the selected category option based on URL parameter
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const category = urlParams.get('category');
-            const categorySelect = document.getElementById('categorySelect');
-            
-            if (category && categorySelect) {
-                categorySelect.value = category;
-            }
-        });
-        
         // Initialize product images from JSP
         <%
         // Re-run the query to get all product images for JavaScript
         try {
             Dbase db2 = new Dbase();
             Connection con2 = null;
+            String category = request.getParameter("category"); // Re-declare category variable
             
             try {
                 con2 = db2.initailizeDatabase();
@@ -781,8 +753,9 @@ try {
                 PreparedStatement ps2;
                 String sql2;
                 
+                // Get product images based on category filter
                 if (category != null && !category.trim().isEmpty()) {
-                    sql2 = "SELECT id, image FROM product WHERE category_id = ? ORDER BY id DESC";
+                    sql2 = "SELECT id, image FROM product WHERE Category_id = ? ORDER BY id DESC";
                     ps2 = con2.prepareStatement(sql2);
                     ps2.setString(1, category);
                 } else {

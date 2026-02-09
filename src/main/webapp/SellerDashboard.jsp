@@ -492,9 +492,7 @@ try {
             <a href="SellerProfile.jsp">
                 <i class="fas fa-user"></i> Profile
             </a>
-            <a href="SellerAnalytics.jsp">
-                <i class="fas fa-chart-line"></i> Analytics
-            </a>
+           
             <a href="LogoutServlet">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
