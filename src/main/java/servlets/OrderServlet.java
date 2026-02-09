@@ -116,6 +116,9 @@ public class OrderServlet extends HttpServlet {
 
         try {
             double totalAmount = Double.parseDouble(totalAmountStr);
+            double gst = 25.0;  // Fixed GST amount
+            double deliveryCharges = 50.0;  // Fixed delivery charges
+            double subtotal = totalAmount - gst - deliveryCharges;  // Calculate subtotal
             
             // Initialize database connection
             Dbase db = new Dbase();
@@ -128,15 +131,25 @@ public class OrderServlet extends HttpServlet {
                     // Generate unique order ID
                     String orderId = "ORD" + System.currentTimeMillis();
                     
-                    // 1. Insert into orders table
-                    String orderSql = "INSERT INTO orders (order_id, user_id, total_amount, status, payment_method) VALUES (?, ?, ?, 'pending', ?)";
+                    // 1. Insert into orders table with GST and delivery charges
+                    String orderSql = "INSERT INTO orders (order_id, user_id, total_amount, gst, delivery_charges, status, payment_method) VALUES (?, ?, ?, ?, ?, 'pending', ?)";
                     PreparedStatement orderStmt = con.prepareStatement(orderSql);
                     orderStmt.setString(1, orderId);
                     orderStmt.setString(2, username);
                     orderStmt.setDouble(3, totalAmount);
-                    orderStmt.setString(4, paymentMethod);
+                    orderStmt.setDouble(4, gst);
+                    orderStmt.setDouble(5, deliveryCharges);
+                    orderStmt.setString(6, paymentMethod);
                     orderStmt.executeUpdate();
                     orderStmt.close();
+                    
+                    System.out.println("=== ORDER DEBUG ===");
+                    System.out.println("Order ID: " + orderId);
+                    System.out.println("Total Amount: " + totalAmount);
+                    System.out.println("GST: " + gst);
+                    System.out.println("Delivery Charges: " + deliveryCharges);
+                    System.out.println("Subtotal: " + subtotal);
+                    System.out.println("===================");
                     
                     // 2. Get cart items and insert into order_items
                     String cartSql = "SELECT product_id, product_name, price, quantity FROM cart WHERE user_id = ?";

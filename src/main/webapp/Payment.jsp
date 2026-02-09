@@ -945,6 +945,7 @@
             const data = 'orderId=' + encodeURIComponent(orderId) +
                         '&paymentMethod=' + encodeURIComponent(paymentMethod) +
                         '&amount=' + encodeURIComponent('<%= finalAmount %>') +
+                        '&gst=' + encodeURIComponent('<%= gst %>') +
                         '&cardNumber=' + encodeURIComponent(maskedCardNumber) +
                         '&cardholderName=' + encodeURIComponent(cardName) +
                         '&billingEmail=' + encodeURIComponent(email) +
@@ -953,7 +954,11 @@
                         '&billingCity=' + encodeURIComponent(city) +
                         '&billingPincode=' + encodeURIComponent(pincode);
             
+            console.log('=== PAYMENT DEBUG ===');
+            console.log('GST Value from JSP: <%= gst %>');
+            console.log('Final Amount: <%= finalAmount %>');
             console.log('Sending payment transaction data:', data);
+            console.log('===================');
             xhr.send(data);
         }
         

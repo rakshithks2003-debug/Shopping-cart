@@ -66,6 +66,52 @@ public class UpdateSellerStatusServlet extends HttpServlet {
                 stmt.setString(1, approvedBy);
                 stmt.setString(2, sellerId);
                 
+                int updateResult = stmt.executeUpdate();
+                stmt.close();
+                
+                // After updating signupseller, also update users table with seller_id
+                if (updateResult > 0) {
+                    try {
+                        // First check if user exists in users table
+                        String checkUserQuery = "SELECT username FROM users WHERE username = ?";
+                        PreparedStatement checkStmt = con.prepareStatement(checkUserQuery);
+                        checkStmt.setString(1, sellerUsername);
+                        ResultSet userRs = checkStmt.executeQuery();
+                        
+                        if (userRs.next()) {
+                            // User exists, update seller_id
+                            String updateUserQuery = "UPDATE users SET seller_id = ? WHERE username = ?";
+                            PreparedStatement updateStmt = con.prepareStatement(updateUserQuery);
+                            updateStmt.setString(1, sellerId);
+                            updateStmt.setString(2, sellerUsername);
+                            updateStmt.executeUpdate();
+                            updateStmt.close();
+                            
+                            System.out.println("=== SELLER APPROVAL DEBUG ===");
+                            System.out.println("Updated users table: username=" + sellerUsername + ", seller_id=" + sellerId);
+                            System.out.println("=============================");
+                        } else {
+                            // User doesn't exist in users table, create entry
+                            String insertUserQuery = "INSERT INTO users(username, password, role, seller_id) VALUES (?, ?, 'seller', ?)";
+                            PreparedStatement insertStmt = con.prepareStatement(insertUserQuery);
+                            insertStmt.setString(1, sellerUsername);
+                            insertStmt.setString(2, "default123"); // Default password for seller
+                            insertStmt.setString(3, sellerId);
+                            insertStmt.executeUpdate();
+                            insertStmt.close();
+                            
+                            System.out.println("=== SELLER APPROVAL DEBUG ===");
+                            System.out.println("Created user entry: username=" + sellerUsername + ", seller_id=" + sellerId);
+                            System.out.println("=============================");
+                        }
+                        userRs.close();
+                        checkStmt.close();
+                    } catch (Exception userEx) {
+                        System.err.println("Warning: Could not update users table: " + userEx.getMessage());
+                        // Continue with approval even if users table update fails
+                    }
+                }
+                
             } else if ("reject".equals(action)) {
                 updateQuery = "UPDATE signupseller SET status = 'rejected', rejection_reason = ?, approved_by = ?, approved_date = CURDATE() WHERE id = ?";
                 message = "Seller " + sellerName + " (" + shopName + ") has been rejected.";

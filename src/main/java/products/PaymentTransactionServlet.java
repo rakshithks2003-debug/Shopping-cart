@@ -50,6 +50,7 @@ public class PaymentTransactionServlet extends HttpServlet {
         String orderId = request.getParameter("orderId");
         String paymentMethod = request.getParameter("paymentMethod");
         String amountStr = request.getParameter("amount");
+        String gstStr = request.getParameter("gst");
         String cardNumber = request.getParameter("cardNumber");
         String cardholderName = request.getParameter("cardholderName");
         String billingEmail = request.getParameter("billingEmail");
@@ -72,6 +73,15 @@ public class PaymentTransactionServlet extends HttpServlet {
                 message = "Amount is required";
             } else {
                 double amount = Double.parseDouble(amountStr);
+                double gst = gstStr != null && !gstStr.trim().isEmpty() ? Double.parseDouble(gstStr) : 25.0;
+                
+                // Debug logging
+                System.out.println("=== PAYMENT TRANSACTION DEBUG ===");
+                System.out.println("Order ID: " + orderId);
+                System.out.println("Amount: " + amount);
+                System.out.println("GST Parameter: " + gstStr);
+                System.out.println("Parsed GST: " + gst);
+                System.out.println("================================");
                 
                 // Initialize database connection
                 Dbase db = new Dbase();
@@ -79,24 +89,25 @@ public class PaymentTransactionServlet extends HttpServlet {
                 
                 if (con != null && !con.isClosed()) {
                     // Insert payment transaction record
-                    String sql = "INSERT INTO payment_transactions (order_id, user_id, payment_method, amount, status, " +
+                    String sql = "INSERT INTO payment_transactions (order_id, user_id, payment_method, amount, gst, status, " +
                                 "card_number_masked, cardholder_name, billing_email, billing_phone, billing_address, " +
                                 "billing_city, billing_pincode, payment_gateway_response) " +
-                                "VALUES (?, ?, ?, ?, 'completed', ?, ?, ?, ?, ?, ?, ?, ?)";
+                                "VALUES (?, ?, ?, ?, ?, 'completed', ?, ?, ?, ?, ?, ?, ?, ?)";
                     
                     PreparedStatement stmt = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
                     stmt.setString(1, orderId);
                     stmt.setString(2, username);
                     stmt.setString(3, paymentMethod);
                     stmt.setDouble(4, amount);
-                    stmt.setString(5, cardNumber != null ? cardNumber : "");
-                    stmt.setString(6, cardholderName != null ? cardholderName : "");
-                    stmt.setString(7, billingEmail != null ? billingEmail : "");
-                    stmt.setString(8, billingPhone != null ? billingPhone : "");
-                    stmt.setString(9, billingAddress != null ? billingAddress : "");
-                    stmt.setString(10, billingCity != null ? billingCity : "");
-                    stmt.setString(11, billingPincode != null ? billingPincode : "");
-                    stmt.setString(12, "Payment processed successfully");
+                    stmt.setDouble(5, gst);
+                    stmt.setString(6, cardNumber != null ? cardNumber : "");
+                    stmt.setString(7, cardholderName != null ? cardholderName : "");
+                    stmt.setString(8, billingEmail != null ? billingEmail : "");
+                    stmt.setString(9, billingPhone != null ? billingPhone : "");
+                    stmt.setString(10, billingAddress != null ? billingAddress : "");
+                    stmt.setString(11, billingCity != null ? billingCity : "");
+                    stmt.setString(12, billingPincode != null ? billingPincode : "");
+                    stmt.setString(13, "Payment processed successfully");
                     
                     int rowsAffected = stmt.executeUpdate();
                     
