@@ -4,18 +4,16 @@
 <%@ page import="jakarta.servlet.http.HttpSession" %>
 <%
 // Check if user is logged in
-HttpSession sessionObg = request.getSession(false);
-if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null || 
-    !(Boolean) sessionObg.getAttribute("isLoggedIn")) {
+String username = (String) session.getAttribute("username");
+String userRole = (String) session.getAttribute("userRole");
+
+if (username == null) {
     response.sendRedirect("Login.html");
     return;
 }
 String SessionId = session.getId();
 out.println("Session ID: " +
 SessionId);
-
-String userRole = (String) sessionObg.getAttribute("userRole");
-String username = (String) sessionObg.getAttribute("username");
 
 // Get product ID from request parameter
 String productId = request.getParameter("id");
@@ -1636,9 +1634,9 @@ try {
                 button.innerHTML = '⏳ Adding...';
                 button.disabled = true;
                 
-                // Send AJAX request to AddToCartServlet
+                // Send AJAX request to CartServlet
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'AddToCartServlet', true);
+                xhr.open('POST', 'CartServlet', true);
                 xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState === 4) {
@@ -1663,7 +1661,7 @@ try {
                     }
                 };
                 
-                xhr.send('productId=' + encodeURIComponent(productId));
+                xhr.send('action=addToCart&productId=' + encodeURIComponent(productId));
             }
             
             function showNotification(message, type) {

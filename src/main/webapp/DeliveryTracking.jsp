@@ -79,9 +79,37 @@ UTF-8" pageEncoding="UTF-8"%>
             margin-bottom: 30px;
         }
 
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
         .header h1 {
             font-size: 2.5rem;
-            margin-bottom: 10px;
+            margin: 0;
         }
 
         .search-section {
@@ -382,13 +410,32 @@ UTF-8" pageEncoding="UTF-8"%>
             .delivery-dashboard { grid-template-columns: 1fr; }
             .search-form { flex-direction: column; }
             .info-grid { grid-template-columns: 1fr; }
+            
+            .header-top {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .back-button {
+                align-self: flex-start;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-truck"></i> Delivery Tracking</h1>
+            <div class="header-top">
+                <a href="javascript:history.back()" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <h1><i class="fas fa-truck"></i> Delivery Tracking</h1>
+            </div>
             <p>Track your orders and delivery status</p>
         </div>
 
