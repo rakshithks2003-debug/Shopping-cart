@@ -900,7 +900,9 @@
                         int nextQty = quantity + 1;
                     %>
                     <div class="cart-item">
-                        <img src="<%= imageSrc %>" alt="<%= productBrand != null ? productBrand : productName %>" class="item-image" onerror="tryFallbackImage(this, '<%= image %>');">
+                        <a href="Details.jsp?id=<%= productId %>" style="text-decoration: none; color: inherit;">
+                            <img src="<%= imageSrc %>" alt="<%= productBrand != null ? productBrand : productName %>" class="item-image" onerror="tryFallbackImage(this, '<%= image %>');" style="cursor: pointer;">
+                        </a>
                         <div class="item-info">
                             <div class="item-name"><%= productBrand != null ? productBrand : (productName != null ? productName : "Unknown Brand") %></div>
                             <div class="item-price">₹<%= String.format("%.2f", price) %></div>
