@@ -12,41 +12,80 @@
     out.println("Session ID: " +
     SessionId);
     
-    // Load cart items from database
+    // Check if this is a Buy Now request
+    String isBuyNowParam = request.getParameter("buyNow");
+    boolean isBuyNow = "true".equals(isBuyNowParam);
+    
+    // Load cart items from database or single product for Buy Now
     List<Map<String, Object>> cartItems = new ArrayList<>();
     double total = 0.0;
+    
     try {
         Dbase db = new Dbase();
         Connection con = db.initailizeDatabase();
         
         if (con != null && !con.isClosed()) {
-            String sql = "SELECT c.product_id, c.price, c.quantity, c.image, p.product_name as product_name, p.brand as product_brand FROM cart c JOIN product p ON c.product_id = p.id WHERE c.user_id = ? ORDER BY c.cart_id DESC";
-            PreparedStatement stmt = con.prepareStatement(sql);
-            stmt.setString(1, username);
-            ResultSet rs = stmt.executeQuery();
-            
-            while (rs.next()) {
-                Map<String, Object> item = new HashMap<>();
-                String productId = rs.getString("product_id");
-                String productName = rs.getString("product_name");
-                String productBrand = rs.getString("product_brand");
-                double price = rs.getDouble("price");
-                int quantity = rs.getInt("quantity");
-                String image = rs.getString("image");
+            if (isBuyNow) {
+                // Handle Buy Now - get single product from database using sessionStorage
+                // Note: In a real implementation, you might want to get this from a server-side session
+                // For now, we'll use a hardcoded approach or get from request parameter
+                String productId = request.getParameter("productId");
+                if (productId == null || productId.trim().isEmpty()) {
+                    // Fallback to a default or show error
+                    productId = "1"; // Default fallback
+                }
                 
-                item.put("productId", productId);
-                item.put("productName", productName);
-                item.put("productBrand", productBrand);
-                item.put("price", price);
-                item.put("quantity", quantity);
-                item.put("image", image);
-                cartItems.add(item);
+                String sql = "SELECT id, product_name, brand, price, image FROM product WHERE id = ?";
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setString(1, productId);
+                ResultSet rs = stmt.executeQuery();
                 
-                total += price * quantity;
+                if (rs.next()) {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("productId", rs.getString("id"));
+                    item.put("productName", rs.getString("product_name"));
+                    item.put("productBrand", rs.getString("brand"));
+                    item.put("price", rs.getDouble("price"));
+                    item.put("quantity", 1); // Fixed quantity for Buy Now
+                    item.put("image", rs.getString("image"));
+                    cartItems.add(item);
+                    
+                    total = rs.getDouble("price"); // Single product price
+                }
+                
+                rs.close();
+                stmt.close();
+            } else {
+                // Regular cart checkout
+                String sql = "SELECT c.product_id, c.price, c.quantity, c.image, p.product_name as product_name, p.brand as product_brand FROM cart c JOIN product p ON c.product_id = p.id WHERE c.user_id = ? ORDER BY c.cart_id DESC";
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setString(1, username);
+                ResultSet rs = stmt.executeQuery();
+                
+                while (rs.next()) {
+                    Map<String, Object> item = new HashMap<>();
+                    String productId = rs.getString("product_id");
+                    String productName = rs.getString("product_name");
+                    String productBrand = rs.getString("product_brand");
+                    double price = rs.getDouble("price");
+                    int quantity = rs.getInt("quantity");
+                    String image = rs.getString("image");
+                    
+                    item.put("productId", productId);
+                    item.put("productName", productName);
+                    item.put("productBrand", productBrand);
+                    item.put("price", price);
+                    item.put("quantity", quantity);
+                    item.put("image", image);
+                    cartItems.add(item);
+                    
+                    total += price * quantity;
+                }
+                
+                rs.close();
+                stmt.close();
             }
             
-            rs.close();
-            stmt.close();
             con.close();
         }
     } catch (Exception e) {

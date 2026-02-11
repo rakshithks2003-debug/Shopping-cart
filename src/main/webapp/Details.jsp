@@ -1686,14 +1686,27 @@ try {
             }
             
             function buyNow() {
-                // Add to cart first, then redirect to payment
-                addToCart();
+                // Get current product details
+                const productId = '<%=productId%>';
+                const productName = '<%=productName%>';
+                const price = <%=productPrice%>;
+                const productImage = '<%=productImage%>';
                 
+                // Store single product for direct purchase
+                const buyNowProduct = {
+                    id: productId,
+                    name: productName,
+                    price: price,
+                    image: productImage,
+                    quantity: 1
+                };
+                
+                // Store in sessionStorage for Payment.jsp
+                sessionStorage.setItem('buyNowProduct', JSON.stringify(buyNowProduct));
+                
+                showNotification('Redirecting to payment...', 'success');
                 setTimeout(() => {
-                    showNotification('Redirecting to payment...', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'Payment.jsp';
-                    }, 1000);
+                    window.location.href = 'Payment.jsp?buyNow=true&productId=' + productId;
                 }, 1000);
             }
             

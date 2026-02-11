@@ -441,6 +441,6 @@ String username = (String) sessionObg.getAttribute("username");
     </div>
   
 </section>
-<footer align="center">Developed and Designed by Rakshith.k.S,Saajida.A.M,Prajwal.B.R,Mohammed Adil</footer>
+<footer align="center">Designed and Developed by Rakshith.k.S,Saajida.A.M,Prajwal.B.R,Mohammed Adil</footer>
 </body>
 </html>
