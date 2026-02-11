@@ -19,6 +19,30 @@ if (!"admin".equals(userRole)) {
     response.sendRedirect("Showproducts.jsp");
     return;
 }
+
+// Generate automatic 4-digit product ID
+String nextProductId = "1001"; // Default starting ID
+try {
+    Class.forName("com.mysql.cj.jdbc.Driver");
+    Connection con = java.sql.DriverManager.getConnection("jdbc:mysql://localhost:3306/mscart", "root", "123456");
+    
+    // Get the highest existing product ID
+    String getMaxIdQuery = "SELECT MAX(CAST(id AS UNSIGNED)) as max_id FROM product WHERE id REGEXP '^[0-9]{4}$'";
+    PreparedStatement maxIdStmt = con.prepareStatement(getMaxIdQuery);
+    ResultSet maxIdRs = maxIdStmt.executeQuery();
+    
+    if (maxIdRs.next() && maxIdRs.getString("max_id") != null) {
+        int maxId = maxIdRs.getInt("max_id");
+        nextProductId = String.format("%04d", maxId + 1);
+    }
+    
+    maxIdRs.close();
+    maxIdStmt.close();
+    con.close();
+} catch (Exception e) {
+    System.err.println("Error generating product ID: " + e.getMessage());
+    // Keep default value if there's an error
+}
 %>
 <!DOCTYPE html>
 <html>
@@ -574,10 +598,25 @@ if (!"admin".equals(userRole)) {
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">
+                                ID <span class="required">*</span>
+                            </label>
+                            <input type="text" name="id" class="form-input" 
+                                   placeholder="Enter product ID" required>
+                            <small style="color: #6c757d; font-size: 12px; margin-top: 5px; display: block;">
+                                <i class="fas fa-info-circle"></i> Connects to database product table pid
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
                                 Product ID <span class="required">*</span>
                             </label>
                             <input type="text" name="pid" class="form-input" 
-                                   placeholder="Enter unique product ID" required>
+                                   value="<%= nextProductId %>" readonly 
+                                   style="background: #f8f9fa; color: #6c757d; font-weight: 600;">
+                            <small style="color: #6c757d; font-size: 12px; margin-top: 5px; display: block;">
+                                <i class="fas fa-info-circle"></i> Auto-generated 4-digit product ID
+                            </small>
                         </div>
                         
                         <div class="form-group">
@@ -680,8 +719,13 @@ if (!"admin".equals(userRole)) {
                     
                     <div class="preview-details-section">
                         <div class="preview-detail-group">
+                            <label class="preview-label">ID:</label>
+                            <div class="preview-value" id="previewId">-</div>
+                        </div>
+                        
+                        <div class="preview-detail-group">
                             <label class="preview-label">Product ID:</label>
-                            <div class="preview-value" id="previewPid">-</div>
+                            <div class="preview-value" id="previewPid"><%= nextProductId %></div>
                         </div>
                         
                         <div class="preview-detail-group">
@@ -717,7 +761,7 @@ if (!"admin".equals(userRole)) {
     <script>
         // Product preview functionality
         function updatePreview() {
-            const pid = document.querySelector('input[name="pid"]').value || '-';
+            const id = document.querySelector('input[name="id"]').value || '-';
             const brand = document.querySelector('input[name="brand"]').value || '-';
             const productName = document.querySelector('input[name="productName"]').value || '-';
             const price = document.querySelector('input[name="price"]').value || '0.00';
@@ -728,16 +772,16 @@ if (!"admin".equals(userRole)) {
             const categorySelect = document.querySelector('select[name="categoryId"]');
             const categoryName = categorySelect.options[categorySelect.selectedIndex]?.text || '-';
             
-            // Update preview values
-            document.getElementById('previewPid').textContent = pid;
+            // Update preview values (product ID is now static, no need to update)
+            document.getElementById('previewId').textContent = id;
             document.getElementById('previewBrand').textContent = brand;
             document.getElementById('previewProductName').textContent = productName;
             document.getElementById('previewPrice').textContent = '₹' + price;
             document.getElementById('previewCategory').textContent = categoryName;
             document.getElementById('previewDescription').textContent = description;
             
-            // Show/hide preview based on form completion
-            const hasContent = pid !== '-' || brand !== '-' || productName !== '-' || price !== '0.00';
+            // Show/hide preview based on form completion (product ID is always present now)
+            const hasContent = id !== '-' || brand !== '-' || productName !== '-' || price !== '0.00';
             const previewContainer = document.getElementById('productPreview');
             
             if (hasContent) {
@@ -878,8 +922,8 @@ if (!"admin".equals(userRole)) {
         
         // Initialize event listeners for real-time preview
         document.addEventListener('DOMContentLoaded', function() {
-            // Add input event listeners to all form fields
-            const formFields = ['pid', 'brand', 'productName', 'price', 'categoryId', 'description'];
+            // Add input event listeners to all form fields (except pid which is now read-only)
+            const formFields = ['id', 'brand', 'productName', 'price', 'categoryId', 'description'];
             
             formFields.forEach(fieldName => {
                 const field = document.querySelector(`[name="${fieldName}"]`);
@@ -925,12 +969,6 @@ if (!"admin".equals(userRole)) {
             if (e.target.value < 0) {
                 e.target.value = 0;
             }
-        });
-        
-        // Product ID validation (alphanumeric)
-        document.querySelector('input[name="pid"]').addEventListener('input', function(e) {
-            // Allow only alphanumeric characters and some special characters
-            e.target.value = e.target.value.replace(/[^a-zA-Z0-9_-]/g, '');
         });
     </script>
 </body>
