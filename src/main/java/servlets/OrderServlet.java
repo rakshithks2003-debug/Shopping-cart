@@ -232,13 +232,6 @@ public class OrderServlet extends HttpServlet {
                     deliveryStmt.executeUpdate();
                     deliveryStmt.close();
                     
-                    // 5. Clear cart after successful order creation
-                    String clearCartSql = "DELETE FROM cart WHERE user_id = ?";
-                    PreparedStatement clearCartStmt = con.prepareStatement(clearCartSql);
-                    clearCartStmt.setString(1, username);
-                    clearCartStmt.executeUpdate();
-                    clearCartStmt.close();
-                    
                     // Commit transaction
                     con.commit();
                     
