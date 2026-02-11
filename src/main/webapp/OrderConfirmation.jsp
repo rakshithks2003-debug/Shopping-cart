@@ -17,7 +17,6 @@
     
     // Load order details
     Map<String, Object> orderDetails = null;
-    List<Map<String, Object>> orderItems = new ArrayList<>();
     
     try {
         Dbase db = new Dbase();
@@ -55,23 +54,7 @@
                 orderDetails.put("city", orderRs.getString("city"));
                 orderDetails.put("pincode", orderRs.getString("pincode"));
                 
-                // Get order items
-                String itemsSql = "SELECT product_name, price, quantity FROM order_items WHERE order_id = ?";
-                PreparedStatement itemsStmt = con.prepareStatement(itemsSql);
-                itemsStmt.setString(1, orderId);
-                ResultSet itemsRs = itemsStmt.executeQuery();
-                
-                while (itemsRs.next()) {
-                    Map<String, Object> item = new HashMap<>();
-                    item.put("productName", itemsRs.getString("product_name"));
-                    item.put("price", itemsRs.getDouble("price"));
-                    item.put("quantity", itemsRs.getInt("quantity"));
-                    item.put("image", ""); // No image field in order_items table
-                    orderItems.add(item);
-                }
-                
-                itemsRs.close();
-                itemsStmt.close();
+                // Order items section removed - no longer needed
             }
             
             orderRs.close();
@@ -576,42 +559,6 @@
                         <span class="info-value"><%= orderDetails.get("address") %>, <%= orderDetails.get("city") %> - <%= orderDetails.get("pincode") %></span>
                     </div>
                 </div>
-            </div>
-            
-            <div class="order-items">
-                <h3>Order Items</h3>
-                <% for (Map<String, Object> item : orderItems) { 
-                    String productName = (String) item.get("productName");
-                    double price = (Double) item.get("price");
-                    int quantity = (Integer) item.get("quantity");
-                    String image = (String) item.get("image");
-                    
-                    String imageSrc;
-                    if (image == null || image.isEmpty()) {
-                        imageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNSAxNUgzNVYzNUgxNVYxNVoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iMjUiIHk9IjQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjgiPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4=";
-                    } else {
-                        // Handle multiple images - only use the first one
-                        String[] imageArray = image.split(",");
-                        String firstImage = imageArray[0].trim();
-                        imageSrc = "product_images/" + firstImage;
-                        
-                        // Debug output
-                        System.out.println("=== ORDER CONFIRMATION IMAGE DEBUG ===");
-                        System.out.println("Original image string: " + image);
-                        System.out.println("First image: " + firstImage);
-                        System.out.println("Final image src: " + imageSrc);
-                        System.out.println("=====================================");
-                    }
-                %>
-                    <div class="order-item">
-                        <img src="<%= imageSrc %>" alt="<%= productName %>" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNSAxNUgzNVYzNUgxNVYxNVoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iMjUiIHk9IjQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjgiPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4=';">
-                        <div class="order-item-details">
-                            <div class="order-item-name"><%= productName %></div>
-                            <div class="order-item-price">₹<%= String.format("%.2f", price) %> × <%= quantity %></div>
-                        </div>
-                        <div class="order-item-quantity">₹<%= String.format("%.2f", price * quantity) %></div>
-                    </div>
-                <% } %>
             </div>
             
             <div class="total-amount">

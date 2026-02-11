@@ -445,29 +445,13 @@ String username = (String) sessionObg.getAttribute("username");
                 <p class="category-description">Stylish and comfortable footwear for every occasion</p>
             </div>
             
-            <div class="category-card" onclick="window.location.href='Products.html'">
+            <div class="category-card" onclick="window.location.href='Showproducts.jsp?category=Lp'">
                 <div class="category-icon">💻</div>
                 <h3 class="category-name">Laptops</h3>
                 <p class="category-description">High-performance laptops for work and entertainment</p>
             </div>
             
-            <div class="category-card" onclick="window.location.href='Showproducts.jsp?category=Wo'">
-                <div class="category-icon">👗</div>
-                <h3 class="category-name">Women's Fashion</h3>
-                <p class="category-description">Trendy clothing and accessories for women</p>
-            </div>
-            
-            <div class="category-card" onclick="window.location.href='Showproducts.jsp?category=Bp'">
-                <div class="category-icon">💄</div>
-                <h3 class="category-name">Beauty Products</h3>
-                <p class="category-description">Premium beauty and skincare essentials</p>
-            </div>
-            
-            <div class="category-card" onclick="window.location.href='Showproducts.jsp?category=Sp'">
-                <div class="category-icon">⚽</div>
-                <h3 class="category-name">Sports</h3>
-                <p class="category-description">Sports equipment and fitness accessories</p>
-            </div>
+           
         </div>
     </section>
 

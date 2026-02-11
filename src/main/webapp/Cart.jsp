@@ -1062,7 +1062,26 @@
         }
         
         function checkout() {
-            window.location.href = 'Payment.jsp';
+            // Clear cart and store cart data in session for Payment.jsp
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'CartServlet', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            // Cart cleared and data stored in session, proceed to payment
+                            window.location.href = 'Payment.jsp';
+                        } else {
+                            showNotification('Error preparing checkout: ' + response.message, 'error');
+                        }
+                    } catch (e) {
+                        showNotification('Error preparing checkout', 'error');
+                    }
+                }
+            };
+            xhr.send('action=checkoutWithCartData');
         }
         
         function showNotification(message, type) {

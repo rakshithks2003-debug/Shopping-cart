@@ -56,34 +56,53 @@
                 rs.close();
                 stmt.close();
             } else {
-                // Regular cart checkout
-                String sql = "SELECT c.product_id, c.price, c.quantity, c.image, p.product_name as product_name, p.brand as product_brand FROM cart c JOIN product p ON c.product_id = p.id WHERE c.user_id = ? ORDER BY c.cart_id DESC";
-                PreparedStatement stmt = con.prepareStatement(sql);
-                stmt.setString(1, username);
-                ResultSet rs = stmt.executeQuery();
+                // Check if cart data was stored by checkoutWithCartData action
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> sessionCartData = (List<Map<String, Object>>) session.getAttribute("checkoutCartData");
                 
-                while (rs.next()) {
-                    Map<String, Object> item = new HashMap<>();
-                    String productId = rs.getString("product_id");
-                    String productName = rs.getString("product_name");
-                    String productBrand = rs.getString("product_brand");
-                    double price = rs.getDouble("price");
-                    int quantity = rs.getInt("quantity");
-                    String image = rs.getString("image");
+                if (sessionCartData != null && !sessionCartData.isEmpty()) {
+                    // Use cart data from session (cart was cleared during checkout)
+                    cartItems = sessionCartData;
                     
-                    item.put("productId", productId);
-                    item.put("productName", productName);
-                    item.put("productBrand", productBrand);
-                    item.put("price", price);
-                    item.put("quantity", quantity);
-                    item.put("image", image);
-                    cartItems.add(item);
+                    // Calculate total from session data
+                    for (Map<String, Object> item : cartItems) {
+                        double price = (Double) item.get("price");
+                        int quantity = (Integer) item.get("quantity");
+                        total += price * quantity;
+                    }
                     
-                    total += price * quantity;
+                    // Clear session data after using it
+                    session.removeAttribute("checkoutCartData");
+                } else {
+                    // Regular cart checkout - get from database
+                    String sql = "SELECT c.product_id, c.price, c.quantity, c.image, p.product_name as product_name, p.brand as product_brand FROM cart c JOIN product p ON c.product_id = p.id WHERE c.user_id = ? ORDER BY c.cart_id DESC";
+                    PreparedStatement stmt = con.prepareStatement(sql);
+                    stmt.setString(1, username);
+                    ResultSet rs = stmt.executeQuery();
+                    
+                    while (rs.next()) {
+                        Map<String, Object> item = new HashMap<>();
+                        String productId = rs.getString("product_id");
+                        String productName = rs.getString("product_name");
+                        String productBrand = rs.getString("product_brand");
+                        double price = rs.getDouble("price");
+                        int quantity = rs.getInt("quantity");
+                        String image = rs.getString("image");
+                        
+                        item.put("productId", productId);
+                        item.put("productName", productName);
+                        item.put("productBrand", productBrand);
+                        item.put("price", price);
+                        item.put("quantity", quantity);
+                        item.put("image", image);
+                        cartItems.add(item);
+                        
+                        total += price * quantity;
+                    }
+                    
+                    rs.close();
+                    stmt.close();
                 }
-                
-                rs.close();
-                stmt.close();
             }
             
             con.close();
@@ -754,20 +773,20 @@
                             <img src="<%= imageSrc %>" alt="<%= productBrand != null ? productBrand : productName %>" class="order-item-image" onerror="tryFallbackImage(this, '<%= image %>');">
                             <div class="order-item-details">
                                 <div class="order-item-name"><%= productBrand != null ? productBrand : (productName != null ? productName : "Unknown Brand") %></div>
-                                <div class="order-item-price">₹<%= String.format("%.2f", price) %> × <%= quantity %></div>
+                                <div class="order-item-price">₹<%= price %> × <%= quantity %></div>
                             </div>
-                            <div class="order-item-quantity">₹<%= String.format("%.2f", price * quantity) %></div>
+                            <div class="order-item-quantity">₹<%= price * quantity %></div>
                         </div>
                     <% } %>
                     
                     <div style="margin-top: 30px;">
                         <div class="summary-row">
                             <span>Subtotal</span>
-                            <span>₹<%= String.format("%.2f", total) %></span>
+                            <span>₹<%= total %></span>
                         </div>
                         <div class="summary-row">
                             <span>Shipping</span>
-                            <span>₹<%= String.format("%.2f", shipping) %></span>
+                            <span>₹<%= shipping %></span>
                         </div>
                         <div class="summary-row">
                             <span>GST</span>
@@ -775,12 +794,12 @@
                         </div>
                         <div class="summary-row total">
                             <span>Total Amount</span>
-                            <span>₹<%= String.format("%.2f", finalAmount) %></span>
+                            <span>₹<%= finalAmount %></span>
                         </div>
                     </div>
                     
                     <button class="pay-btn" onclick="processPayment()">
-                        <i class="fas fa-lock"></i> Pay ₹<%= String.format("%.2f", finalAmount) %>
+                        <i class="fas fa-lock"></i> Pay ₹<%= finalAmount %>
                     </button>
                 <% } %>
             </div>
@@ -790,6 +809,22 @@
     <div class="notification" id="notification"></div>
     
     <script>
+        // Initialize variables
+        var isSingleProduct = false;
+        var singleProductId = "";
+        var singleProductName = "";
+        var singlePrice = "0";
+        var singleQuantity = "0";
+        var singleImage = "";
+        var cartItemsCount = "1";
+        
+        console.log('=== PAYMENT DEBUG INFO ===');
+        console.log('isSingleProduct:', isSingleProduct);
+        console.log('singleProductId:', singleProductId);
+        console.log('singleProductName:', singleProductName);
+        console.log('cartItemsCount:', cartItemsCount);
+        console.log('========================');
+        
         // Payment method selection
         document.querySelectorAll('.payment-method').forEach(method => {
             method.addEventListener('click', function() {
@@ -889,6 +924,7 @@
             console.log('City:', city);
             console.log('Pincode:', pincode);
             console.log('Total Amount:', '<%= finalAmount %>');
+            console.log('Cart Items Count:', '<%= cartItems.size() %>');
             
             // Send order data to server
             const xhr = new XMLHttpRequest();
@@ -907,33 +943,42 @@
                                 createPaymentTransaction(response.orderId, selectedMethod, fullName, email, phone, address, city, pincode);
                             } else {
                                 showNotification(response.message || 'Payment failed', 'error');
-                                payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay ₹<%= String.format("%.2f", finalAmount) %>';
+                                payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay ₹<%= finalAmount %>';
                                 payBtn.disabled = false;
                             }
                         } catch (e) {
                             console.log('JSON Parse Error:', e);
                             showNotification('Payment processing failed', 'error');
-                            payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay ₹<%= String.format("%.2f", finalAmount) %>';
+                            payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay ₹<%= finalAmount %>';
                             payBtn.disabled = false;
                         }
                     } else {
                         console.log('HTTP Error:', xhr.status);
                         showNotification('Server error. Please try again.', 'error');
-                        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay ₹<%= String.format("%.2f", finalAmount) %>';
+                        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay ₹<%= finalAmount %>';
                         payBtn.disabled = false;
                     }
                 }
             };
             
-            // Build data string inside the function where variables exist
-            const data = 'paymentMethod=' + encodeURIComponent(selectedMethod) +
+            let data = 'paymentMethod=' + encodeURIComponent(selectedMethod) +
                         '&fullName=' + encodeURIComponent(fullName) +
                         '&email=' + encodeURIComponent(email) +
                         '&phone=' + encodeURIComponent(phone) +
                         '&address=' + encodeURIComponent(address) +
                         '&city=' + encodeURIComponent(city) +
                         '&pincode=' + encodeURIComponent(pincode) +
-                        '&totalAmount=' + encodeURIComponent('<%= finalAmount %>');
+                        '&totalAmount=' + encodeURIComponent('<%= finalAmount %>') +
+                        '&cartItemsCount=' + encodeURIComponent(cartItemsCount);
+            
+            if (isSingleProduct === "true") {
+                data += '&singleCheckout=true' +
+                        '&singleProductId=' + encodeURIComponent(singleProductId) +
+                        '&singleProductName=' + encodeURIComponent(singleProductName) +
+                        '&singlePrice=' + encodeURIComponent(singlePrice) +
+                        '&singleQuantity=' + encodeURIComponent(singleQuantity) +
+                        '&singleImage=' + encodeURIComponent(singleImage);
+            }
             
             console.log('Sending data:', data);
             xhr.send(data);

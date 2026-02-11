@@ -180,6 +180,88 @@ public class CartServlet extends HttpServlet {
                 int rowsDeleted = deleteStmt.executeUpdate();
                 deleteStmt.close();
                 out.print("{\"success\": true, \"message\": \"Cart cleared successfully\"}");
+            } else if ("singleCheckout".equals(action)) {
+                String productId = request.getParameter("productId");
+                String quantityStr = request.getParameter("quantity");
+                
+                if (productId != null && !productId.trim().isEmpty() && quantityStr != null && !quantityStr.trim().isEmpty()) {
+                    try {
+                        int quantity = Integer.parseInt(quantityStr);
+                        
+                        // Get product details for checkout
+                        String productSQL = "SELECT product_name, price, image FROM product WHERE id = ?";
+                        PreparedStatement productStmt = con.prepareStatement(productSQL);
+                        productStmt.setString(1, productId);
+                        ResultSet productRs = productStmt.executeQuery();
+                        
+                        if (productRs.next()) {
+                            String productName = productRs.getString("product_name");
+                            double price = productRs.getDouble("price");
+                            String image = productRs.getString("image");
+                            
+                            productRs.close();
+                            productStmt.close();
+                            
+                            // Store single product data in session for payment
+                            request.getSession().setAttribute("singleCheckout", true);
+                            request.getSession().setAttribute("checkoutProductId", productId);
+                            request.getSession().setAttribute("checkoutProductName", productName);
+                            request.getSession().setAttribute("checkoutPrice", price);
+                            request.getSession().setAttribute("checkoutQuantity", quantity);
+                            request.getSession().setAttribute("checkoutImage", image);
+                            
+                            out.print("{\"success\": true, \"message\": \"Preparing checkout for single product\"}");
+                        } else {
+                            out.print("{\"success\": false, \"message\": \"Product not found\"}");
+                        }
+                    } catch (NumberFormatException e) {
+                        out.print("{\"success\": false, \"message\": \"Invalid quantity\"}");
+                    } catch (Exception e) {
+                        out.print("{\"success\": false, \"message\": \"Error preparing checkout: " + e.getMessage() + "\"}");
+                    }
+                } else {
+                    out.print("{\"success\": false, \"message\": \"Missing product information\"}");
+                }
+            } else if ("checkoutWithCartData".equals(action)) {
+                try {
+                    // Get current cart items before clearing
+                    String getCartSql = "SELECT c.product_id, c.quantity, p.product_name, p.brand, p.price, p.image " +
+                                      "FROM cart c JOIN product p ON c.product_id = p.id " +
+                                      "WHERE c.user_id = ?";
+                    PreparedStatement getCartStmt = con.prepareStatement(getCartSql);
+                    getCartStmt.setString(1, username);
+                    ResultSet cartRs = getCartStmt.executeQuery();
+                    
+                    // Store cart data in session for Payment.jsp
+                    java.util.List<java.util.Map<String, Object>> cartData = new java.util.ArrayList<>();
+                    while (cartRs.next()) {
+                        java.util.Map<String, Object> item = new java.util.HashMap<>();
+                        item.put("productId", cartRs.getString("product_id"));
+                        item.put("productName", cartRs.getString("product_name"));
+                        item.put("productBrand", cartRs.getString("brand"));
+                        item.put("price", cartRs.getDouble("price"));
+                        item.put("quantity", cartRs.getInt("quantity"));
+                        item.put("image", cartRs.getString("image"));
+                        cartData.add(item);
+                    }
+                    cartRs.close();
+                    getCartStmt.close();
+                    
+                    // Store cart data in session
+                    request.getSession().setAttribute("checkoutCartData", cartData);
+                    
+                    // Clear cart after storing data
+                    String clearCartSql = "DELETE FROM cart WHERE user_id = ?";
+                    PreparedStatement clearCartStmt = con.prepareStatement(clearCartSql);
+                    clearCartStmt.setString(1, username);
+                    int rowsDeleted = clearCartStmt.executeUpdate();
+                    clearCartStmt.close();
+                    
+                    out.print("{\"success\": true, \"message\": \"Cart data stored and cart cleared for checkout\"}");
+                    
+                } catch (Exception e) {
+                    out.print("{\"success\": false, \"message\": \"Error preparing checkout: " + e.getMessage() + "\"}");
+                }
             } else {
                 out.print("{\"success\": false, \"message\": \"Invalid action\"}");
             }
@@ -194,7 +276,7 @@ public class CartServlet extends HttpServlet {
             out.print("{\"success\": false, \"message\": \"Error: " + e.getMessage().replace("\"", "\\\"") + "\"}");
         }
     }
-    
+   
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         

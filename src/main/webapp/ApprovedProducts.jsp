@@ -442,7 +442,7 @@ try {
 </head>
 <body>
     <a href="Dashboard.jsp" class="back-button">
-        <i class="fas fa-arrow-left"></i> Back to Dashboard
+        <i class="fas fa-arrow-left"></i> Back
     </a>
 
     <div class="container">

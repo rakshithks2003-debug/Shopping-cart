@@ -80,34 +80,56 @@ public class AdminProductServlet extends HttpServlet {
                             rs.close();
                             checkStmt.close();
                             
-                            // Handle image upload
+                            // Handle multiple image uploads
+                            java.util.List<String> imagePaths = new java.util.ArrayList<>();
                             String imagePath = "default.jpg"; // Default image
                             
                             try {
                                 System.out.println("DEBUG: Starting image upload process...");
                                 
-                                // Debug: Check all parts
+                                // Count image parts
+                                int imageCount = 0;
                                 for (Part part : request.getParts()) {
-                                    System.out.println("DEBUG: Found part - Name: " + part.getName() + ", Size: " + part.getSize());
+                                    if (part.getName().equals("productImage") && part.getSize() > 0) {
+                                        imageCount++;
+                                    }
                                 }
                                 
-                                Part imagePart = request.getPart("productImage");
-                                if (imagePart != null) {
-                                    System.out.println("DEBUG: imagePart found - Size: " + imagePart.getSize());
-                                    
-                                    if (imagePart.getSize() > 0) {
-                                        String fileName = imagePart.getSubmittedFileName();
-                                        System.out.println("DEBUG: Original filename: " + fileName);
-                                        
-                                        if (fileName != null && !fileName.isEmpty()) {
-                                            // Validate file type
-                                            if (!fileName.toLowerCase().matches(".*\\.(jpg|jpeg|png|gif|webp)$")) {
-                                                message = "Invalid file type: " + fileName + ". Only JPG, PNG, GIF, and WEBP images are allowed.";
-                                                System.out.println("DEBUG: Invalid file type detected");
-                                            } else {
+                                System.out.println("DEBUG: Found " + imageCount + " image parts");
+                                
+                                // Validate minimum 5 images
+                                if (imageCount < 5) {
+                                    message = "Minimum 5 images required. You uploaded " + imageCount + " images.";
+                                    System.out.println("DEBUG: Not enough images: " + imageCount);
+                                } else if (imageCount > 10) {
+                                    message = "Maximum 10 images allowed. You uploaded " + imageCount + " images.";
+                                    System.out.println("DEBUG: Too many images: " + imageCount);
+                                } else {
+                                    // Process each image
+                                    int imageIndex = 0;
+                                    for (Part part : request.getParts()) {
+                                        if (part.getName().equals("productImage") && part.getSize() > 0) {
+                                            String fileName = part.getSubmittedFileName();
+                                            System.out.println("DEBUG: Processing image " + (imageIndex + 1) + ": " + fileName);
+                                            
+                                            if (fileName != null && !fileName.isEmpty()) {
+                                                // Validate file type
+                                                if (!fileName.toLowerCase().matches(".*\\.(jpg|jpeg|png|gif|webp)$")) {
+                                                    message = "Invalid file type: " + fileName + ". Only JPG, PNG, GIF, and WEBP images are allowed.";
+                                                    System.out.println("DEBUG: Invalid file type detected: " + fileName);
+                                                    break;
+                                                }
+                                                
+                                                // Validate file size (5MB max per image)
+                                                if (part.getSize() > 5 * 1024 * 1024) {
+                                                    message = "File " + fileName + " is too large. Maximum size is 5MB per image.";
+                                                    System.out.println("DEBUG: File too large: " + fileName + " (" + part.getSize() + " bytes)");
+                                                    break;
+                                                }
+                                                
                                                 // Create unique filename
                                                 String timestamp = String.valueOf(System.currentTimeMillis());
-                                                String uniqueFileName = pid + "_" + timestamp + "_" + fileName;
+                                                String uniqueFileName = pid + "_" + timestamp + "_" + (imageIndex + 1) + "_" + fileName;
                                                 
                                                 // Save to product_images directory
                                                 String uploadPath = getServletContext().getRealPath("") + "product_images";
@@ -120,25 +142,27 @@ public class AdminProductServlet extends HttpServlet {
                                                 }
                                                 
                                                 java.io.File file = new java.io.File(uploadDir, uniqueFileName);
-                                                imagePart.write(file.getAbsolutePath());
-                                                imagePath = uniqueFileName;
+                                                part.write(file.getAbsolutePath());
+                                                imagePaths.add(uniqueFileName);
                                                 
-                                                System.out.println("DEBUG: Successfully uploaded image: " + uniqueFileName);
-                                                System.out.println("DEBUG: Full path: " + file.getAbsolutePath());
+                                                System.out.println("DEBUG: Successfully uploaded image " + (imageIndex + 1) + ": " + uniqueFileName);
+                                                imageIndex++;
                                             }
-                                        } else {
-                                            System.out.println("DEBUG: Filename is null or empty");
                                         }
-                                    } else {
-                                        System.out.println("DEBUG: Image part size is 0 or less");
                                     }
-                                } else {
-                                    System.out.println("DEBUG: imagePart is null");
+                                    
+                                    // Combine image paths
+                                    if (imagePaths.size() >= 5) {
+                                        imagePath = String.join(",", imagePaths);
+                                        System.out.println("DEBUG: Combined image paths: " + imagePath);
+                                    } else if (message == null || message.equals("Error adding product")) {
+                                        message = "Failed to process required number of images. Processed: " + imagePaths.size();
+                                    }
                                 }
                             } catch (Exception e) {
-                                System.err.println("Error uploading image: " + e.getMessage());
+                                System.err.println("Error uploading images: " + e.getMessage());
                                 e.printStackTrace();
-                                // Continue with default image if upload fails
+                                message = "Error processing images: " + e.getMessage();
                             }
                             
                             // Insert product into product table

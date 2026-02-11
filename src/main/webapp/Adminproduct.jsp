@@ -628,16 +628,19 @@ if (!"admin".equals(userRole)) {
                     
                     <div class="image-upload-section">
                         <label class="form-label">
-                            Product Image
+                            Product Images <span class="required">*</span>
                         </label>
                         <div class="image-upload-area" onclick="document.getElementById('productImage').click()">
                             <i class="fas fa-cloud-upload-alt"></i>
-                            <div class="image-upload-text">Click to upload product image</div>
-                            <div class="image-upload-hint">Supports: JPG, PNG, GIF (Max 5MB)</div>
+                            <div class="image-upload-text">Click to upload product images (Minimum 5 required)</div>
+                            <div class="image-upload-hint">Supports: JPG, PNG, GIF (Max 5MB each) - Select multiple images</div>
                         </div>
                         <input type="file" id="productImage" name="productImage" 
-                               accept="image/*" style="display: none;" onchange="previewImage(event)">
+                               accept="image/*" multiple style="display: none;" onchange="previewImages(event)" required>
                         <div class="image-preview-container" id="imagePreview"></div>
+                        <div class="image-count" id="imageCount" style="margin-top: 10px; color: #666; font-size: 14px;">
+                            Images selected: <span id="count">0</span>/5 (Minimum required)
+                        </div>
                     </div>
                     
                     <div class="form-group full-width">
@@ -746,51 +749,76 @@ if (!"admin".equals(userRole)) {
             }
         }
         
-        // Image preview functionality
-        function previewImage(event) {
-            const file = event.target.files[0];
+        // Image preview functionality for multiple images
+        function previewImages(event) {
+            const files = event.target.files;
             const formPreviewContainer = document.getElementById('imagePreview');
             const productPreviewContainer = document.getElementById('previewImageContainer');
+            const countElement = document.getElementById('count');
             
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    // Update form preview container
-                    formPreviewContainer.innerHTML = `
-                        <div class="image-preview">
-                            <img src="${e.target.result}" alt="Product Preview">
-                            <button type="button" class="image-remove" onclick="removeImage(this)">
+            // Reset containers
+            formPreviewContainer.innerHTML = '';
+            
+            if (files.length < 5) {
+                alert('Please select at least 5 images.');
+                event.target.value = ''; // Clear the input
+                countElement.textContent = '0';
+                updateProductPreviewNoImage();
+                return;
+            }
+            
+            if (files.length > 10) {
+                alert('Maximum 10 images allowed.');
+                // Keep only first 10 files
+                const dataTransfer = new DataTransfer();
+                for (let i = 0; i < 10; i++) {
+                    dataTransfer.items.add(files[i]);
+                }
+                event.target.files = dataTransfer.files;
+            }
+            
+            countElement.textContent = event.target.files.length;
+            
+            // Process each file
+            for (let i = 0; i < event.target.files.length; i++) {
+                const file = event.target.files[i];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        // Add to form preview container
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'image-preview';
+                        previewDiv.innerHTML = `
+                            <img src="${e.target.result}" alt="Product Preview ${i + 1}">
+                            <button type="button" class="image-remove" onclick="removeImage(this, ${i})">
                                 <i class="fas fa-times"></i>
                             </button>
+                        `;
+                        formPreviewContainer.appendChild(previewDiv);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            }
+            
+            // Update product preview with first image
+            if (files.length > 0) {
+                const firstReader = new FileReader();
+                firstReader.onload = function(e) {
+                    productPreviewContainer.innerHTML = `
+                        <img src="${e.target.result}" alt="Main Product Preview">
+                        <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px;">
+                            1 of ${files.length}
                         </div>
                     `;
-                    
-                    // Update product preview container
-                    productPreviewContainer.innerHTML = `
-                        <img src="${e.target.result}" alt="Product Preview">
-                    `;
                 };
-                
-                reader.readAsDataURL(file);
-            } else {
-                // Reset both containers
-                formPreviewContainer.innerHTML = '';
-                productPreviewContainer.innerHTML = `
-                    <div class="no-image-placeholder">
-                        <i class="fas fa-image"></i>
-                        <p>No image selected</p>
-                    </div>
-                `;
+                firstReader.readAsDataURL(files[0]);
             }
         }
         
-        // Remove image preview
-        function removeImage(button) {
-            button.parentElement.remove();
-            document.getElementById('productImage').value = '';
-            
-            // Reset product preview container
+        // Helper function to update product preview when no images
+        function updateProductPreviewNoImage() {
             const productPreviewContainer = document.getElementById('previewImageContainer');
             productPreviewContainer.innerHTML = `
                 <div class="no-image-placeholder">
@@ -798,6 +826,54 @@ if (!"admin".equals(userRole)) {
                     <p>No image selected</p>
                 </div>
             `;
+        }
+        
+        // Remove image preview
+        function removeImage(button, index) {
+            const fileInput = document.getElementById('productImage');
+            const files = Array.from(fileInput.files);
+            const countElement = document.getElementById('count');
+            
+            // Remove the preview element
+            button.parentElement.remove();
+            
+            // Update count
+            countElement.textContent = files.length - 1;
+            
+            // If less than 5 images remain, show error
+            if (files.length - 1 < 5) {
+                alert('Minimum 5 images required. Please select more images.');
+                fileInput.value = '';
+                countElement.textContent = '0';
+                updateProductPreviewNoImage();
+                document.getElementById('imagePreview').innerHTML = '';
+                return;
+            }
+            
+            // Update file input (remove the file at index)
+            const dataTransfer = new DataTransfer();
+            for (let i = 0; i < files.length; i++) {
+                if (i !== index) {
+                    dataTransfer.items.add(files[i]);
+                }
+            }
+            fileInput.files = dataTransfer.files;
+            
+            // Update product preview with first remaining image
+            const remainingFiles = Array.from(fileInput.files);
+            if (remainingFiles.length > 0) {
+                const firstReader = new FileReader();
+                firstReader.onload = function(e) {
+                    const productPreviewContainer = document.getElementById('previewImageContainer');
+                    productPreviewContainer.innerHTML = `
+                        <img src="${e.target.result}" alt="Main Product Preview">
+                        <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px;">
+                            1 of ${remainingFiles.length}
+                        </div>
+                    `;
+                };
+                firstReader.readAsDataURL(remainingFiles[0]);
+            }
         }
         
         // Initialize event listeners for real-time preview
@@ -817,10 +893,28 @@ if (!"admin".equals(userRole)) {
             updatePreview();
         });
         
-        // Form submission - let it submit normally to server
+        // Form submission with image validation
         document.getElementById('adminProductForm').addEventListener('submit', function(e) {
-            // Form will submit to server normally
-            // Server will handle success/error and redirect back
+            const fileInput = document.getElementById('productImage');
+            const files = fileInput.files;
+            const countElement = document.getElementById('count');
+            
+            // Validate minimum 5 images
+            if (files.length < 5) {
+                e.preventDefault();
+                alert('Please select at least 5 images. Currently selected: ' + files.length);
+                fileInput.focus();
+                return;
+            }
+            
+            // Validate maximum 10 images
+            if (files.length > 10) {
+                e.preventDefault();
+                alert('Maximum 10 images allowed. Please select fewer images.');
+                return;
+            }
+            
+            // Show loading state
             const submitButton = this.querySelector('button[type="submit"]');
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Product...';
             submitButton.disabled = true;
