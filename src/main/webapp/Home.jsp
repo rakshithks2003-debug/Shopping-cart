@@ -21,7 +21,6 @@ String username = (String) sessionObg.getAttribute("username");
 <head>
 <meta charset="UTF-8">
 <title>Mini Shopping Cart - Home</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
         * {
             margin: 0;
@@ -30,417 +29,496 @@ String username = (String) sessionObg.getAttribute("username");
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            color: #1a1a1a;
+            color: #333;
             overflow-x: hidden;
         }
 
-        header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 30px 0;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        header h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-            letter-spacing: -0.02em;
-        }
-
-        header h1.institution-name {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: blue;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 5px;
-            letter-spacing: 0.02em;
-            text-transform: uppercase;
-            position: relative;
-            animation: institutionGlow 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes institutionGlow {
-            0% {
-                filter: drop-shadow(0px 0px 10px rgba(255, 107, 107, 0.3));
-                transform: scale(1);
-            }
-            100% {
-                filter: drop-shadow(0px 0px 20px rgba(78, 205, 196, 0.5));
-                transform: scale(1.02);
-            }
-        }
-
-        header p {
-            color: #666;
-            font-size: 1.2rem;
-            font-weight: 500;
-        }
-
-        nav {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        nav a {
-            color: #1a1a1a;
-            margin: 0 20px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1rem;
-            padding: 12px 24px;
-            border-radius: 25px;
-            transition: all 0.3s ease;
-            display: inline-block;
-        }
-
-        nav a:hover {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        /* Header Styles */
+        .main-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .hero {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            color: #1a1a1a;
-            padding: 60px 40px;
-            text-align: center;
-            margin: 40px 20px;
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
+            padding: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
-            background-size: 200% 100%;
-            animation: shimmer 3s linear infinite;
+            z-index: 1000;
         }
 
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
-        .hero h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #1a1a1a;
-            margin-bottom: 15px;
-        }
-
-        .hero p {
-            color: #666;
-            font-size: 1.3rem;
-            font-weight: 400;
-        }
-
-        .slider-container {
-            width: 100%;
-            max-width: 1400px;
-            height: 500px;
-            overflow: hidden;
-            position: relative;
-            margin: 40px auto;
-            border-radius: 30px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
-        }
-
-        .slider {
-            display: flex;
-            animation: slide 20s infinite;
-            width: 500%;
-            height: 100%;
-        }
-
-        .slide {
-            width: 20%;
-            height: 100%;
-            position: relative;
-        }
-
-        .slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        @keyframes slide {
-            0% { transform: translateX(0); }
-            16.66% { transform: translateX(0); }
-            20% { transform: translateX(-20%); }
-            36.66% { transform: translateX(-20%); }
-            40% { transform: translateX(-40%); }
-            56.66% { transform: translateX(-40%); }
-            60% { transform: translateX(-60%); }
-            76.66% { transform: translateX(-60%); }
-            80% { transform: translateX(-80%); }
-            96.66% { transform: translateX(-80%); }
-            100% { transform: translateX(0); }
-        }
-
-        .slider-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            text-align: center;
-            font-size: 3rem;
-            font-weight: 900;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
-            background: rgba(0,0,0,0.3);
-            padding: 20px 40px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-        }
-
-        .products {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            padding: 40px 20px;
-            max-width: 1400px;
+        .header-content {
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
-        .product-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            position: relative;
-            overflow: hidden;
+        .logo-section {
+            display: flex;
+            flex-direction: column;
         }
 
-        .product-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .product-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .product-card:hover {
-            transform: translateY(-10px) scale(1.05);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-            border-color: rgba(102, 126, 234, 0.5);
-        }
-
-        .product-card img {
-            width: 120px;
-            height: 120px;
-            object-fit: cover;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            transition: transform 0.3s ease;
-        }
-
-        .product-card:hover img {
-            transform: scale(1.1);
-        }
-
-        .product-card h3 {
-            font-size: 1.3rem;
+        .institution-name {
+            font-size: 1.8rem;
             font-weight: 700;
-            color: #1a1a1a;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .app-name {
+            font-size: 2.2rem;
+            font-weight: 800;
             margin: 0;
         }
 
-        .product-card button {
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        .user-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
         }
 
+        /* Search Bar Section */
+        .search-section {
+            background: white;
+            padding: 30px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .search-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            display: flex;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 50px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 25px;
+            border: none;
+            font-size: 1.1rem;
+            outline: none;
+            background: transparent;
+        }
+
+        .search-input::placeholder {
+            color: #999;
+        }
+
+        .search-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0 30px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .search-button:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: scale(1.05);
+        }
+
+        /* Navigation */
+        .navigation {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: white;
+            padding: 60px 20px;
+            text-align: center;
+            margin: 30px auto;
+            max-width: 1200px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .hero-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: #666;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        /* Categories Section */
+        .categories-section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+
+        .category-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover .category-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .category-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin: 15px 0 10px;
+        }
+
+        .category-description {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .developers {
+            font-size: 1.1rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
-            header h1 {
-                font-size: 2.5rem;
+            .header-content {
+                flex-direction: column;
+                text-align: center;
             }
-            
-            .hero {
-                margin: 20px 10px;
-                padding: 40px 20px;
+
+            .institution-name {
+                font-size: 1.5rem;
             }
-            
-            .hero h1 {
-                font-size: 2rem;
-            }
-            
-            .slider-container {
-                height: 300px;
-                margin: 20px 10px;
-            }
-            
-            .slider-text {
+
+            .app-name {
                 font-size: 1.8rem;
-                padding: 15px 25px;
             }
-            
-            .products {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+            .search-box {
+                flex-direction: column;
+                border-radius: 20px;
+            }
+
+            .search-input, .search-button {
+                width: 100%;
+                border-radius: 0;
+                padding: 15px;
+            }
+
+            .search-input {
+                border-bottom: 1px solid #eee;
+            }
+
+            .hero-title {
+                font-size: 2.2rem;
+            }
+
+            .categories-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
                 gap: 20px;
-                padding: 20px 10px;
             }
-            
-            .product-card {
-                padding: 20px;
+
+            .nav-container {
+                flex-direction: column;
+                align-items: center;
             }
-            
-            nav a {
-                margin: 0 10px;
-                padding: 10px 20px;
-                font-size: 0.9rem;
+
+            .nav-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
             }
         }
 
         @media (max-width: 480px) {
-            header h1 {
-                font-size: 2rem;
+            .categories-grid {
+                grid-template-columns: 1fr;
             }
-            
-            .hero h1 {
+
+            .hero-title {
                 font-size: 1.8rem;
             }
-            
-            .slider-text {
-                font-size: 1.4rem;
+
+            .section-title {
+                font-size: 1.8rem;
             }
-            
-            .products {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 15px;
-            }
-            
-            .product-card img {
+
+            .category-icon {
                 width: 80px;
                 height: 80px;
-            }
-            
-            .product-card h3 {
-                font-size: 1.1rem;
+                font-size: 2.5rem;
             }
         }
     </style>
 </head>
 
 <body>
-
-<header>
-    <div style="position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.9); padding: 10px 20px; border-radius: 25px; font-weight: 600; color: #333; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-        👤 <%= username != null ? username : "User" %> (<%= userRole != null ? userRole : "Guest" %>)
-    </div>
-    <h2 class="institution-name">Cauvery Polytechnic Gonikoppal</h2>
-    <h2>Online Shopping System</h2>
-    <h1>Mini Shopping Cart</h1>
-    <p>Welcome, <%= username != null ? username : "User" %>! Shop Smart, Shop Easy</p>
-</header>
-
-<nav>
-    <a href="Cart.jsp">🛒 Cart</a>
-    <a href="DeliveryTracking.jsp">🚚 Track Order</a>
-<% if ("admin".equals(userRole)) { %>
-  
-    <a href="Dashboard.jsp">🔧 Admin Panel</a>
-<% } %>
-    <a href="LogoutServlet">🚪 Logout</a>
-</nav>
-
-<div class="hero">
-    <h1>Welcome to Our Store</h1>
-    <p>Best products at affordable prices</p>
-</div>
-
-<!-- Mobile & Shoes Image Slider -->
-<div class="slider-container">
-    <div class="slider">
-        <div class="slide">
-            <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1600&h=500&fit=crop" alt="Latest Mobiles">
-            <div class="slider-text">Latest Mobiles</div>
+    <!-- Main Header -->
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <h2 class="institution-name">Cauvery Polytechnic Gonikoppal</h2>
+                <h1 class="app-name">Mini Shopping Cart</h1>
+            </div>
+            <div class="user-info">
+                👤 <%= username != null ? username : "User" %> (<%= userRole != null ? userRole : "Guest" %>)
+            </div>
         </div>
-        <div class="slide">
-            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1600&h=500&fit=crop" alt="Premium Shoes">
-            <div class="slider-text">Premium Shoes</div>
-        </div>
-        <div class="slide">
-            <img src="https://images.unsplash.com/photo-1605462863863-10d9e47e15ee?w=1600&h=500&fit=crop" alt="Mobile Fusion">
-            <div class="slider-text"> Fashion</div>
-        </div>
-        <div class="slide">
-            <img src="https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=1600&h=500&fit=crop" alt="Sports Shoes">
-            <div class="slider-text">Sports Shoes</div>
-        </div>
-        <div class="slide">
-            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600&h=500&fit=crop" alt="Smart Mobiles">
-            <div class="slider-text">Beauty products</div>
-        </div>
-    </div>
-</div>
+    </header>
 
-<section class="products">
-    <div class="product-card">
-        <button href="Showproducts.jsp?category=Mo" onclick="window.location.href='Showproducts.jsp?category=Mo'">
-            <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=120&h=120&fit=crop" alt="Mobile">
-            <h3>Mobile</h3>
-        </button>
-    </div>
-    <div class="product-card">
-        <button href="Showproducts.jsp?category=Ms" onclick="window.location.href='Showproducts.jsp?category=Ms'">
-            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=120&h=120&fit=crop" alt="Men Shoe">
-            <h3>Men Shoe</h3>
-        </button>
-    </div>
-    <div class="product-card">
-        <button onclick="window.location.href='Products.html'">
-            <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=120&h=120&fit=crop" alt="Laptop">
-            <h3>Laptop</h3>
-        </button>
-    </div>
-  
-</section>
-<footer align="center">Designed and Developed by Rakshith.k.S,Saajida.A.M,Prajwal.B.R,Mohammed Adil</footer>
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="search-container">
+            <h2 class="search-title">Find Your Perfect Product</h2>
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="Search for products, brands, categories..." id="searchInput">
+                <button class="search-button" onclick="performSearch()">🔍 Search</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <nav class="navigation">
+        <div class="nav-container">
+            <a href="Cart.jsp" class="nav-link">🛒 Cart</a>
+            <a href="DeliveryTracking.jsp" class="nav-link">🚚 Track Order</a>
+            <% if ("admin".equals(userRole)) { %>
+                <a href="Dashboard.jsp" class="nav-link">🔧 Admin Panel</a>
+            <% } %>
+            <a href="LogoutServlet" class="nav-link">🚪 Logout</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <h1 class="hero-title">Welcome to Our Store</h1>
+        <p class="hero-subtitle">Discover amazing products at unbeatable prices. Shop smart, shop easy with our curated collection.</p>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories-section">
+        <h2 class="section-title">Shop by Category</h2>
+        <div class="categories-grid">
+            <div class="category-card" onclick="window.location.href='Showproducts.jsp?category=Mo'">
+                <div class="category-icon">📱</div>
+                <h3 class="category-name">Mobile Phones</h3>
+                <p class="category-description">Latest smartphones and accessories at competitive prices</p>
+            </div>
+            
+            <div class="category-card" onclick="window.location.href='Showproducts.jsp?category=Ms'">
+                <div class="category-icon">👟</div>
+                <h3 class="category-name">Men's Shoes</h3>
+                <p class="category-description">Stylish and comfortable footwear for every occasion</p>
+            </div>
+            
+            <div class="category-card" onclick="window.location.href='Products.html'">
+                <div class="category-icon">💻</div>
+                <h3 class="category-name">Laptops</h3>
+                <p class="category-description">High-performance laptops for work and entertainment</p>
+            </div>
+            
+            <div class="category-card" onclick="window.location.href='Showproducts.jsp?category=Wo'">
+                <div class="category-icon">👗</div>
+                <h3 class="category-name">Women's Fashion</h3>
+                <p class="category-description">Trendy clothing and accessories for women</p>
+            </div>
+            
+            <div class="category-card" onclick="window.location.href='Showproducts.jsp?category=Bp'">
+                <div class="category-icon">💄</div>
+                <h3 class="category-name">Beauty Products</h3>
+                <p class="category-description">Premium beauty and skincare essentials</p>
+            </div>
+            
+            <div class="category-card" onclick="window.location.href='Showproducts.jsp?category=Sp'">
+                <div class="category-icon">⚽</div>
+                <h3 class="category-name">Sports</h3>
+                <p class="category-description">Sports equipment and fitness accessories</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>© 2024 Mini Shopping Cart - All Rights Reserved</p>
+            <p class="developers">Developed and Designed by Rakshith.k.S, Saajida.A.M, Prajwal.B.R, Mohammed Adil</p>
+        </div>
+    </footer>
+
+    <script>
+        // Search functionality
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            if (searchTerm) {
+                // Redirect to search results page with the search term
+                window.location.href = 'SearchResults.jsp?query=' + encodeURIComponent(searchTerm);
+            } else {
+                alert('Please enter a search term');
+            }
+        }
+
+        // Allow search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Add animation to category cards on hover
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.animation = 'pulse 0.5s ease';
+            });
+            
+            card.addEventListener('animationend', function() {
+                this.style.animation = '';
+            });
+        });
+
+        // Add keyframes for pulse animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>

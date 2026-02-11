@@ -469,7 +469,7 @@ tr:hover {
         <a href="Deleteproducts.jsp">🗑️ Delete products</a>
 <% if ("admin".equals(userRole)) { %>
         
-        
+        <a href="Adminproduct.jsp">🛍️ Addproduct</a>
           <a href="Showproducts.jsp">🛍️ Products</a>
         <a href="ApprovedProducts.jsp">📦 Seller Products</a>
         <a href="DeliveryTracking.jsp">🚚 Delivery Tracking</a>
