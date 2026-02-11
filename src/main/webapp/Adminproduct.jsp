@@ -607,17 +607,8 @@ try {
                             </small>
                         </div>
                         
-                        <div class="form-group">
-                            <label class="form-label">
-                                Product ID <span class="required">*</span>
-                            </label>
-                            <input type="text" name="pid" class="form-input" 
-                                   value="<%= nextProductId %>" readonly 
-                                   style="background: #f8f9fa; color: #6c757d; font-weight: 600;">
-                            <small style="color: #6c757d; font-size: 12px; margin-top: 5px; display: block;">
-                                <i class="fas fa-info-circle"></i> Auto-generated 4-digit product ID
-                            </small>
-                        </div>
+                        <!-- Hidden Product ID field (auto-generated) -->
+                        <input type="hidden" name="pid" value="<%= nextProductId %>">
                         
                         <div class="form-group">
                             <label class="form-label">
@@ -721,11 +712,6 @@ try {
                         <div class="preview-detail-group">
                             <label class="preview-label">ID:</label>
                             <div class="preview-value" id="previewId">-</div>
-                        </div>
-                        
-                        <div class="preview-detail-group">
-                            <label class="preview-label">Product ID:</label>
-                            <div class="preview-value" id="previewPid"><%= nextProductId %></div>
                         </div>
                         
                         <div class="preview-detail-group">
