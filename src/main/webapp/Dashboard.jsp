@@ -30,7 +30,7 @@ List<Map<String, Object>> pendingSellers = new ArrayList<>();
 if ("admin".equals(userRole)) {
     try {
         Dbase db = new Dbase();
-        Connection con = db.initailizeDatabase();
+        Connection  con = db.initailizeDatabase();
         
         if (con != null && !con.isClosed()) {
             String sellerSql = "SELECT id, username, email, first_name, last_name, phone, shop_name, business_type, " +
@@ -73,7 +73,7 @@ if ("admin".equals(userRole)) {
 List<Map<String, Object>> paymentHistory = new ArrayList<>();
 try {
     Dbase db = new Dbase();
-    Connection con = db.initailizeDatabase();
+    Connection  con = db.initailizeDatabase();
     
     if (con != null && !con.isClosed()) {
         String sql = "SELECT pt.transaction_id, pt.order_id, pt.payment_method, pt.amount, pt.status, " +
@@ -465,11 +465,12 @@ tr:hover {
     <div class="sidebar">
     	<a href="Home.jsp">🏠 Home</a>
         <a href="#">📊 Dashboard</a>
-        <a href="admin.jsp">🔧 Add & Update </a>
+        <a href="Adminproduct.jsp">🛍️ Addproduct</a>
+        <a href="Updateproduct.jsp">🔧  Update product </a>
         <a href="Deleteproducts.jsp">🗑️ Delete products</a>
 <% if ("admin".equals(userRole)) { %>
         
-        <a href="Adminproduct.jsp">🛍️ Addproduct</a>
+        
           <a href="Showproducts.jsp">🛍️ Products</a>
         <a href="ApprovedProducts.jsp">📦 Seller Products</a>
         <a href="DeliveryTracking.jsp">🚚 Delivery Tracking</a>

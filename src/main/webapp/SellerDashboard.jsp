@@ -480,11 +480,15 @@ try {
             <a href="SellerDashboard.jsp" class="active">
                 <i class="fas fa-tachometer-alt"></i> Overview
             </a>
-            <a href="SellerProducts.jsp">
-                <i class="fas fa-box"></i> My Products
-            </a>
+            
             <a href="AddProduct.jsp">
                 <i class="fas fa-plus"></i> Add Product
+            </a>
+            <a href="SellerProducts.jsp">
+                <i class="fas fa-box"></i> Update product
+            </a>
+            <a href="AddProduct.jsp">
+                <i class="fas fa-plus"></i> delete product
             </a>
             <a href="SellerOrders.jsp">
                 <i class="fas fa-shopping-cart"></i> Orders

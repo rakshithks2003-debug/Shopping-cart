@@ -37,7 +37,6 @@ public class AdminProductServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         
         // Get form parameters from Adminproduct.jsp
-        String id = request.getParameter("id");
         String pid = request.getParameter("pid");
         String brand = request.getParameter("brand");
         String productName = request.getParameter("productName");
@@ -50,8 +49,7 @@ public class AdminProductServlet extends HttpServlet {
         
         try {
             // Validate required fields
-            if (id == null || id.trim().isEmpty() ||
-                pid == null || pid.trim().isEmpty() ||
+            if (pid == null || pid.trim().isEmpty() ||
                 brand == null || brand.trim().isEmpty() ||
                 productName == null || productName.trim().isEmpty() ||
                 price == null || price.trim().isEmpty() ||
@@ -168,21 +166,19 @@ public class AdminProductServlet extends HttpServlet {
                             }
                             
                             // Insert product into product table
-                            String insertQuery = "INSERT INTO product (pid, id, product_name, brand, price, image, description, category_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                            String insertQuery = "INSERT INTO product (id, product_name, brand, price, image, description, category_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
                             PreparedStatement insertStmt = con.prepareStatement(insertQuery);
                             
-                            insertStmt.setString(1, id);                      // pid (from new id field)
-                            insertStmt.setString(2, pid);                    // id (from auto-generated product ID)
-                            insertStmt.setString(3, productName);            // product_name
-                            insertStmt.setString(4, brand);                  // brand
-                            insertStmt.setDouble(5, priceValue);             // price
-                            insertStmt.setString(6, imagePath);              // image
-                            insertStmt.setString(7, description != null ? description : ""); // description
-                            insertStmt.setString(8, categoryId);             // category_id
+                            insertStmt.setString(1, pid);                    // id
+                            insertStmt.setString(2, productName);            // product_name
+                            insertStmt.setString(3, brand);                  // brand
+                            insertStmt.setDouble(4, priceValue);             // price
+                            insertStmt.setString(5, imagePath);              // image
+                            insertStmt.setString(6, description != null ? description : ""); // description
+                            insertStmt.setString(7, categoryId);             // category_id
                             
                             System.out.println("DEBUG: Inserting product with values:");
-                            System.out.println("  PID (from id field): " + id);
-                            System.out.println("  ID (from pid field): " + pid);
+                            System.out.println("  ID: " + pid);
                             System.out.println("  Name: " + productName);
                             System.out.println("  Brand: " + brand);
                             System.out.println("  Price: " + priceValue);
@@ -192,11 +188,11 @@ public class AdminProductServlet extends HttpServlet {
                             insertStmt.close();
                             
                             System.out.println("DEBUG: Product insertion result: " + rowsInserted + " rows affected");
-                            System.out.println("DEBUG: Inserted product with PID: " + id + " and ID: " + pid + " into product table");
+                            System.out.println("DEBUG: Inserted product with ID: " + pid + " into product table");
                             
                             if (rowsInserted > 0) {
                                 success = true;
-                                message = "Product added successfully! PID: " + id + ", ID: " + pid + " - Available in Products";
+                                message = "Product added successfully! Product ID: " + pid + " - Available in Products";
                                 System.out.println("DEBUG: Product successfully added to product table");
                             } else {
                                 message = "Failed to add product - no rows affected";

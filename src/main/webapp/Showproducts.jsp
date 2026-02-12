@@ -609,7 +609,7 @@ try {
     Connection con = null;
     
     try {
-        con = db.initailizeDatabase();
+    	 con = db.initailizeDatabase();
     } catch (Exception e) {
         Class.forName("com.mysql.cj.jdbc.Driver");
         con = DriverManager.getConnection(
