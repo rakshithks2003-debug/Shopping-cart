@@ -50,9 +50,10 @@ public class UpdateServlet extends HttpServlet {
             if (id == null || name == null || pid == null || priceStr == null || 
                 id.trim().isEmpty() || name.trim().isEmpty() || pid.trim().isEmpty() || priceStr.trim().isEmpty()) {
                 out.println("<html><body>");
-                out.println("<font color='red' size='4'>All required fields must be filled!</font><br>");
-                out.println("<p>Debug: ID=" + id + ", Name=" + name + ", PID=" + pid + ", Price=" + priceStr + "</p>");
-                out.println("<a href='admin.html'>Try Again</a>");
+                out.println("<script>");
+                out.println("alert('All required fields must be filled!');");
+                out.println("window.location.href='Updateproduct.jsp';");
+                out.println("</script>");
                 out.println("</body></html>");
                 return;
             }
@@ -66,8 +67,10 @@ public class UpdateServlet extends HttpServlet {
                 }
             } catch (NumberFormatException e) {
                 out.println("<html><body>");
-                out.println("<font color='red' size='4'>Invalid price format!</font><br>");
-                out.println("<a href='admin.html'>Try Again</a>");
+                out.println("<script>");
+                out.println("alert('Invalid price format!');");
+                out.println("window.location.href='Updateproduct.jsp';");
+                out.println("</script>");
                 out.println("</body></html>");
                 return;
             }
@@ -94,8 +97,10 @@ public class UpdateServlet extends HttpServlet {
                         String contentType = filePart.getContentType();
                         if (contentType == null || !contentType.startsWith("image/")) {
                             out.println("<html><body>");
-                            out.println("<font color='red' size='4'>Only image files are allowed!</font><br>");
-                            out.println("<a href='admin.html'>Try Again</a>");
+                            out.println("<script>");
+                            out.println("alert('Only image files are allowed!');");
+                            out.println("window.location.href='Updateproduct.jsp';");
+                            out.println("</script>");
                             out.println("</body></html>");
                             con.close();
                             return;
@@ -159,14 +164,16 @@ public class UpdateServlet extends HttpServlet {
                 out.println("<html><body>");
                 out.println("<script>");
                 out.println("alert('Product updated successfully!');");
-                out.println("window.location.href='Showproducts.jsp';");
+                out.println("window.location.href='Updateproduct.jsp?message=success';");
                 out.println("</script>");
                 out.println("</body></html>");
             } else {
                 // Failed
                 out.println("<html><body>");
-                out.println("<font color='red' size='4'>Update failed! Product not found.</font><br>");
-                out.println("<a href='admin.html'>Try Again</a>");
+                out.println("<script>");
+                out.println("alert('Update failed! Product not found.');");
+                out.println("window.location.href='Updateproduct.jsp';");
+                out.println("</script>");
                 out.println("</body></html>");
             }
             
@@ -178,8 +185,10 @@ public class UpdateServlet extends HttpServlet {
             e.printStackTrace();
             
             out.println("<html><body>");
-            out.println("<font color='red' size='4'>Error updating product: " + e.getMessage() + "</font><br>");
-            out.println("<a href='javascript:history.back()'>Try Again</a>");
+            out.println("<script>");
+            out.println("alert('Error updating product: " + e.getMessage() + "');");
+            out.println("window.location.href='Updateproduct.jsp';");
+            out.println("</script>");
             out.println("</body></html>");
         }
     }
