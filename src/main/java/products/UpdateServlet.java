@@ -174,9 +174,12 @@ public class UpdateServlet extends HttpServlet {
             con.close();
             
         } catch (Exception e) {
+            System.err.println("ERROR in UpdateServlet: " + e.getMessage());
+            e.printStackTrace();
+            
             out.println("<html><body>");
             out.println("<font color='red' size='4'>Error updating product: " + e.getMessage() + "</font><br>");
-            out.println("<a href='admin.html'>Try Again</a>");
+            out.println("<a href='javascript:history.back()'>Try Again</a>");
             out.println("</body></html>");
         }
     }

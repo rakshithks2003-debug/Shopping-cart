@@ -165,20 +165,25 @@ public class AdminProductServlet extends HttpServlet {
                                 message = "Error processing images: " + e.getMessage();
                             }
                             
+                            // Generate automatic 4-digit ID
+                            int autoId = (int)(Math.random() * 9000) + 1000; // Generate 4-digit number (1000-9999)
+                            
                             // Insert product into product table
-                            String insertQuery = "INSERT INTO product (id, product_name, brand, price, image, description, category_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                            String insertQuery = "INSERT INTO product (id, pid, product_name, brand, price, image, description, category_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                             PreparedStatement insertStmt = con.prepareStatement(insertQuery);
                             
-                            insertStmt.setString(1, pid);                    // id
-                            insertStmt.setString(2, productName);            // product_name
-                            insertStmt.setString(3, brand);                  // brand
-                            insertStmt.setDouble(4, priceValue);             // price
-                            insertStmt.setString(5, imagePath);              // image
-                            insertStmt.setString(6, description != null ? description : ""); // description
-                            insertStmt.setString(7, categoryId);             // category_id
+                            insertStmt.setInt(1, autoId);                   // auto-generated id
+                            insertStmt.setString(2, pid);                  // pid
+                            insertStmt.setString(3, productName);          // product_name
+                            insertStmt.setString(4, brand);                // brand
+                            insertStmt.setDouble(5, priceValue);           // price
+                            insertStmt.setString(6, imagePath);            // image
+                            insertStmt.setString(7, description != null ? description : ""); // description
+                            insertStmt.setString(8, categoryId);           // category_id
                             
                             System.out.println("DEBUG: Inserting product with values:");
-                            System.out.println("  ID: " + pid);
+                            System.out.println("  Auto ID: " + autoId);
+                            System.out.println("  Product ID: " + pid);
                             System.out.println("  Name: " + productName);
                             System.out.println("  Brand: " + brand);
                             System.out.println("  Price: " + priceValue);
