@@ -36,8 +36,45 @@ public class AdminProductServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
         
+        // Get user role and determine ID type
+        String userRole = (String) request.getSession().getAttribute("role");
+        String userId;
+        String idType;
+        
+        if ("seller".equals(userRole)) {
+            // For seller role, fetch seller_id from users table
+            String username = (String) request.getSession().getAttribute("username");
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                String sellerQuery = "SELECT seller_id FROM users WHERE username = ?";
+                PreparedStatement sellerStmt = con.prepareStatement(sellerQuery);
+                sellerStmt.setString(1, username);
+                ResultSet rs = sellerStmt.executeQuery();
+                
+                if (rs.next()) {
+                    userId = rs.getString("seller_id");
+                    idType = "Seller ID";
+                } else {
+                    userId = null;
+                    idType = "Seller ID";
+                }
+                rs.close();
+                sellerStmt.close();
+                con.close();
+            } catch (Exception e) {
+                userId = null;
+                idType = "Seller ID";
+                System.err.println("Error fetching seller_id: " + e.getMessage());
+            }
+        } else {
+            // For other roles (admin), use pid from form
+            userId = request.getParameter("pid");
+            idType = "Product ID";
+        }
+        
         // Get form parameters from Adminproduct.jsp
-        String pid = request.getParameter("pid");
+        String pid = request.getParameter("pid"); // Keep for compatibility
         String brand = request.getParameter("brand");
         String productName = request.getParameter("productName");
         String price = request.getParameter("price");
@@ -49,7 +86,7 @@ public class AdminProductServlet extends HttpServlet {
         
         try {
             // Validate required fields
-            if (pid == null || pid.trim().isEmpty() ||
+            if (userId == null || userId.trim().isEmpty() ||
                 brand == null || brand.trim().isEmpty() ||
                 productName == null || productName.trim().isEmpty() ||
                 price == null || price.trim().isEmpty() ||
@@ -69,11 +106,11 @@ public class AdminProductServlet extends HttpServlet {
                         // Check if product ID already exists
                         String checkQuery = "SELECT id FROM product WHERE id = ?";
                         PreparedStatement checkStmt = con.prepareStatement(checkQuery);
-                        checkStmt.setString(1, pid);
+                        checkStmt.setString(1, userId);
                         ResultSet rs = checkStmt.executeQuery();
                         
                         if (rs.next()) {
-                            message = "Product ID already exists. Please use a different ID.";
+                            message = idType + " already exists. Please use a different ID.";
                             rs.close();
                             checkStmt.close();
                         } else {
@@ -173,7 +210,7 @@ public class AdminProductServlet extends HttpServlet {
                             PreparedStatement insertStmt = con.prepareStatement(insertQuery);
                             
                             insertStmt.setInt(1, autoId);                   // auto-generated id
-                            insertStmt.setString(2, pid);                  // pid
+                            insertStmt.setString(2, userId);                 // pid/seller_id
                             insertStmt.setString(3, productName);          // product_name
                             insertStmt.setString(4, brand);                // brand
                             insertStmt.setDouble(5, priceValue);           // price
@@ -183,7 +220,7 @@ public class AdminProductServlet extends HttpServlet {
                             
                             System.out.println("DEBUG: Inserting product with values:");
                             System.out.println("  Auto ID: " + autoId);
-                            System.out.println("  Product ID: " + pid);
+                            System.out.println("  User ID: " + userId);
                             System.out.println("  Name: " + productName);
                             System.out.println("  Brand: " + brand);
                             System.out.println("  Price: " + priceValue);
@@ -193,11 +230,11 @@ public class AdminProductServlet extends HttpServlet {
                             insertStmt.close();
                             
                             System.out.println("DEBUG: Product insertion result: " + rowsInserted + " rows affected");
-                            System.out.println("DEBUG: Inserted product with ID: " + pid + " into product table");
+                            System.out.println("DEBUG: Inserted product with " + idType + ": " + userId + " into product table");
                             
                             if (rowsInserted > 0) {
                                 success = true;
-                                message = "Product added successfully! Product ID: " + pid + " - Available in Products";
+                                message = "Product added successfully! " + idType + ": " + userId + " - Available in Products";
                                 System.out.println("DEBUG: Product successfully added to product table");
                             } else {
                                 message = "Failed to add product - no rows affected";

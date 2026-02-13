@@ -38,6 +38,32 @@ public class AddProductServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
         
+        // Get user role and determine ID type
+        String userRole = (String) request.getSession().getAttribute("userRole");
+        String username = (String) request.getSession().getAttribute("username");
+        String sellerId = null;
+        
+        // For seller role, fetch seller_id from users table
+        if ("seller".equals(userRole)) {
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                String sellerQuery = "SELECT seller_id FROM users WHERE username = ?";
+                PreparedStatement sellerStmt = con.prepareStatement(sellerQuery);
+                sellerStmt.setString(1, username);
+                ResultSet rs = sellerStmt.executeQuery();
+                
+                if (rs.next()) {
+                    sellerId = rs.getString("seller_id");
+                }
+                rs.close();
+                sellerStmt.close();
+                con.close();
+            } catch (Exception e) {
+                System.err.println("Error fetching seller_id: " + e.getMessage());
+            }
+        }
+        
         // Get form parameters
         String productId = request.getParameter("productId");
         String productName = request.getParameter("productName");
@@ -149,7 +175,7 @@ public class AddProductServlet extends HttpServlet {
                             }
                             
                             // Insert product into Sproduct table
-                            String insertQuery = "INSERT INTO Sproduct (id, pro_id, brand, price, description, image, Category, product_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                            String insertQuery = "INSERT INTO Sproduct (id, pro_id, brand, price, description, image, Category, product_name, Seller_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                             PreparedStatement insertStmt = con.prepareStatement(insertQuery);
                             
                             // Generate a unique 4-digit PIN for pro_id
@@ -163,6 +189,7 @@ public class AddProductServlet extends HttpServlet {
                             insertStmt.setString(6, imagePathsStr);       // image
                             insertStmt.setString(7, category);            // Category
                             insertStmt.setString(8, productName);         // product_name
+                            insertStmt.setString(9, sellerId);            // Seller_id from users table
                             
                             int rowsInserted = insertStmt.executeUpdate();
                             insertStmt.close();

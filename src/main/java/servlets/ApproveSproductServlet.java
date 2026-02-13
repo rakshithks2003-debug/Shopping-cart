@@ -43,7 +43,7 @@ public class ApproveSproductServlet extends HttpServlet {
                 Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                 
                 // Get product details from Sproduct table using pro_id
-                String getSproductQuery = "SELECT id, pro_id, brand, price, description, image, Category, product_name FROM Sproduct WHERE pro_id = ?";
+                String getSproductQuery = "SELECT id, pro_id, brand, price, description, image, Category, product_name, Seller_id FROM Sproduct WHERE pro_id = ?";
                 PreparedStatement psSproduct = con.prepareStatement(getSproductQuery);
                 psSproduct.setString(1, proId);
                 ResultSet rsSproduct = psSproduct.executeQuery();
@@ -51,12 +51,13 @@ public class ApproveSproductServlet extends HttpServlet {
                 if (rsSproduct.next()) {
                     // Get the original product ID from Sproduct
                     String originalProductId = rsSproduct.getString("id");
+                    String sellerId = rsSproduct.getString("Seller_id");
                     
                     // Generate a unique 4-digit ID for the main product table
                     String uniqueProductId = generateFourDigitId(con);
                     
                     // Insert into main product table
-                    String insertQuery = "INSERT INTO product (id, pid, brand, price, description, image, Category_id, product_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    String insertQuery = "INSERT INTO product (id, pid, brand, price, description, image, Category_id, product_name, Seller_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement psInsert = con.prepareStatement(insertQuery);
                     
                     psInsert.setString(1, uniqueProductId); // 4-digit ID
@@ -67,6 +68,7 @@ public class ApproveSproductServlet extends HttpServlet {
                     psInsert.setString(6, rsSproduct.getString("image"));
                     psInsert.setString(7, rsSproduct.getString("Category")); // Category_id
                     psInsert.setString(8, rsSproduct.getString("product_name"));
+                    psInsert.setString(9, sellerId); // Seller_id from Sproduct
                     
                     int rowsInserted = psInsert.executeUpdate();
                     psInsert.close();

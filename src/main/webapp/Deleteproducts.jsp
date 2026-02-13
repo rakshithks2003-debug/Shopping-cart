@@ -8,14 +8,36 @@
 // Check if user is logged in and is admin
 HttpSession sessionObg = request.getSession(false);
 if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null || 
-    !(Boolean) sessionObg.getAttribute("isLoggedIn") || 
-    !"admin".equals(sessionObg.getAttribute("userRole"))) {
+    !(Boolean) sessionObg.getAttribute("isLoggedIn"))
+     {
     response.sendRedirect("Login.html");
     return;
 }
 
 String userRole = (String) sessionObg.getAttribute("userRole");
 String username = (String) sessionObg.getAttribute("username");
+String sellerId = null;
+
+// For seller role, fetch seller_id from users table
+if ("seller".equals(userRole)) {
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mscart","root","123456");
+        String sellerQuery = "SELECT seller_id FROM users WHERE username = ?";
+        PreparedStatement sellerStmt = con.prepareStatement(sellerQuery);
+        sellerStmt.setString(1, username);
+        ResultSet rs = sellerStmt.executeQuery();
+        
+        if (rs.next()) {
+            sellerId = rs.getString("seller_id");
+        }
+        rs.close();
+        sellerStmt.close();
+        con.close();
+    } catch (Exception e) {
+        System.err.println("Error fetching seller_id: " + e.getMessage());
+    }
+}
 
 // Handle deletion
 String deleteMessage = "";
@@ -52,8 +74,17 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                 String foundPid = null;
                 
                 try {
-                    checkPs = con.prepareStatement("SELECT id, pid, product_name, brand FROM product WHERE product_name = ?");
-                    checkPs.setString(1, productName);
+                    String checkQuery;
+                    if ("seller".equals(userRole) && sellerId != null) {
+                        checkQuery = "SELECT id, pid, product_name, brand FROM product WHERE product_name = ? AND Seller_id = ?";
+                        checkPs = con.prepareStatement(checkQuery);
+                        checkPs.setString(1, productName);
+                        checkPs.setString(2, sellerId);
+                    } else {
+                        checkQuery = "SELECT id, pid, product_name, brand FROM product WHERE product_name = ?";
+                        checkPs = con.prepareStatement(checkQuery);
+                        checkPs.setString(1, productName);
+                    }
                     checkRs = checkPs.executeQuery();
                     
                     if (checkRs.next()) {
@@ -75,8 +106,17 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                     int result = 0;
                     
                     try {
-                        ps = con.prepareStatement("DELETE FROM product WHERE product_name = ?");
-                        ps.setString(1, productName);
+                        String deleteQuery;
+                        if ("seller".equals(userRole) && sellerId != null) {
+                            deleteQuery = "DELETE FROM product WHERE product_name = ? AND Seller_id = ?";
+                            ps = con.prepareStatement(deleteQuery);
+                            ps.setString(1, productName);
+                            ps.setString(2, sellerId);
+                        } else {
+                            deleteQuery = "DELETE FROM product WHERE product_name = ?";
+                            ps = con.prepareStatement(deleteQuery);
+                            ps.setString(1, productName);
+                        }
                         result = ps.executeUpdate();
                         System.out.println("Delete with product_name affected " + result + " rows");
                         
@@ -95,7 +135,16 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                     System.out.println("No product found with name: " + productName);
                     
                     // Show all available product names for debugging
-                    PreparedStatement allPs = con.prepareStatement("SELECT id, pid, product_name, brand FROM product ORDER BY product_name");
+                    String allQuery;
+                    PreparedStatement allPs;
+                    if ("seller".equals(userRole) && sellerId != null) {
+                        allQuery = "SELECT id, pid, product_name, brand FROM product WHERE Seller_id = ? ORDER BY product_name";
+                        allPs = con.prepareStatement(allQuery);
+                        allPs.setString(1, sellerId);
+                    } else {
+                        allQuery = "SELECT id, pid, product_name, brand FROM product ORDER BY product_name";
+                        allPs = con.prepareStatement(allQuery);
+                    }
                     ResultSet allRs = allPs.executeQuery();
                     StringBuilder availableProducts = new StringBuilder("Available products: ");
                     int productCount = 0;
@@ -532,7 +581,18 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                             </tr>
                         <%
                             } else {
-                                PreparedStatement ps = con.prepareStatement("SELECT id, pid, product_name, brand, category_id, price, description FROM product ORDER BY id DESC");
+                                PreparedStatement ps;
+                                String query;
+                                
+                                // Filter products by seller_id if user is seller, otherwise show all products
+                                if ("seller".equals(userRole) && sellerId != null) {
+                                    query = "SELECT id, pid, product_name, brand, category_id, price, description FROM product WHERE Seller_id = ? ORDER BY id DESC";
+                                    ps = con.prepareStatement(query);
+                                    ps.setString(1, sellerId);
+                                } else {
+                                    query = "SELECT id, pid, product_name, brand, category_id, price, description FROM product ORDER BY id DESC";
+                                    ps = con.prepareStatement(query);
+                                }
                                 ResultSet rs = ps.executeQuery();
                                 
                                 boolean hasProducts = false;

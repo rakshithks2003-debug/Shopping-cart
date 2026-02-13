@@ -18,6 +18,26 @@ if (!"seller".equals(userRole)) {
     return;
 }
 
+// Fetch seller_id from users table for seller role
+String sellerId = null;
+try {
+    Class.forName("com.mysql.cj.jdbc.Driver");
+    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mscart","root","123456");
+    String sellerQuery = "SELECT seller_id FROM users WHERE username = ?";
+    PreparedStatement sellerStmt = con.prepareStatement(sellerQuery);
+    sellerStmt.setString(1, username);
+    ResultSet rs = sellerStmt.executeQuery();
+    
+    if (rs.next()) {
+        sellerId = rs.getString("seller_id");
+    }
+    rs.close();
+    sellerStmt.close();
+    con.close();
+} catch (Exception e) {
+    System.err.println("Error fetching seller_id: " + e.getMessage());
+}
+
 // Load seller information
 Map<String, Object> sellerInfo = new HashMap<>();
 try {
@@ -484,10 +504,10 @@ try {
             <a href="AddProduct.jsp">
                 <i class="fas fa-plus"></i> Add Product
             </a>
-            <a href="SellerProducts.jsp">
+            <a href="Updateproduct.jsp">
                 <i class="fas fa-box"></i> Update product
             </a>
-            <a href="AddProduct.jsp">
+            <a href="Deleteproducts.jsp">
                 <i class="fas fa-plus"></i> delete product
             </a>
             <a href="SellerOrders.jsp">

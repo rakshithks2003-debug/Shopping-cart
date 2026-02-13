@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page import="jakarta.servlet.http.HttpSession" %>
+<%@ page import="jakarta.servlet.http.HttpSession, java.sql.*" %>
 <%
 // Check if user is logged in and is a seller
 HttpSession sessionObg = request.getSession(false);
@@ -16,6 +16,26 @@ String username = (String) sessionObg.getAttribute("username");
 if (!"seller".equals(userRole)) {
     response.sendRedirect("Home.jsp");
     return;
+}
+
+// Fetch seller_id from users table for seller role
+String sellerId = null;
+try {
+    Class.forName("com.mysql.cj.jdbc.Driver");
+    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mscart","root","123456");
+    String sellerQuery = "SELECT seller_id FROM users WHERE username = ?";
+    PreparedStatement sellerStmt = con.prepareStatement(sellerQuery);
+    sellerStmt.setString(1, username);
+    ResultSet rs = sellerStmt.executeQuery();
+    
+    if (rs.next()) {
+        sellerId = rs.getString("seller_id");
+    }
+    rs.close();
+    sellerStmt.close();
+    con.close();
+} catch (Exception e) {
+    System.err.println("Error fetching seller_id: " + e.getMessage());
 }
 %>
 <!DOCTYPE html>

@@ -12,355 +12,646 @@
         return;
     }
     
+    // Get user role and determine ID type
+    String userRole = (String) sessionObj.getAttribute("userRole");
+    String username = (String) sessionObj.getAttribute("username");
+    String sellerId = null;
+    
+    // For seller role, fetch seller_id from users table
+    if ("seller".equals(userRole)) {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mscart","root","123456");
+            String sellerQuery = "SELECT seller_id FROM users WHERE username = ?";
+            PreparedStatement sellerStmt = con.prepareStatement(sellerQuery);
+            sellerStmt.setString(1, username);
+            ResultSet rs = sellerStmt.executeQuery();
+            
+            if (rs.next()) {
+                sellerId = rs.getString("seller_id");
+            }
+            rs.close();
+            sellerStmt.close();
+            con.close();
+        } catch (Exception e) {
+            System.err.println("Error fetching seller_id: " + e.getMessage());
+        }
+    }
+    
     // Get restaurant parameter from request or session
     String restaurantId = request.getParameter("restaurant");
     
     // For restaurant users, get restaurantId from session
-    String userRole = (String) sessionObj.getAttribute("userRole");
     if ("restaurant".equals(userRole)) {
         restaurantId = (String) sessionObj.getAttribute("restaurantId");
     }
 %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Items - YummyHub</title>
+    <title>Update Products - Mini Shopping Cart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        .back-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #667eea;
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-        .back-btn:hover {
-            background: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .reverse-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #ff6b6b;
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .reverse-btn:hover {
-            background: white;
-            color: #ff6b6b;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255,107,107,0.4);
-        }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
+        :root {
+            --primary: #8b5cf6;
+            --primary-light: #a78bfa;
+            --secondary: #ec4899;
+            --accent: #14b8a6;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f1f5f9;
+            --white: #ffffff;
+            --gray: #64748b;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark);
+            line-height: 1.6;
             min-height: 100vh;
-            padding: 20px;
+            position: relative;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
         }
-        
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            color: white;
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
         }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
-        .category-tabs {
+
+        /* Top Navigation Bar */
+        .top-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 20px 40px;
             display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        
-        .category-tab {
-            background: rgba(255, 255, 255, 0.9);
-            color: #667eea;
-            padding: 10px 20px;
-            border-radius: 25px;
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
             text-decoration: none;
             font-weight: 600;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-        
-        .category-tab:hover, .category-tab.active {
-            background: white;
-            border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .items-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-        
-        .item-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .item-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        }
-        
-        .item-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            background: #f0f0f0;
-            display: block;
-        }
-        
-        .item-info {
-            padding: 20px;
-        }
-        
-        .item-name {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .item-description {
-            color: #555;
             font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 15px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
         }
-        
-        .item-price {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #ff6b6b;
-            margin-bottom: 15px;
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
         }
-        
-        .item-price::before {
-            content: "₹";
-            margin-right: 2px;
-        }
-        
-        .item-actions {
+
+        .user-badge {
             display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        .update-btn {
-            background: #ff9800;
-            color: white;
-            border: none;
+            align-items: center;
+            gap: 12px;
+            background: var(--light);
             padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
+            border-radius: 50px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
             font-weight: 600;
-            transition: all 0.3s ease;
+            color: var(--dark);
+            font-size: 0.95rem;
         }
-        
-        .update-btn:hover {
-            background: #f57c00;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--gray);
+            text-transform: capitalize;
         }
-        
-        .no-items {
+
+        /* Page Header */
+        .page-header {
             text-align: center;
+            padding: 60px 20px 40px;
             color: white;
-            font-size: 1.2rem;
-            margin: 60px 0;
         }
-        
-        .error-message {
-            background: #f44336;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            text-align: center;
+
+        .page-header h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
         }
-        
-        .success-message {
-            background: #4CAF50;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            text-align: center;
+
+        .page-header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            font-weight: 400;
         }
-        
-        .update-form-container {
-            background: white;
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px 60px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 25px 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            margin-bottom: 40px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid var(--light);
             border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+
+        .btn-clear {
+            padding: 15px 30px;
+            background: var(--light);
+            color: var(--gray);
+            border: none;
+            border-radius: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-clear:hover {
+            background: var(--gray);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 20px 25px;
+            border-radius: 20px;
             margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 500;
+            animation: slideIn 0.5s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+        }
+
+        .alert i {
+            font-size: 1.8rem;
+        }
+
+        /* Update Form */
+        .update-form {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            margin-bottom: 50px;
+        }
+
+        .form-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full {
             grid-column: 1 / -1;
         }
-        
-        .update-form-container h2 {
-            color: #333;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
+
+        .form-label {
             font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e6ed;
-            border-radius: 8px;
+
+        .form-label i {
+            color: var(--primary);
+        }
+
+        .form-input,
+        .form-textarea {
+            padding: 15px 20px;
+            border: 2px solid var(--light);
+            border-radius: 15px;
             font-size: 1rem;
-            transition: border-color 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+            background: white;
         }
-        
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
+
+        .form-input:focus,
+        .form-textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
         }
-        
-        .form-group textarea {
+
+        .form-textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 120px;
         }
-        
+
+        .form-hint {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 8px;
+        }
+
+        .current-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .current-image {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 15px;
+            border: 3px solid var(--light);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .current-image:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+
         .form-actions {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             justify-content: center;
-            margin-top: 20px;
-        }
-        
-        .btn-submit {
-            background: #ff9800;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: background 0.3s ease;
-        }
-        
-        .btn-submit:hover {
-            background: #f57c00;
-        }
-        
-        .btn-cancel {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: background 0.3s ease;
-        }
-        
-        .btn-cancel:hover {
-            background: #5a6268;
-        }
-        
-        footer {
-            text-align: center;
-            color: white;
             margin-top: 40px;
-            opacity: 0.8;
+        }
+
+        .btn {
+            padding: 16px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-family: 'Poppins', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(139, 92, 246, 0.6);
+        }
+
+        .btn-secondary {
+            background: var(--gray);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--dark);
+            transform: translateY(-3px);
+        }
+
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 35px;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            background: var(--light);
+        }
+
+        .product-content {
+            padding: 30px;
+        }
+
+        .product-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 12px;
+        }
+
+        .product-desc {
+            color: var(--gray);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-price {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+        }
+
+        .btn-update {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--warning), #f97316);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-update:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.5);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 100px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .empty-state i {
+            font-size: 6rem;
+            color: var(--gray);
+            opacity: 0.3;
+            margin-bottom: 25px;
+        }
+
+        .empty-state h3 {
+            font-size: 2rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            color: var(--gray);
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        .footer p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .page-header h1 {
+                font-size: 2.5rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .search-bar {
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .update-form {
+                padding: 30px 20px;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-   <%--  <div style="position: fixed; top: 10px; left: 10px; background: rgba(255,255,255,0.9); padding: 8px 12px; border-radius: 5px; font-size: 12px; color: #333; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-        Session ID: <%= session.getId() %>
-    </div>--%>
-    <a href="javascript:history.back()" class="reverse-btn" style="top: 60px; left: 20px;"><i class="fas fa-undo"></i> Back</a>
-    <div class="container">
-        <header>
-            <h1>📝 Update product</h1>
-            <p class="subtitle">Edit items in your Mini Shopping cart catalog</p>
-        </header>
-        
-        <div class="filter-section" style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; margin-bottom: 30px;">
-            <div class="filter-group" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-                <label style="color: white; font-weight: 600;">Search Items:</label>
-                <input type="text" id="searchInput" placeholder="Search by name or description..." 
-                       onkeyup="searchItems()" 
-                       style="padding: 8px 15px; border-radius: 8px; border: none; background: white; color: #333; font-weight: 500; min-width: 250px;">
-                
-                <button type="button" onclick="clearSearch()" 
-                        style="padding: 8px 15px; border-radius: 8px; border: none; background: #ff6b6b; color: white; font-weight: 500; cursor: pointer;">
-                    Clear Search
-                </button>
+    <div class="page-wrapper">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <a href="javascript:history.back()" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <div class="user-badge">
+                <div class="user-avatar">
+                    <%= username != null ? username.substring(0, 1).toUpperCase() : "U" %>
+                </div>
+                <div class="user-details">
+                    <span class="user-name"><%= username != null ? username : "User" %></span>
+                    <span class="user-role"><%= userRole != null ? userRole : "Guest" %></span>
+                </div>
             </div>
         </div>
-        
-        <main>
-            <div class="items-grid">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-edit"></i>
+                Update Products
+            </h1>
+            <p>Manage and edit your product catalog</p>
+        </div>
+
+        <div class="container">
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search products by name or description..." onkeyup="searchItems()">
+                <button type="button" class="btn-clear" onclick="clearSearch()">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
+
 <%
     // Get item ID for updating
     String updateItemId = request.getParameter("updateId");
@@ -369,9 +660,10 @@
     String updateMessage = request.getParameter("message");
     if (updateMessage != null && updateMessage.equals("success")) {
 %>
-                <div class="success-message" style="grid-column: 1 / -1;">
-                    ✅ product updated successfully!
-                </div>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span>Product updated successfully!</span>
+            </div>
 <%
     }
     
@@ -380,57 +672,80 @@
         try {
             Dbase db = new Dbase();
             Connection  con = db.initailizeDatabase();
-            PreparedStatement ps = con.prepareStatement("SELECT id, pid, product_name, price, description, image FROM product WHERE id=?");
-            ps.setString(1, updateItemId);
+            PreparedStatement ps;
+            String productQuery;
+            
+            // Filter by seller_id if user is seller, otherwise get any product
+            if ("seller".equals(userRole) && sellerId != null) {
+                productQuery = "SELECT id, pid, product_name, price, description, image FROM product WHERE id=? AND Seller_id=?";
+                ps = con.prepareStatement(productQuery);
+                ps.setString(1, updateItemId);
+                ps.setString(2, sellerId);
+            } else {
+                productQuery = "SELECT id, pid, product_name, price, description, image FROM product WHERE id=?";
+                ps = con.prepareStatement(productQuery);
+                ps.setString(1, updateItemId);
+            }
             ResultSet rs = ps.executeQuery();
             
             if (rs.next()) {
 %>
-                <div class="update-form-container">
-                    <h2>📝 Update product</h2>
-                    <form action="UpdateServlet" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="id" value="<%=rs.getString("id")%>">
-                        <input type="hidden" name="restaurant" value="<%=restaurantId%>">
-                        
+            <div class="update-form">
+                <h2 class="form-title">
+                    <i class="fas fa-pen-to-square"></i>
+                    Edit Product Details
+                </h2>
+                <form action="UpdateServlet" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="id" value="<%=rs.getString("id")%>">
+                    <input type="hidden" name="restaurant" value="<%=restaurantId%>">
+                    
+                    <div class="form-grid">
                         <div class="form-group">
-                            <label for="name">Product Name:</label>
-                            <input type="text" id="name" name="name" value="<%=rs.getString("product_name")%>" required>
+                            <label class="form-label" for="name">
+                                <i class="fas fa-tag"></i> Product Name
+                            </label>
+                            <input type="text" id="name" name="name" class="form-input" value="<%=rs.getString("product_name")%>" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="pid">PID:</label>
-                            <input type="text" id="pid" name="pid" value="<%=rs.getString("pid")%>" required>
+                            <label class="form-label" for="pid">
+                                <i class="fas fa-barcode"></i> Product ID
+                            </label>
+                            <input type="text" id="pid" name="pid" class="form-input" value="<%=rs.getString("pid")%>" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="price">Price (₹):</label>
-                            <input type="number" id="price" name="price" value="<%=rs.getDouble("price")%>" step="0.01" min="0" required>
+                            <label class="form-label" for="price">
+                                <i class="fas fa-indian-rupee-sign"></i> Price
+                            </label>
+                            <input type="number" id="price" name="price" class="form-input" value="<%=rs.getDouble("price")%>" step="0.01" min="0" required>
                         </div>
                         
-                        <div class="form-group">
-                            <label for="description">Description:</label>
-                            <textarea id="description" name="description" rows="4"><%=rs.getString("description") != null ? rs.getString("description") : ""%></textarea>
+                        <div class="form-group full">
+                            <label class="form-label" for="description">
+                                <i class="fas fa-align-left"></i> Description
+                            </label>
+                            <textarea id="description" name="description" class="form-textarea"><%=rs.getString("description") != null ? rs.getString("description") : ""%></textarea>
                         </div>
                         
-                        <div class="form-group">
-                            <label for="image">Update Images (up to 5 images):</label>
-                            <input type="file" id="image" name="image" accept="image/*" multiple>
-                            <small style="color: #666; font-size: 0.85rem; margin-top: 5px; display: block;">
-                                Select up to 5 images. Leave empty to keep current images. Supported formats: JPG, PNG, GIF, WebP
-                            </small>
+                        <div class="form-group full">
+                            <label class="form-label" for="image">
+                                <i class="fas fa-images"></i> Product Images
+                            </label>
+                            <input type="file" id="image" name="image" class="form-input" accept="image/*" multiple>
+                            <span class="form-hint">Select up to 5 images. Leave empty to keep current images. Supported: JPG, PNG, GIF, WebP</span>
 <%
         String currentImage = rs.getString("image");
         if (currentImage != null && !currentImage.trim().isEmpty()) {
             String[] currentImages = currentImage.split(",");
 %>
-                            <div style="margin-top: 10px;">
-                                <strong>Current Images:</strong><br>
+                            <div class="current-images">
 <%
             for (int i = 0; i < currentImages.length && i < 5; i++) {
                 String img = currentImages[i].trim();
                 if (!img.isEmpty()) {
 %>
-                                <img src="product_images/<%=img%>" alt="Current image <%=i+1%>" style="max-width: 150px; max-height: 120px; border: 2px solid #e0e6ed; border-radius: 8px; margin: 5px;">
+                                <img src="product_images/<%=img%>" alt="Product image <%=i+1%>" class="current-image">
 <%
                 }
             }
@@ -439,20 +754,25 @@
 <%
         } else {
 %>
-                            <div style="margin-top: 10px; color: #666; font-size: 0.9rem;">
+                            <div style="margin-top: 10px; color: var(--gray); font-size: 0.9rem;">
                                 <em>No current images</em>
                             </div>
 <%
         }
 %>
                         </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn-submit">💾 Update product</button>
-                            <button type="button" class="btn-cancel" onclick="cancelUpdate()">❌ Cancel</button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Product
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="cancelUpdate()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
 <%
             }
             
@@ -461,9 +781,10 @@
             con.close();
         } catch (Exception e) {
 %>
-                <div class="error-message" style="grid-column: 1 / -1;">
-                    ⚠️ Error loading item for update: <%=e.getMessage()%>
-                </div>
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Error loading product: <%=e.getMessage()%></span>
+            </div>
 <%
         }
     }
@@ -472,16 +793,28 @@ try {
     Dbase db = new Dbase();
     Connection  con = db.initailizeDatabase();
     PreparedStatement ps;
-    String query = "SELECT id, product_name, price, image, description FROM product ORDER BY id DESC";
-    ps = con.prepareStatement(query);
+    String query;
+    
+    // Filter products by seller_id if user is seller, otherwise show all products
+    if ("seller".equals(userRole) && sellerId != null) {
+        query = "SELECT id, product_name, price, image, description FROM product WHERE Seller_id = ? ORDER BY id DESC";
+        ps = con.prepareStatement(query);
+        ps.setString(1, sellerId);
+    } else {
+        query = "SELECT id, product_name, price, image, description FROM product ORDER BY id DESC";
+        ps = con.prepareStatement(query);
+    }
     
     ResultSet rs = ps.executeQuery();
     
     boolean hasItems = false;
+%>
+            <div class="products-grid">
+<%
     while(rs.next()) {
         hasItems = true;
 %>
-                <div class="item-card">
+                <div class="product-card">
 <%
         String imageFileName = rs.getString("image");
         String imageSrc = "";
@@ -494,32 +827,28 @@ try {
         }
         
         if (imageSrc.isEmpty()) {
-            imageSrc = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4=";
+            imageSrc = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect fill='%23f1f5f9' width='400' height='300'/%3E%3Ctext fill='%2394a3b8' font-family='Arial' font-size='18' x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
         }
 %>
-                    <img class="item-image" src="<%=imageSrc%>" alt="<%=rs.getString("product_name")%>">
-                    <div class="item-info">
-                        <div class="item-product_name"><%=rs.getString("product_name")%></div>
+                    <img class="product-image" src="<%=imageSrc%>" alt="<%=rs.getString("product_name")%>">
+                    <div class="product-content">
+                        <div class="product-name"><%=rs.getString("product_name")%></div>
 <%
         String description = rs.getString("description");
         if (description != null && !description.trim().isEmpty()) {
-            // Limit description length for better display
-            if (description.length() > 100) {
-                description = description.substring(0, 97) + "...";
-            }
 %>
-                        <div class="item-description"><%=description.replace("\n", "<br>")%></div>
+                        <div class="product-desc"><%=description%></div>
 <%
         }
 %>
-                        <div class="item-price"><%=String.format("%.2f", rs.getDouble("price"))%></div>
-                        <div class="item-actions">
-                            <form action="Updateproduct.jsp" method="get" style="display: inline;">
-                                <input type="hidden" name="updateId" value="<%=rs.getString("id")%>">
-                                <input type="hidden" name="restaurant" value="<%=restaurantId%>">
-                                <button type="submit" class="update-btn">📝 Update Item</button>
-                            </form>
-                        </div>
+                        <div class="product-price">₹<%=String.format("%.2f", rs.getDouble("price"))%></div>
+                        <form action="Updateproduct.jsp" method="get">
+                            <input type="hidden" name="updateId" value="<%=rs.getString("id")%>">
+                            <input type="hidden" name="restaurant" value="<%=restaurantId%>">
+                            <button type="submit" class="btn-update">
+                                <i class="fas fa-pen-to-square"></i> Edit Product
+                            </button>
+                        </form>
                     </div>
                 </div>
 <%
@@ -527,12 +856,16 @@ try {
     
     if (!hasItems) {
 %>
-                <div class="no-items">
-                    <h3>📦 No items found</h3>
-                    <p>No items available in this restaurant.</p>
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <i class="fas fa-box-open"></i>
+                    <h3>No Products Found</h3>
+                    <p>There are no products available to update at this time.</p>
                 </div>
 <%
     }
+%>
+            </div>
+<%
     
     rs.close();
     ps.close();
@@ -540,31 +873,32 @@ try {
     
 } catch (Exception e) {
 %>
-                <div class="error-message">
-                    ⚠️ Error loading items: <%=e.getMessage()%>
-                </div>
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Error loading products: <%=e.getMessage()%></span>
+            </div>
 <%
 }
 %>
-            </div>
-        </main>
-        
-        <footer>
-            <p>&copy; 2026 Mini Shopping Cart.</p>
-        </footer>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>&copy; 2026 Mini Shopping Cart. All rights reserved.</p>
+        </div>
     </div>
     
     <script>
         function searchItems() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const itemCards = document.querySelectorAll('.item-card');
+            const productCards = document.querySelectorAll('.product-card');
             
-            itemCards.forEach(card => {
-                const itemName = card.querySelector('.item-product_name').textContent.toLowerCase();
-                const itemDescription = card.querySelector('.item-description');
-                const descriptionText = itemDescription ? itemDescription.textContent.toLowerCase() : '';
+            productCards.forEach(card => {
+                const productName = card.querySelector('.product-name').textContent.toLowerCase();
+                const productDesc = card.querySelector('.product-desc');
+                const descText = productDesc ? productDesc.textContent.toLowerCase() : '';
                 
-                if (itemName.includes(searchTerm) || descriptionText.includes(searchTerm)) {
+                if (productName.includes(searchTerm) || descText.includes(searchTerm)) {
                     card.style.display = 'block';
                 } else {
                     card.style.display = 'none';
@@ -574,7 +908,7 @@ try {
         
         function clearSearch() {
             document.getElementById('searchInput').value = '';
-            searchItems(); // This will show all items since search term is empty
+            searchItems();
         }
         
         function cancelUpdate() {
