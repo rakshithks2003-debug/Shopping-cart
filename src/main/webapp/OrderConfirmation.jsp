@@ -566,7 +566,7 @@
             </div>
             
             <div class="action-buttons">
-                <a href="Showproducts.jsp" class="btn btn-primary">
+                <a href="Home.jsp" class="btn btn-primary">
                     <i class="fas fa-shopping-bag"></i> Continue Shopping
                 </a>
                 <a href="Cart.jsp" class="btn btn-secondary">

@@ -615,13 +615,7 @@ if (!"admin".equals(userRole)) {
                                 <option value="Mo">📱 Mobile</option>
                                 <option value="Ms">👞 Men Shoe</option>
                                 <option value="Lp">💻 Laptop</option>
-                                <option value="Wt">⌚ Watch</option>
-                                <option value="Hp">🎧 Headphones</option>
-                                <option value="Ca">📷 Camera</option>
-                                <option value="Cl">👕 Clothing</option>
-                                <option value="Bk">📚 Books</option>
-                                <option value="Sp">🏀 Sports</option>
-                                <option value="Hm">🏠 Home & Kitchen</option>
+                                <option value="Wo">👗Fashion</option>
                             </select>
                         </div>
                     </div>

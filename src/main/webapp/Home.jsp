@@ -416,6 +416,7 @@ String username = (String) sessionObg.getAttribute("username");
         <div class="nav-container">
             <a href="Cart.jsp" class="nav-link">🛒 Cart</a>
             <a href="DeliveryTracking.jsp" class="nav-link">🚚 Track Order</a>
+            <a href="Profile.jsp" class="nav-link">👤 My Profile</a>
             <% if ("admin".equals(userRole)) { %>
                 <a href="Dashboard.jsp" class="nav-link">🔧 Admin Panel</a>
             <% } %>
@@ -449,6 +450,11 @@ String username = (String) sessionObg.getAttribute("username");
                 <div class="category-icon">💻</div>
                 <h3 class="category-name">Laptops</h3>
                 <p class="category-description">High-performance laptops for work and entertainment</p>
+            </div>
+              <div class="category-card" onclick="window.location.href='Showproducts.jsp?category=Wo'">
+                <div class="category-icon">👗</div>
+                <h3 class="category-name"> Fashion</h3>
+                <p class="category-description">Trendy clothing and accessories for women</p>
             </div>
             
            

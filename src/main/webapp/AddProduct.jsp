@@ -91,76 +91,11 @@ try {
         padding: 10px 20px; border-radius: 25px;
         text-decoration: none; font-weight: 600;
     }
-    
-    /* New Advanced Form Styles */
-    .form-section {
-        margin: 30px 0;
-        padding: 25px;
-        background: #f8f9fa;
-        border-radius: 10px;
-        border-left: 4px solid #667eea;
-    }
-    
-    .section-title {
-        font-size: 1.3rem;
-        color: #333;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .advanced-form {
-        background: #eef2ff;
-        border: 2px dashed #667eea;
-        border-radius: 15px;
-        padding: 30px;
-        margin-top: 20px;
-    }
-    
-    .advanced-form h3 {
-        color: #667eea;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    
-    .toggle-btn {
-        background: #667eea;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 25px;
-        cursor: pointer;
-        font-weight: 600;
-        margin: 10px 0;
-        display: block;
-        width: 100%;
-    }
-    
-    .toggle-btn:hover {
-        background: #5a67d8;
-    }
-    
-    .hidden {
-        display: none;
-    }
-    
-    .form-grid-3 {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 15px;
-    }
-    
-    @media (max-width: 768px) {
-        .form-grid-3 {
-            grid-template-columns: 1fr;
-        }
-    }
 </style>
 </head>
 <body>
     <a href="SellerDashboard.jsp" class="back-btn">
-        <i class="fas fa-arrow-left"></i> Back to Dashboard
+        <i class="fas fa-arrow-left"></i> Back 
     </a>
     
     <div class="header">
@@ -214,9 +149,8 @@ try {
                     <option value="Mo">📱 Mobile</option>
                         <option value="Ms">👞 Men Shoe</option>
                         <option value="Lp">💻 Laptop</option>
-                        <option value="Wt">⌚ Watch</option>
-                        <option value="Hp">🎧 Headphones</option>
-                        <option value="Ca">📷 Camera</option>
+                        <option value="Wo">👗Fashion</option>
+                 
                     </select>
                 </div>
             </div>
@@ -251,132 +185,6 @@ try {
                 </button>
             </div>
         </form>
-        
-        <!-- New Advanced Product Form -->
-        <div class="form-section">
-            <div class="section-title">
-                <i class="fas fa-star"></i>
-                Advanced Product Form
-            </div>
-            
-            <button type="button" class="toggle-btn" onclick="toggleAdvancedForm()">
-                <i class="fas fa-plus-circle"></i> Show Advanced Form
-            </button>
-            
-            <div id="advancedForm" class="advanced-form hidden">
-                <h3><i class="fas fa-rocket"></i> Advanced Product Details</h3>
-                
-                <form action="AddProductServlet" method="post" enctype="multipart/form-data">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="advProductId">Product ID *</label>
-                            <input type="text" id="advProductId" name="productId" required 
-                                   placeholder="e.g., PROD-2024-001">
-                        </div>
-                        <div class="form-group">
-                            <label for="advProductName">Product Name *</label>
-                            <input type="text" id="advProductName" name="productName" required
-                                   placeholder="Enter full product name">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="advBrand">Brand *</label>
-                            <input type="text" id="advBrand" name="brand" required
-                                   placeholder="Enter brand name">
-                        </div>
-                        <div class="form-group">
-                            <label for="advCategory">Category *</label>
-                            <select id="advCategory" name="category" required>
-                                <option value="">-- Select Category --</option>
-                                <option value="Mo">📱 Mobile Phones</option>
-                                <option value="Ms">👞 Men's Shoes</option>
-                                <option value="Lp">💻 Laptops</option>
-                                <option value="Wt">⌚ Watches</option>
-                                <option value="Hp">🎧 Headphones</option>
-                                <option value="Ca">📷 Cameras</option>
-                                <option value="Cl">👕 Clothing</option>
-                                <option value="Bk">📚 Books</option>
-                                <option value="Sp">🏀 Sports</option>
-                                <option value="Hm">🏠 Home & Kitchen</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-grid-3">
-                        <div class="form-group">
-                            <label for="advPrice">Price (₹) *</label>
-                            <input type="number" id="advPrice" name="price" required 
-                                   min="0" step="0.01" placeholder="0.00">
-                        </div>
-                        <div class="form-group">
-                            <label for="advDiscount">Discount (%)</label>
-                            <input type="number" id="advDiscount" name="discount" 
-                                   min="0" max="100" step="0.1" placeholder="0" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="advStock">Stock Quantity</label>
-                            <input type="number" id="advStock" name="stock" 
-                                   min="0" value="10" placeholder="Available quantity">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="advWeight">Weight (kg)</label>
-                            <input type="number" id="advWeight" name="weight" 
-                                   min="0" step="0.001" placeholder="Product weight">
-                        </div>
-                        <div class="form-group">
-                            <label for="advColor">Color/Variant</label>
-                            <input type="text" id="advColor" name="color" 
-                                   placeholder="e.g., Black, Red, Blue">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="advDescription">Detailed Description *</label>
-                        <textarea id="advDescription" name="description" required 
-                                  rows="5" placeholder="Provide detailed product description..."></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="advShortDesc">Short Description</label>
-                        <textarea id="advShortDesc" name="shortDescription" 
-                                  rows="2" placeholder="Brief product summary for listings"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="advTags">Tags/Keywords</label>
-                        <input type="text" id="advTags" name="tags" 
-                               placeholder="e.g., smartphone, android, 5g (separate with commas)">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="advProductImage">Product Images *</label>
-                        <input type="file" id="advProductImage" name="productImage" 
-                               accept="image/*" multiple required>
-                        <small style="color: #666;">Supports JPG, PNG, GIF, WEBP (Max 15MB each)</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="advVideoUrl">Product Video URL (Optional)</label>
-                        <input type="url" id="advVideoUrl" name="videoUrl" 
-                               placeholder="https://youtube.com/watch?v=...">
-                    </div>
-                    
-                    <div class="btn-group">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-rocket"></i> Add Advanced Product
-                        </button>
-                        <button type="reset" class="btn btn-secondary">
-                            <i class="fas fa-broom"></i> Clear All
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
     
     <script>
