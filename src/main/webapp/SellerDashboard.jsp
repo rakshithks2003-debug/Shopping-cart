@@ -510,8 +510,11 @@ try {
             <a href="Deleteproducts.jsp">
                 <i class="fas fa-plus"></i> delete product
             </a>
-            <a href="OrderHistory.jsp">
+            <a href="SellerOrders.jsp">
                 <i class="fas fa-shopping-cart"></i> Orders
+            </a>
+            <a href="PaymentHistory.jsp">
+                <i class="fas fa-credit-card"></i> Payment History
             </a>
             <a href="Profile.jsp">
                 <i class="fas fa-user"></i> Profile

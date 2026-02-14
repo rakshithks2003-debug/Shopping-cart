@@ -479,7 +479,7 @@ tr:hover {
 <% } %>
         
         
-        <a href="#payment-history">💳 Payment History</a>
+        <a href="PaymentHistory.jsp">💳 Payment History</a>
 <% if ("admin".equals(userRole)) { %>
         
 <% } %>
