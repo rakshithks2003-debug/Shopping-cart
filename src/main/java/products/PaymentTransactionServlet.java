@@ -51,6 +51,7 @@ public class PaymentTransactionServlet extends HttpServlet {
         String paymentMethod = request.getParameter("paymentMethod");
         String amountStr = request.getParameter("amount");
         String gstStr = request.getParameter("gst");
+        String sellerId = request.getParameter("sellerId");
         String cardNumber = request.getParameter("cardNumber");
         String cardholderName = request.getParameter("cardholderName");
         String billingEmail = request.getParameter("billingEmail");
@@ -58,6 +59,14 @@ public class PaymentTransactionServlet extends HttpServlet {
         String billingAddress = request.getParameter("billingAddress");
         String billingCity = request.getParameter("billingCity");
         String billingPincode = request.getParameter("billingPincode");
+        
+        // Debug logging
+        System.out.println("=== PAYMENT TRANSACTION DEBUG ===");
+        System.out.println("Order ID: " + orderId);
+        System.out.println("Amount: " + amountStr);
+        System.out.println("GST Parameter: " + gstStr);
+        System.out.println("Seller ID: " + sellerId);
+        System.out.println("================================");
         
         boolean success = false;
         String message = "";
@@ -91,8 +100,8 @@ public class PaymentTransactionServlet extends HttpServlet {
                     // Insert payment transaction record
                     String sql = "INSERT INTO payment_transactions (order_id, user_id, payment_method, amount, gst, status, " +
                                 "card_number_masked, cardholder_name, billing_email, billing_phone, billing_address, " +
-                                "billing_city, billing_pincode, payment_gateway_response) " +
-                                "VALUES (?, ?, ?, ?, ?, 'completed', ?, ?, ?, ?, ?, ?, ?, ?)";
+                                "billing_city, billing_pincode, payment_gateway_response, Seller_id) " +
+                                "VALUES (?, ?, ?, ?, ?, 'completed', ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     
                     PreparedStatement stmt = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
                     stmt.setString(1, orderId);
@@ -108,6 +117,13 @@ public class PaymentTransactionServlet extends HttpServlet {
                     stmt.setString(11, billingCity != null ? billingCity : "");
                     stmt.setString(12, billingPincode != null ? billingPincode : "");
                     stmt.setString(13, "Payment processed successfully");
+                    
+                    // Handle Seller_id properly - it's an integer column, so set NULL if empty
+                    if (sellerId != null && !sellerId.trim().isEmpty()) {
+                        stmt.setString(14, sellerId);
+                    } else {
+                        stmt.setNull(14, java.sql.Types.INTEGER);
+                    }
                     
                     int rowsAffected = stmt.executeUpdate();
                     

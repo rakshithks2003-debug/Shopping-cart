@@ -28,13 +28,14 @@ String productBrand = "";
 double productPrice = 0.0;
 String productDescription = "";
 String productImage = "";
+String sellerId = "";
 String[] productImages = new String[0]; // Array to hold multiple images
 boolean productFound = false;
 
 try {
     Dbase db = new Dbase();
     Connection con = db.initailizeDatabase();
-    PreparedStatement ps = con.prepareStatement("SELECT id, product_name, brand, price, description, image FROM product WHERE id = ?");
+    PreparedStatement ps = con.prepareStatement("SELECT id, product_name, brand, price, description, image, seller_id FROM product WHERE id = ?");
     ps.setString(1, productId);
     ResultSet rs = ps.executeQuery();
     
@@ -45,6 +46,14 @@ try {
         productPrice = rs.getDouble("price");
         productDescription = rs.getString("description");
         productImage = rs.getString("image");
+        sellerId = rs.getString("seller_id");
+        
+        // Debug output
+        System.out.println("Details.jsp - Product ID: " + productId);
+        System.out.println("Details.jsp - Seller ID: " + sellerId);
+        System.out.println("Details.jsp - Product Name: " + productName);
+        System.out.println("Details.jsp - Image from DB: '" + productImage + "'");
+        System.out.println("Details.jsp - Image path will be: 'product_images/" + productImage + "'");
         
         // Handle multiple images for slider
         if (productImage != null && !productImage.trim().isEmpty()) {
@@ -1691,6 +1700,7 @@ try {
                 const productName = '<%=productName%>';
                 const price = <%=productPrice%>;
                 const productImage = '<%=productImage%>';
+                const sellerId = '<%=sellerId%>';
                 
                 // Store single product for direct purchase
                 const buyNowProduct = {
@@ -1698,6 +1708,7 @@ try {
                     name: productName,
                     price: price,
                     image: productImage,
+                    sellerId: sellerId,
                     quantity: 1
                 };
                 
@@ -1706,7 +1717,7 @@ try {
                 
                 showNotification('Redirecting to payment...', 'success');
                 setTimeout(() => {
-                    window.location.href = 'Payment.jsp?buyNow=true&productId=' + productId;
+                    window.location.href = 'Payment.jsp?buyNow=true&productId=' + productId + '&sellerId=' + sellerId;
                 }, 1000);
             }
             

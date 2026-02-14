@@ -80,8 +80,8 @@ public class CartServlet extends HttpServlet {
             } else if ("addToCart".equals(action)) {
                 String productId = request.getParameter("productId");
                 if (productId != null && !productId.trim().isEmpty()) {
-                    // Get product details
-                    String productSQL = "SELECT product_name, price, image FROM product WHERE id = ?";
+                    // Get product details with seller_id
+                    String productSQL = "SELECT product_name, price, image, seller_id FROM product WHERE id = ?";
                     PreparedStatement productStmt = con.prepareStatement(productSQL);
                     productStmt.setString(1, productId);
                     ResultSet productRs = productStmt.executeQuery();
@@ -96,6 +96,7 @@ public class CartServlet extends HttpServlet {
                     String productName = productRs.getString("product_name");
                     double price = productRs.getDouble("price");
                     String image = productRs.getString("image");
+                    String sellerId = productRs.getString("seller_id");
                     
                     productRs.close();
                     productStmt.close();
@@ -118,8 +119,8 @@ public class CartServlet extends HttpServlet {
                         updateStmt.executeUpdate();
                         updateStmt.close();
                     } else {
-                        // Insert new item
-                        String insertSQL = "INSERT INTO cart (user_id, product_id, product_name, price, quantity, image) VALUES (?, ?, ?, ?, ?, ?)";
+                        // Insert new item with seller_id
+                        String insertSQL = "INSERT INTO cart (user_id, product_id, product_name, price, quantity, image, seller_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
                         PreparedStatement insertStmt = con.prepareStatement(insertSQL);
                         insertStmt.setString(1, username);
                         insertStmt.setString(2, productId);
@@ -127,6 +128,7 @@ public class CartServlet extends HttpServlet {
                         insertStmt.setDouble(4, price);
                         insertStmt.setInt(5, 1);
                         insertStmt.setString(6, image);
+                        insertStmt.setString(7, sellerId);
                         insertStmt.executeUpdate();
                         insertStmt.close();
                     }
@@ -225,7 +227,7 @@ public class CartServlet extends HttpServlet {
             } else if ("checkoutWithCartData".equals(action)) {
                 try {
                     // Get current cart items before clearing
-                    String getCartSql = "SELECT c.product_id, c.quantity, p.product_name, p.brand, p.price, p.image " +
+                    String getCartSql = "SELECT c.product_id, c.quantity, p.product_name, p.brand, p.price, p.image, p.seller_id " +
                                       "FROM cart c JOIN product p ON c.product_id = p.id " +
                                       "WHERE c.user_id = ?";
                     PreparedStatement getCartStmt = con.prepareStatement(getCartSql);
@@ -242,6 +244,7 @@ public class CartServlet extends HttpServlet {
                         item.put("price", cartRs.getDouble("price"));
                         item.put("quantity", cartRs.getInt("quantity"));
                         item.put("image", cartRs.getString("image"));
+                        item.put("sellerId", cartRs.getString("seller_id"));
                         cartData.add(item);
                     }
                     cartRs.close();

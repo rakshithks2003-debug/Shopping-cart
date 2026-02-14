@@ -30,12 +30,13 @@
                 // Note: In a real implementation, you might want to get this from a server-side session
                 // For now, we'll use a hardcoded approach or get from request parameter
                 String productId = request.getParameter("productId");
+                String sellerId = request.getParameter("sellerId");
                 if (productId == null || productId.trim().isEmpty()) {
                     // Fallback to a default or show error
                     productId = "1"; // Default fallback
                 }
                 
-                String sql = "SELECT id, product_name, brand, price, image FROM product WHERE id = ?";
+                String sql = "SELECT id, product_name, brand, price, image, seller_id FROM product WHERE id = ?";
                 PreparedStatement stmt = con.prepareStatement(sql);
                 stmt.setString(1, productId);
                 ResultSet rs = stmt.executeQuery();
@@ -48,9 +49,14 @@
                     item.put("price", rs.getDouble("price"));
                     item.put("quantity", 1); // Fixed quantity for Buy Now
                     item.put("image", rs.getString("image"));
+                    item.put("sellerId", rs.getString("seller_id"));
                     cartItems.add(item);
                     
                     total = rs.getDouble("price"); // Single product price
+                    
+                    // Debug seller_id
+                    System.out.println("Payment.jsp - Buy Now - Product ID: " + productId);
+                    System.out.println("Payment.jsp - Buy Now - Seller ID: " + rs.getString("seller_id"));
                 }
                 
                 rs.close();
@@ -75,7 +81,7 @@
                     session.removeAttribute("checkoutCartData");
                 } else {
                     // Regular cart checkout - get from database
-                    String sql = "SELECT c.product_id, c.price, c.quantity, c.image, p.product_name as product_name, p.brand as product_brand FROM cart c JOIN product p ON c.product_id = p.id WHERE c.user_id = ? ORDER BY c.cart_id DESC";
+                    String sql = "SELECT c.product_id, c.price, c.quantity, c.image, p.product_name as product_name, p.brand as product_brand, p.seller_id FROM cart c JOIN product p ON c.product_id = p.id WHERE c.user_id = ? ORDER BY c.cart_id DESC";
                     PreparedStatement stmt = con.prepareStatement(sql);
                     stmt.setString(1, username);
                     ResultSet rs = stmt.executeQuery();
@@ -88,6 +94,7 @@
                         double price = rs.getDouble("price");
                         int quantity = rs.getInt("quantity");
                         String image = rs.getString("image");
+                        String sellerId = rs.getString("seller_id");
                         
                         item.put("productId", productId);
                         item.put("productName", productName);
@@ -95,6 +102,7 @@
                         item.put("price", price);
                         item.put("quantity", quantity);
                         item.put("image", image);
+                        item.put("sellerId", sellerId);
                         cartItems.add(item);
                         
                         total += price * quantity;
@@ -816,12 +824,25 @@
         var singlePrice = "0";
         var singleQuantity = "0";
         var singleImage = "";
+        var singleSellerId = "";
         var cartItemsCount = "1";
+        
+        <% if (isBuyNow && !cartItems.isEmpty()) { %>
+            isSingleProduct = true;
+            singleProductId = "<%= cartItems.get(0).get("productId") %>";
+            singleProductName = "<%= cartItems.get(0).get("productName") %>";
+            singlePrice = "<%= cartItems.get(0).get("price") %>";
+            singleQuantity = "1";
+            singleImage = "<%= cartItems.get(0).get("image") %>";
+            singleSellerId = "<%= cartItems.get(0).get("sellerId") != null ? cartItems.get(0).get("sellerId") : "" %>";
+            cartItemsCount = "1";
+        <% } %>
         
         console.log('=== PAYMENT DEBUG INFO ===');
         console.log('isSingleProduct:', isSingleProduct);
         console.log('singleProductId:', singleProductId);
         console.log('singleProductName:', singleProductName);
+        console.log('singleSellerId:', singleSellerId);
         console.log('cartItemsCount:', cartItemsCount);
         console.log('========================');
         
@@ -940,7 +961,7 @@
                             console.log('Server Response:', response);
                             if (response.success) {
                                 // Create payment transaction record
-                                createPaymentTransaction(response.orderId, selectedMethod, fullName, email, phone, address, city, pincode);
+                                createPaymentTransaction(response.orderId, selectedMethod, fullName, email, phone, address, city, pincode, singleSellerId);
                             } else {
                                 showNotification(response.message || 'Payment failed', 'error');
                                 payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay ₹<%= finalAmount %>';
@@ -984,7 +1005,7 @@
             xhr.send(data);
         }
         
-        function createPaymentTransaction(orderId, paymentMethod, fullName, email, phone, address, city, pincode) {
+        function createPaymentTransaction(orderId, paymentMethod, fullName, email, phone, address, city, pincode, sellerId) {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', 'PaymentTransactionServlet', true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -1035,6 +1056,7 @@
                         '&paymentMethod=' + encodeURIComponent(paymentMethod) +
                         '&amount=' + encodeURIComponent('<%= finalAmount %>') +
                         '&gst=' + encodeURIComponent('<%= gst %>') +
+                        '&sellerId=' + encodeURIComponent(sellerId || '') +
                         '&cardNumber=' + encodeURIComponent(maskedCardNumber) +
                         '&cardholderName=' + encodeURIComponent(cardName) +
                         '&billingEmail=' + encodeURIComponent(email) +
@@ -1046,6 +1068,7 @@
             console.log('=== PAYMENT DEBUG ===');
             console.log('GST Value from JSP: <%= gst %>');
             console.log('Final Amount: <%= finalAmount %>');
+            console.log('Seller ID: ' + (sellerId || 'Not provided'));
             console.log('Sending payment transaction data:', data);
             console.log('===================');
             xhr.send(data);

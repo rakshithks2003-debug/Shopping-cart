@@ -510,9 +510,7 @@ try {
             <a href="Deleteproducts.jsp">
                 <i class="fas fa-plus"></i> delete product
             </a>
-            <a href="SellerOrders.jsp">
-                <i class="fas fa-shopping-cart"></i> Orders
-            </a>
+           
             <a href="PaymentHistory.jsp">
                 <i class="fas fa-credit-card"></i> Payment History
             </a>
@@ -533,15 +531,12 @@ try {
                     <i class="fas fa-plus-circle"></i>
                     Add New Product
                 </a>
-                <a href="SellerProducts.jsp" class="action-btn">
-                    <i class="fas fa-box"></i>
-                    Manage Products
-                </a>
-                <a href="SellerOrders.jsp" class="action-btn">
+           
+                <a href="PaymentHistory.jsp" class="action-btn">
                     <i class="fas fa-shopping-cart"></i>
-                    View Orders
+                    View Payment
                 </a>
-                <a href="SellerProfile.jsp" class="action-btn">
+                <a href="Profile.jsp" class="action-btn">
                     <i class="fas fa-edit"></i>
                     Edit Profile
                 </a>
