@@ -20,6 +20,28 @@ String sortOrder = request.getParameter("sortOrder");
 if (sortBy == null) sortBy = "transaction_date";
 if (sortOrder == null) sortOrder = "DESC";
 
+// Get seller_id if user is a seller
+String sellerId = null;
+if ("seller".equals(userRole)) {
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection sellerCon = DriverManager.getConnection("jdbc:mysql://localhost:3306/mscart","root","123456");
+        String sellerQuery = "SELECT seller_id FROM users WHERE username = ?";
+        PreparedStatement sellerStmt = sellerCon.prepareStatement(sellerQuery);
+        sellerStmt.setString(1, username);
+        ResultSet sellerRs = sellerStmt.executeQuery();
+        
+        if (sellerRs.next()) {
+            sellerId = sellerRs.getString("seller_id");
+        }
+        sellerRs.close();
+        sellerStmt.close();
+        sellerCon.close();
+    } catch (Exception e) {
+        System.err.println("Error fetching seller_id: " + e.getMessage());
+    }
+}
+
 // Load payment history from payment_transactions table
 List<Map<String, Object>> paymentHistory = new ArrayList<>();
 
@@ -28,13 +50,27 @@ try {
     Connection con = db.initailizeDatabase();
     
     if (con != null && !con.isClosed()) {
-        // Build query to get all payment records
+        // Build query to get payment records
         String orderDirection = "DESC".equals(sortOrder) ? "DESC" : "ASC";
-        String sql = "SELECT * FROM payment_transactions ORDER BY " + sortBy + " " + orderDirection;
+        String sql;
+        PreparedStatement stmt;
+        
+        if (sellerId != null) {
+            // Seller view: show only their sales
+            sql = "SELECT * FROM payment_transactions WHERE Seller_id = ? ORDER BY " + sortBy + " " + orderDirection;
+            stmt = con.prepareStatement(sql);
+            stmt.setString(1, sellerId);
+        } else {
+            // Buyer/Admin view: show all records
+            sql = "SELECT * FROM payment_transactions ORDER BY " + sortBy + " " + orderDirection;
+            stmt = con.prepareStatement(sql);
+        }
         
         System.out.println("DEBUG: Executing SQL: " + sql);
+        if (sellerId != null) {
+            System.out.println("DEBUG: Filtering for seller_id: " + sellerId);
+        }
         
-        PreparedStatement stmt = con.prepareStatement(sql);
         ResultSet rs = stmt.executeQuery();
         
         while (rs.next()) {
@@ -74,7 +110,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment History - Mini Shopping Cart</title>
+    <title><%= "seller".equals(userRole) ? "My Sales History" : "Payment History" %> - Mini Shopping Cart</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -534,10 +570,10 @@ try {
         <div class="header-content">
             <div class="header-left">
                 <h1>
-                    <i class="fas fa-credit-card"></i>
-                    Payment History
+                    <i class="fas fa-<%= "seller".equals(userRole) ? "shopping-cart" : "credit-card" %>"></i>
+                    <%= "seller".equals(userRole) ? "My Sales History" : "Payment History" %>
                 </h1>
-                <p>View and manage all payment transactions</p>
+                <p><%= "seller".equals(userRole) ? "View and manage all your sales transactions" : "View and manage all payment transactions" %></p>
             </div>
             <div class="header-actions">
                 <a href="javascript:history.back()" class="btn btn-primary">
@@ -558,9 +594,11 @@ try {
                 <div class="empty-icon">
                     <i class="fas fa-receipt"></i>
                 </div>
-                <h2 class="empty-title">No Payment History Found</h2>
+                <h2 class="empty-title"><%= "seller".equals(userRole) ? "No Sales Found" : "No Payment History Found" %></h2>
                 <p class="empty-description">
-                    No payment transactions found in the system. The payment table might be empty or doesn't exist yet.
+                    <%= "seller".equals(userRole) ? 
+                        "No sales transactions found. Your products haven't been sold yet." : 
+                        "No payment transactions found in the system. The payment table might be empty or doesn't exist yet." %>
                 </p>
                 <a href="Showproducts.jsp" class="btn-primary">
                     <i class="fas fa-shopping-cart"></i> Start Shopping

@@ -836,6 +836,10 @@
             singleImage = "<%= cartItems.get(0).get("image") %>";
             singleSellerId = "<%= cartItems.get(0).get("sellerId") != null ? cartItems.get(0).get("sellerId") : "" %>";
             cartItemsCount = "1";
+        <% } else if (!cartItems.isEmpty()) { %>
+            // Regular cart checkout - get seller ID from first item
+            singleSellerId = "<%= cartItems.get(0).get("sellerId") != null ? cartItems.get(0).get("sellerId") : "" %>";
+            cartItemsCount = "<%= cartItems.size() %>";
         <% } %>
         
         console.log('=== PAYMENT DEBUG INFO ===');
@@ -1005,6 +1009,19 @@
             xhr.send(data);
         }
         
+        function clearCartAfterPayment() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'CartServlet', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    // Cart cleared, proceed to order confirmation
+                    console.log('Cart cleared after successful payment');
+                }
+            };
+            xhr.send('action=clear');
+        }
+        
         function createPaymentTransaction(orderId, paymentMethod, fullName, email, phone, address, city, pincode, sellerId) {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', 'PaymentTransactionServlet', true);
@@ -1017,6 +1034,7 @@
                             console.log('Payment Transaction Response:', response);
                             if (response.success) {
                                 showNotification('Payment recorded successfully! Redirecting...', 'success');
+                                clearCartAfterPayment(); // Clear cart after successful payment
                                 setTimeout(() => {
                                     window.location.href = 'OrderConfirmation.jsp?orderId=' + orderId;
                                 }, 2000);

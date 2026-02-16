@@ -265,6 +265,40 @@ public class CartServlet extends HttpServlet {
                 } catch (Exception e) {
                     out.print("{\"success\": false, \"message\": \"Error preparing checkout: " + e.getMessage() + "\"}");
                 }
+            } else if ("prepareCheckoutForPayment".equals(action)) {
+                try {
+                    // Get current cart items WITHOUT clearing
+                    String getCartSql = "SELECT c.product_id, c.quantity, p.product_name, p.brand, p.price, p.image, p.seller_id " +
+                                      "FROM cart c JOIN product p ON c.product_id = p.id " +
+                                      "WHERE c.user_id = ?";
+                    PreparedStatement getCartStmt = con.prepareStatement(getCartSql);
+                    getCartStmt.setString(1, username);
+                    ResultSet cartRs = getCartStmt.executeQuery();
+                    
+                    // Store cart data in session for Payment.jsp
+                    java.util.List<java.util.Map<String, Object>> cartData = new java.util.ArrayList<>();
+                    while (cartRs.next()) {
+                        java.util.Map<String, Object> item = new java.util.HashMap<>();
+                        item.put("productId", cartRs.getString("product_id"));
+                        item.put("productName", cartRs.getString("product_name"));
+                        item.put("productBrand", cartRs.getString("brand"));
+                        item.put("price", cartRs.getDouble("price"));
+                        item.put("quantity", cartRs.getInt("quantity"));
+                        item.put("image", cartRs.getString("image"));
+                        item.put("sellerId", cartRs.getString("seller_id"));
+                        cartData.add(item);
+                    }
+                    cartRs.close();
+                    getCartStmt.close();
+                    
+                    // Store cart data in session WITHOUT clearing cart
+                    request.getSession().setAttribute("checkoutCartData", cartData);
+                    
+                    out.print("{\"success\": true, \"message\": \"Cart data prepared for checkout\"}");
+                    
+                } catch (Exception e) {
+                    out.print("{\"success\": false, \"message\": \"Error preparing checkout: " + e.getMessage() + "\"}");
+                }
             } else {
                 out.print("{\"success\": false, \"message\": \"Invalid action\"}");
             }
