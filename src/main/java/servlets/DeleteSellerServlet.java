@@ -1,17 +1,17 @@
 package servlets;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
+import java.sql.SQLException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import products.Dbase;
 
 @WebServlet("/DeleteSellerServlet")
 public class DeleteSellerServlet extends HttpServlet {
@@ -20,110 +20,144 @@ public class DeleteSellerServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        System.out.println("DeleteSellerServlet: doPost method called");
-        
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        PrintWriter out = response.getWriter();
-        
-        String sellerId = request.getParameter("sellerId");
-        String action = request.getParameter("action");
-        
-        System.out.println("DeleteSellerServlet called with sellerId: " + sellerId + ", action: " + action);
-        
-        if (sellerId == null || action == null) {
-            System.out.println("Missing parameters error");
-            out.print("{\"success\": false, \"message\": \"Missing parameters\"}");
+        // Check if user is logged in and is admin
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("isLoggedIn") == null || 
+            !(Boolean) session.getAttribute("isLoggedIn")) {
+            response.sendRedirect("Login.html");
             return;
         }
-        
-        Connection conn = null;
+
+        String userRole = (String) session.getAttribute("userRole");
+        if (!"admin".equals(userRole)) {
+            response.sendRedirect("Home.jsp");
+            return;
+        }
+
+        String username = (String) session.getAttribute("username");
+        String sellerId = request.getParameter("sellerId");
+        String deletedBy = request.getParameter("deletedBy");
+
+        System.out.println("DeleteSellerServlet called with sellerId: " + sellerId + ", deletedBy: " + deletedBy);
+
+        if (sellerId == null || sellerId.trim().isEmpty()) {
+            response.sendRedirect("SellerApproval.jsp?message=Invalid seller ID&type=error");
+            return;
+        }
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        PreparedStatement pstmt2 = null;
+        PreparedStatement pstmt3 = null;
+        PreparedStatement pstmt4 = null;
+        PreparedStatement pstmt5 = null;
+
         try {
-            // Use direct connection for reliability
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/mscart", "root", "123456");
-            
-            if (conn == null || conn.isClosed()) {
-                System.out.println("Database connection failed");
-                out.print("{\"success\": false, \"message\": \"Database connection failed\"}");
-                return;
-            }
-            conn.setAutoCommit(false);
-            
-            if ("delete".equals(action)) {
-                // First check if seller exists
-                PreparedStatement checkPs = conn.prepareStatement("SELECT sid, full_name, product_brand FROM seller WHERE sid = ?");
-                checkPs.setString(1, sellerId);
-                ResultSet checkRs = checkPs.executeQuery();
+            Dbase db = new Dbase();
+            con = db.initailizeDatabase();
+
+            if (con != null && !con.isClosed()) {
+                con.setAutoCommit(false); // Start transaction
+
+                // First, get seller information for logging
+                String getSellerSql = "SELECT username, shop_name FROM signupseller WHERE id = ?";
+                pstmt = con.prepareStatement(getSellerSql);
+                pstmt.setInt(1, Integer.parseInt(sellerId));
+                ResultSet rs = pstmt.executeQuery();
                 
-                if (checkRs.next()) {
-                    String sellerName = checkRs.getString("full_name");
-                    String productBrand = checkRs.getString("product_brand");
-                    System.out.println("Found seller: " + sellerName + " with brand: " + productBrand);
-                    
-                    // Delete the seller
-                    PreparedStatement deletePs = conn.prepareStatement("DELETE FROM seller WHERE sid = ?");
-                    deletePs.setString(1, sellerId);
-                    int deletedRows = deletePs.executeUpdate();
-                    
-                    System.out.println("Delete operation affected " + deletedRows + " rows");
-                    
-                    if (deletedRows > 0) {
-                        conn.commit();
-                        System.out.println("Seller deleted successfully: " + sellerName);
-                        out.print("{\"success\": true, \"message\": \"Seller '" + sellerName + "' deleted successfully!\"}");
-                    } else {
-                        conn.rollback();
-                        System.out.println("Failed to delete seller");
-                        out.print("{\"success\": false, \"message\": \"Failed to delete seller\"}");
-                    }
-                    
-                    deletePs.close();
-                } else {
-                    System.out.println("Seller not found with ID: " + sellerId);
-                    out.print("{\"success\": false, \"message\": \"Seller not found\"}");
+                String sellerUsername = "";
+                String shopName = "";
+                if (rs.next()) {
+                    sellerUsername = rs.getString("username");
+                    shopName = rs.getString("shop_name");
                 }
-                
-                checkRs.close();
-                checkPs.close();
-                
+                rs.close();
+
+                // 1. Delete seller's products first (foreign key constraint)
+                String deleteProductsSql = "DELETE FROM product WHERE seller_id = ?";
+                pstmt2 = con.prepareStatement(deleteProductsSql);
+                pstmt2.setInt(1, Integer.parseInt(sellerId));
+                int productsDeleted = pstmt2.executeUpdate();
+
+                // 2. Delete seller's cart items
+                String deleteCartSql = "DELETE FROM cart WHERE seller_id = ?";
+                pstmt3 = con.prepareStatement(deleteCartSql);
+                pstmt3.setInt(1, Integer.parseInt(sellerId));
+                int cartDeleted = pstmt3.executeUpdate();
+
+                // 3. Delete seller's payment transactions
+                String deletePaymentSql = "DELETE FROM payment_transactions WHERE seller_id = ?";
+                pstmt4 = con.prepareStatement(deletePaymentSql);
+                pstmt4.setInt(1, Integer.parseInt(sellerId));
+                int paymentsDeleted = pstmt4.executeUpdate();
+
+                // 4. Finally, delete the seller from signupseller table
+                String deleteSellerSql = "DELETE FROM signupseller WHERE id = ?";
+                pstmt5 = con.prepareStatement(deleteSellerSql);
+                pstmt5.setInt(1, Integer.parseInt(sellerId));
+                int sellerDeleted = pstmt5.executeUpdate();
+
+                con.commit(); // Commit transaction
+
+                System.out.println("Seller deletion successful:");
+                System.out.println("Seller: " + sellerUsername + " (" + shopName + ")");
+                System.out.println("Products deleted: " + productsDeleted);
+                System.out.println("Cart items deleted: " + cartDeleted);
+                System.out.println("Payment transactions deleted: " + paymentsDeleted);
+                System.out.println("Deleted by: " + deletedBy);
+
+                // Redirect with success message
+                response.sendRedirect("SellerApproval.jsp?message=Seller '" + sellerUsername + "' has been successfully deleted&type=success");
+
             } else {
-                System.out.println("Invalid action: " + action);
-                out.print("{\"success\": false, \"message\": \"Invalid action\"}");
+                response.sendRedirect("SellerApproval.jsp?message=Database connection failed&type=error");
             }
+
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid seller ID format: " + e.getMessage());
+            try {
+                if (con != null) con.rollback();
+            } catch (SQLException ex) {
+                System.err.println("Rollback failed: " + ex.getMessage());
+            }
+            response.sendRedirect("SellerApproval.jsp?message=Invalid seller ID format&type=error");
             
-        } catch (ClassNotFoundException e) {
+        } catch (SQLException e) {
+            System.err.println("SQL Error during seller deletion: " + e.getMessage());
             try {
-                if (conn != null) conn.rollback();
-            } catch (Exception ex) {
-                ex.printStackTrace();
+                if (con != null) con.rollback();
+            } catch (SQLException ex) {
+                System.err.println("Rollback failed: " + ex.getMessage());
             }
-            System.out.println("SQL Error: " + e.getMessage());
-            e.printStackTrace();
-            out.print("{\"success\": false, \"message\": \"Database driver not found: " + e.getMessage().replace("\"", "\\\"") + "\"}");
+            response.sendRedirect("SellerApproval.jsp?message=Database error occurred while deleting seller&type=error");
+            
         } catch (Exception e) {
+            System.err.println("Error during seller deletion: " + e.getMessage());
             try {
-                if (conn != null) conn.rollback();
-            } catch (Exception ex) {
-                ex.printStackTrace();
+                if (con != null) con.rollback();
+            } catch (SQLException ex) {
+                System.err.println("Rollback failed: " + ex.getMessage());
             }
-            System.out.println("General Error: " + e.getMessage());
-            e.printStackTrace();
-            out.print("{\"success\": false, \"message\": \"Error: " + e.getMessage().replace("\"", "\\\"") + "\"}");
+            response.sendRedirect("SellerApproval.jsp?message=Error occurred while deleting seller&type=error");
+            
         } finally {
+            // Close all resources
             try {
-                if (conn != null) conn.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+                if (pstmt != null) pstmt.close();
+                if (pstmt2 != null) pstmt2.close();
+                if (pstmt3 != null) pstmt3.close();
+                if (pstmt4 != null) pstmt4.close();
+                if (pstmt5 != null) pstmt5.close();
+                if (con != null) con.close();
+            } catch (SQLException e) {
+                System.err.println("Error closing resources: " + e.getMessage());
             }
-            out.close();
         }
     }
-    
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        System.out.println("DeleteSellerServlet: doGet method called");
-        response.getWriter().print("DeleteSellerServlet is working - Use POST method for functionality");
+        // Redirect GET requests to POST for security
+        doPost(request, response);
     }
 }

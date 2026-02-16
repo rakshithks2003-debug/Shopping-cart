@@ -25,12 +25,77 @@ String sortOrder = request.getParameter("sortOrder");
 if (sortBy == null) sortBy = "transaction_date";
 if (sortOrder == null) sortOrder = "DESC";
 
+// Load payment data for graph
+List<Map<String, Object>> paymentHistory = new ArrayList<>();
+Map<String, Object> paymentStats = new HashMap<>();
+
+try {
+    Dbase db = new Dbase();
+    Connection con = db.initailizeDatabase();
+    
+    if (con != null && !con.isClosed()) {
+        // Get payment statistics
+        String statsSql = "SELECT " +
+                       "COUNT(*) as total_transactions, " +
+                       "SUM(amount) as total_amount, " +
+                       "AVG(amount) as avg_amount, " +
+                       "MIN(amount) as min_amount, " +
+                       "MAX(amount) as max_amount, " +
+                       "COUNT(DISTINCT user_id) as unique_customers " +
+                       "FROM payment_transactions " +
+                       "WHERE status = 'completed'";
+        
+        PreparedStatement statsStmt = con.prepareStatement(statsSql);
+        ResultSet statsRs = statsStmt.executeQuery();
+        
+        if (statsRs.next()) {
+            paymentStats.put("totalTransactions", statsRs.getInt("total_transactions"));
+            paymentStats.put("totalAmount", statsRs.getDouble("total_amount"));
+            paymentStats.put("avgAmount", statsRs.getDouble("avg_amount"));
+            paymentStats.put("minAmount", statsRs.getDouble("min_amount"));
+            paymentStats.put("maxAmount", statsRs.getDouble("max_amount"));
+            paymentStats.put("uniqueCustomers", statsRs.getInt("unique_customers"));
+        }
+        statsRs.close();
+        statsStmt.close();
+        
+        // Get monthly payment data for graph
+        String monthlySql = "SELECT " +
+                          "DATE_FORMAT(transaction_date, '%Y-%m') as month, " +
+                          "SUM(amount) as monthly_amount, " +
+                          "COUNT(*) as monthly_count " +
+                          "FROM payment_transactions " +
+                          "WHERE status = 'completed' " +
+                          "AND transaction_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) " +
+                          "GROUP BY DATE_FORMAT(transaction_date, '%Y-%m') " +
+                          "ORDER BY month ASC";
+        
+        PreparedStatement monthlyStmt = con.prepareStatement(monthlySql);
+        ResultSet monthlyRs = monthlyStmt.executeQuery();
+        
+        while (monthlyRs.next()) {
+            Map<String, Object> monthData = new HashMap<>();
+            monthData.put("month", monthlyRs.getString("month"));
+            monthData.put("amount", monthlyRs.getDouble("monthly_amount"));
+            monthData.put("count", monthlyRs.getInt("monthly_count"));
+            paymentHistory.add(monthData);
+        }
+        monthlyRs.close();
+        monthlyStmt.close();
+        con.close();
+    }
+} catch (Exception e) {
+    System.err.println("Error loading payment data: " + e.getMessage());
+    e.printStackTrace();
+}
 %>
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Mini Shopping cart Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 /* Reset */
@@ -360,6 +425,96 @@ tr:hover {
     font-size: 12px;
     font-weight: 600;
 }
+
+/* Payment Dashboard Styles */
+.payment-dashboard {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.payment-dashboard h2 {
+    color: #2874f0;
+    margin-bottom: 25px;
+    font-size: 28px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+}
+
+.stat-icon {
+    font-size: 36px;
+    margin-bottom: 15px;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 14px;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.chart-container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.chart-container h3 {
+    color: #2874f0;
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 300px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #e9ecef;
+}
 </style>
 
 </head>
@@ -402,10 +557,265 @@ tr:hover {
 
     <!-- Main Content -->
     <div class="main">
-
+        <!-- Payment Statistics Dashboard -->
+        <div class="payment-dashboard">
+            <h2>💳 Payment Analytics Dashboard</h2>
+            
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <div class="stat-number"><%= paymentStats.get("totalTransactions") != null ? paymentStats.get("totalTransactions") : "0" %></div>
+                        <div class="stat-label">Total Transactions</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <div class="stat-number">₹<%= String.format("%.2f", paymentStats.get("totalAmount") != null ? (Double)paymentStats.get("totalAmount") : 0.0) %></div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-info">
+                        <div class="stat-number">₹<%= String.format("%.2f", paymentStats.get("avgAmount") != null ? (Double)paymentStats.get("avgAmount") : 0.0) %></div>
+                        <div class="stat-label">Average Transaction</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <div class="stat-number"><%= paymentStats.get("uniqueCustomers") != null ? paymentStats.get("uniqueCustomers") : "0" %></div>
+                        <div class="stat-label">Unique Customers</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chart Section -->
+            <div class="chart-container">
+                <h3>📈 Monthly Payment Trends (Last 6 Months)</h3>
+                <div class="chart-wrapper">
+                    <canvas id="paymentChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        // Payment Chart Data
+        const paymentData = [
+            <% for (Map<String, Object> month : paymentHistory) { %>
+                {
+                    month: '<%= month.get("month") %>',
+                    amount: <%= month.get("amount") %>,
+                    count: <%= month.get("count") %>
+                },
+            <% } %>
+        ];
+
+        // Initialize Chart
+        const ctx = document.getElementById('paymentChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: paymentData.map(item => {
+                    const date = new Date(item.month + '-01');
+                    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                }),
+                datasets: [{
+                    label: 'Monthly Revenue (₹)',
+                    data: paymentData.map(item => item.amount),
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    borderWidth: 4,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: '#4f46e5',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverBackgroundColor: '#4338ca',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 3
+                }, {
+                    label: 'Transaction Count',
+                    data: paymentData.map(item => item.count),
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 4,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverBackgroundColor: '#059669',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 3,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 14,
+                                weight: '600',
+                                family: 'Arial, sans-serif'
+                            },
+                            generateLabels: function(chart) {
+                                return chart.data.datasets.map(function(dataset, i) {
+                                    return {
+                                        text: dataset.label,
+                                        fillStyle: dataset.backgroundColor,
+                                        strokeStyle: dataset.borderColor,
+                                        lineWidth: dataset.borderWidth,
+                                        pointStyle: 'circle',
+                                        hidden: !chart.isDatasetVisible(i),
+                                        index: i
+                                    };
+                                });
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#1f2937',
+                        bodyColor: '#4b5563',
+                        borderColor: '#e5e7eb',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        boxPadding: 8,
+                        usePointStyle: true,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    if (context.datasetIndex === 0) {
+                                        label += '₹' + context.parsed.y.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                    } else {
+                                        label += context.parsed.y + ' transactions';
+                                    }
+                                }
+                                return label;
+                            },
+                            title: function(context) {
+                                return 'Month: ' + context[0].label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Month',
+                            color: '#6b7280',
+                            font: {
+                                size: 14,
+                                weight: '600',
+                                family: 'Arial, sans-serif'
+                            }
+                        },
+                        grid: {
+                            display: true,
+                            color: 'rgba(229, 231, 235, 0.5)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                size: 12,
+                                family: 'Arial, sans-serif'
+                            }
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Revenue (₹)',
+                            color: '#6b7280',
+                            font: {
+                                size: 14,
+                                weight: '600',
+                                family: 'Arial, sans-serif'
+                            }
+                        },
+                        grid: {
+                            display: true,
+                            color: 'rgba(229, 231, 235, 0.5)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                size: 12,
+                                family: 'Arial, sans-serif'
+                            },
+                            callback: function(value) {
+                                return '₹' + value.toLocaleString('en-IN');
+                            }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Transactions',
+                            color: '#6b7280',
+                            font: {
+                                size: 14,
+                                weight: '600',
+                                family: 'Arial, sans-serif'
+                            }
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                size: 12,
+                                family: 'Arial, sans-serif'
+                            },
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
         // Show notification for successful actions
         function showNotification(message, type) {
             const notification = document.createElement('div');

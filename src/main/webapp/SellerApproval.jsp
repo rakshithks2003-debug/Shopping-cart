@@ -448,6 +448,16 @@ try {
             box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
         }
 
+        .btn-delete {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+        }
+
         .btn-view {
             background: linear-gradient(135deg, #6b7280, #4b5563);
             color: white;
@@ -651,6 +661,10 @@ try {
                                             <i class="fas fa-check"></i>
                                             Approve
                                         </button>
+                                        <button class="btn btn-delete" onclick="deleteSeller(<%= seller.get("id") %>, '<%= seller.get("username") %>')">
+                                            <i class="fas fa-trash"></i>
+                                            Delete
+                                        </button>
                                     </div>
                                 </div>
                             <% } %>
@@ -723,6 +737,10 @@ try {
                                         <button class="btn btn-view" onclick="viewSellerDetails(<%= seller.get("id") %>)">
                                             <i class="fas fa-eye"></i>
                                             View Details
+                                        </button>
+                                        <button class="btn btn-delete" onclick="deleteSeller(<%= seller.get("id") %>, '<%= seller.get("username") %>')">
+                                            <i class="fas fa-trash"></i>
+                                            Delete
                                         </button>
                                     </div>
                                 </div>
@@ -805,6 +823,10 @@ try {
                                         <button class="btn btn-view" onclick="viewSellerDetails(<%= seller.get("id") %>)">
                                             <i class="fas fa-eye"></i>
                                             View Details
+                                        </button>
+                                        <button class="btn btn-delete" onclick="deleteSeller(<%= seller.get("id") %>, '<%= seller.get("username") %>')">
+                                            <i class="fas fa-trash"></i>
+                                            Delete
                                         </button>
                                     </div>
                                 </div>
@@ -913,6 +935,40 @@ try {
                 form.submit();
             } else if (reason !== null) {
                 alert('Rejection reason is required.');
+            }
+        }
+        
+        function deleteSeller(sellerId, username) {
+            if (confirm('Are you sure you want to permanently delete seller "' + username + '"? This action cannot be undone and will remove all seller data including their products and orders.')) {
+                // Create form for deletion
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = 'DeleteSellerServlet';
+                
+                // Add seller ID
+                const sellerIdInput = document.createElement('input');
+                sellerIdInput.type = 'hidden';
+                sellerIdInput.name = 'sellerId';
+                sellerIdInput.value = sellerId;
+                form.appendChild(sellerIdInput);
+                
+                // Add action
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'delete';
+                form.appendChild(actionInput);
+                
+                // Add deleted by
+                const deletedByInput = document.createElement('input');
+                deletedByInput.type = 'hidden';
+                deletedByInput.name = 'deletedBy';
+                deletedByInput.value = '<%= username %>';
+                form.appendChild(deletedByInput);
+                
+                // Submit form
+                document.body.appendChild(form);
+                form.submit();
             }
         }
         
