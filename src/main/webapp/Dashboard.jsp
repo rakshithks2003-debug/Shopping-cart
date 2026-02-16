@@ -386,7 +386,7 @@ tr:hover {
         
         
           <a href="Showproducts.jsp">🛍️ Products</a>
-           <a href="#seller-approval">👥 Seller Approval</a>
+           <a href="SellerApproval.jsp">👥 Seller Approval</a>
            <a href="ApprovedProducts.jsp">📦 Seller Products</a>
         <a href="DeliveryTracking.jsp">🚚 Delivery Tracking</a>
         <a href="OrderHistory.jsp">📦 Order History</a>
