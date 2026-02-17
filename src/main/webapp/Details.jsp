@@ -1419,6 +1419,119 @@ try {
             25% { transform: translateX(-5px); }
             75% { transform: translateX(5px); }
         }
+        
+        /* ========================================
+           WISHLIST HEART BUTTON STYLES
+           ======================================== */
+        .wishlist-heart {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #e74c3c;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .wishlist-heart:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(231, 76, 60, 0.3);
+            background: rgba(255, 255, 255, 1);
+        }
+        
+        .wishlist-heart:active {
+            transform: scale(0.95);
+        }
+        
+        .wishlist-heart.active {
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+            border-color: #e74c3c;
+        }
+        
+        .wishlist-heart.active .heart-icon {
+            content: '❤️';
+            animation: heartBeat 0.6s ease;
+        }
+        
+        .wishlist-heart .heart-icon {
+            font-size: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .wishlist-heart:not(.active):hover .heart-icon {
+            content: '❤️';
+            opacity: 0.7;
+        }
+        
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.3); }
+            50% { transform: scale(1.1); }
+            75% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .wishlist-tooltip {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .wishlist-heart:hover .wishlist-tooltip {
+            opacity: 1;
+        }
+        
+        /* Responsive wishlist button */
+        @media (max-width: 768px) {
+            .wishlist-heart {
+                width: 55px;
+                height: 55px;
+                font-size: 26px;
+                top: 15px;
+                right: 15px;
+            }
+            
+            .wishlist-heart .heart-icon {
+                font-size: 26px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .wishlist-heart {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+                top: 10px;
+                right: 10px;
+            }
+            
+            .wishlist-heart .heart-icon {
+                font-size: 24px;
+            }
+        }
         </style>
     </head>
     <body>
@@ -1439,6 +1552,11 @@ try {
             // Multiple images - show slider
     %>
                     <div class="image-slider-container" id="sliderData" data-total-slides="<%=productImages.length%>">
+                        <!-- Wishlist Heart Button -->
+                        <button class="wishlist-heart" id="wishlistHeart" onclick="toggleWishlist()" title="Add to Wishlist">
+                            <span class="heart-icon">🤍</span>
+                        </button>
+                        
                         <div class="image-slider" id="imageSlider">
     <%
             for (int i = 0; i < productImages.length; i++) {
@@ -1485,8 +1603,14 @@ try {
                 System.out.println("Details.jsp - Using default placeholder image");
             }
     %>
-                    <img src="<%=imageSrc%>" alt="<%=productName%>" class="product-image" 
-                         onerror="tryFallbackImage(this, '<%=productImage%>')">
+                    <div class="product-image-section">
+                        <!-- Wishlist Heart Button -->
+                        <button class="wishlist-heart" id="wishlistHeart" onclick="toggleWishlist()" title="Add to Wishlist">
+                            <span class="heart-icon">🤍</span>
+                        </button>
+                        
+                        <img src="<%=imageSrc%>" alt="<%=productName%>" class="product-image" 
+                             onerror="tryFallbackImage(this, '<%=productImage%>')">
     <%
         }
     %>
@@ -1738,6 +1862,85 @@ try {
                     img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xNTAgMTUwSDI1MFYyNTBIMTUwVjE1MFoiIGZpbGw9IiNDQ0NDQ0QiLz4KPHA+PC9wPgo8dGV4dCB4PSIyMDAiIHk9IjMyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4=';
                 }
             }
+            
+            // Wishlist functionality
+            function toggleWishlist() {
+                const wishlistHeart = document.getElementById('wishlistHeart');
+                const heartIcon = wishlistHeart.querySelector('.heart-icon');
+                const productId = '<%=productId%>';
+                const productName = '<%=productName%>';
+                const productPrice = <%=productPrice%>;
+                const productImage = '<%=productImage%>';
+                
+                // Check if product is already in wishlist
+                const isInWishlist = wishlistHeart.classList.contains('active');
+                
+                if (isInWishlist) {
+                    // Remove from wishlist
+                    removeFromWishlist(productId);
+                    wishlistHeart.classList.remove('active');
+                    heartIcon.textContent = '🤍';
+                    showNotification('Removed from wishlist', 'success');
+                } else {
+                    // Add to wishlist
+                    addToWishlist(productId, productName, productPrice, productImage);
+                    wishlistHeart.classList.add('active');
+                    heartIcon.textContent = '❤️';
+                    showNotification('Added to wishlist', 'success');
+                }
+            }
+            
+            function addToWishlist(productId, productName, productPrice, productImage) {
+                // Get current wishlist from localStorage
+                let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+                
+                // Check if product already exists
+                const existingIndex = wishlist.findIndex(item => item.id === productId);
+                if (existingIndex === -1) {
+                    // Add new product to wishlist
+                    wishlist.push({
+                        id: productId,
+                        name: productName,
+                        price: productPrice,
+                        image: productImage,
+                        addedAt: new Date().toISOString()
+                    });
+                    
+                    // Save to localStorage
+                    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+                }
+            }
+            
+            function removeFromWishlist(productId) {
+                // Get current wishlist from localStorage
+                let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+                
+                // Remove product from wishlist
+                wishlist = wishlist.filter(item => item.id !== productId);
+                
+                // Save to localStorage
+                localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            }
+            
+            // Check if product is already in wishlist on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                const wishlistHeart = document.getElementById('wishlistHeart');
+                const heartIcon = wishlistHeart.querySelector('.heart-icon');
+                const productId = '<%=productId%>';
+                
+                // Get current wishlist from localStorage
+                let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+                
+                // Check if product exists in wishlist
+                const isInWishlist = wishlist.some(item => item.id === productId);
+                
+                if (isInWishlist) {
+                    wishlistHeart.classList.add('active');
+                    heartIcon.textContent = '❤️';
+                } else {
+                    heartIcon.textContent = '🤍';
+                }
+            });
         </script>
     </body>
     </html>
