@@ -622,7 +622,7 @@ tr:hover {
         const ctx = document.getElementById('paymentChart').getContext('2d');
         
         new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: paymentData.map(item => {
                     const date = new Date(item.month + '-01');
@@ -631,35 +631,25 @@ tr:hover {
                 datasets: [{
                     label: 'Monthly Revenue (₹)',
                     data: paymentData.map(item => item.amount),
+                    backgroundColor: 'rgba(79, 70, 229, 0.8)',
                     borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    borderWidth: 4,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                    pointBackgroundColor: '#4f46e5',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointHoverBackgroundColor: '#4338ca',
-                    pointHoverBorderColor: '#fff',
-                    pointHoverBorderWidth: 3
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    hoverBackgroundColor: '#4338ca',
+                    hoverBorderColor: '#4338ca',
+                    hoverBorderWidth: 3
                 }, {
                     label: 'Transaction Count',
                     data: paymentData.map(item => item.count),
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
                     borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    borderWidth: 4,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                    pointBackgroundColor: '#10b981',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointHoverBackgroundColor: '#059669',
-                    pointHoverBorderColor: '#fff',
-                    pointHoverBorderWidth: 3,
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    hoverBackgroundColor: '#059669',
+                    hoverBorderColor: '#059669',
+                    hoverBorderWidth: 3,
                     yAxisID: 'y1'
                 }]
             },
