@@ -11,9 +11,9 @@ if (username == null) {
     response.sendRedirect("Login.html");
     return;
 }
-String SessionId = session.getId();
-out.println("Session ID: " +
-SessionId);
+//String SessionId = session.getId();
+//out.println("Session ID: " +
+//SessionId);
 
 // Get product ID from request parameter
 String productId = request.getParameter("id");
@@ -1422,7 +1422,7 @@ try {
         </style>
     </head>
     <body>
-    <a href="javascript:history.back()" class="reverse-btn" style="top: 60px; left: 20px;"><i class="fas fa-undo"></i>← Back to Products</a>
+    <a href="javascript:history.back()" class="reverse-btn" style="top: 60px; left: 20px;"><i class="fas fa-undo"></i>← Back </a>
         <div class="container">
             <header>
                 <h1>🛍️ Product Details</h1>

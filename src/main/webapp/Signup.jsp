@@ -465,6 +465,19 @@
             </div>
 
             <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <input type="text" id="email" name="email" required 
+                           placeholder="Enter your email address" 
+                           onblur="validateEmail()" 
+                           oninput="clearError('email')">
+                    <span class="input-icon">✉️</span>
+                </div>
+                <div class="error-message" id="emailError"></div>
+                <div class="validation-info">Valid email address required</div>
+            </div>
+
+            <div class="form-group">
                 <label for="password">Password</label>
                 <div class="input-wrapper">
                     <input type="password" id="password" name="password" required 
@@ -508,6 +521,10 @@ function validateForm() {
     
     // Validate all fields
     if (!validateUsername()) {
+        isValid = false;
+    }
+    
+    if (!validateEmail()) {
         isValid = false;
     }
     
@@ -576,6 +593,33 @@ function validateUsername() {
     if (!usernameRegex.test(username)) {
         showError('usernameError', 'Username can only contain letters, numbers, and underscores');
         usernameInput.classList.add('input-error');
+        return false;
+    }
+    
+    return true;
+}
+
+function validateEmail() {
+    const email = document.getElementById('email').value.trim();
+    const emailError = document.getElementById('emailError');
+    const emailInput = document.getElementById('email');
+    
+    // Clear previous error
+    emailError.style.display = 'none';
+    emailInput.classList.remove('input-error');
+    
+    // Validation rules
+    if (email.length === 0) {
+        showError('emailError', 'Email is required');
+        emailInput.classList.add('input-error');
+        return false;
+    }
+    
+    // Email validation regex
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+        showError('emailError', 'Please enter a valid email address');
+        emailInput.classList.add('input-error');
         return false;
     }
     
