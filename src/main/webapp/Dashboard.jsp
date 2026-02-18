@@ -9,9 +9,9 @@ if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null ||
     response.sendRedirect("Login.html");
     return;
 }
-	String SessionId = session.getId();
-out.println("Session ID: " +
-SessionId);
+//	String SessionId = session.getId();
+//out.println("Session ID: " +
+//SessionId);
 
 
 String userRole = (String) sessionObg.getAttribute("userRole");
@@ -533,6 +533,7 @@ tr:hover {
     <div class="sidebar">
     	<a href="Home.jsp">🏠 Home</a>
         <a href="#">📊 Dashboard</a>
+        <a href="Wishlist.jsp">❤️ My Wishlist</a>
         <a href="Adminproduct.jsp">🛍️ Addproduct</a>
         <a href="Updateproduct.jsp">🔧  Update product </a>
         <a href="Deleteproducts.jsp">🗑️ Delete products</a>

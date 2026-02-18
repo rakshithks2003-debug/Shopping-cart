@@ -1532,10 +1532,89 @@ try {
                 font-size: 24px;
             }
         }
+        
+        /* ========================================
+           WISHLIST LINK BUTTON STYLES
+           ======================================== */
+        .wishlist-link-btn {
+            position: fixed;
+            top: 60px;
+            left: 160px;
+            background: linear-gradient(135deg, #e91e63, #c2185b);
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            letter-spacing: 0.5px;
+        }
+        
+        .wishlist-link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+            background: linear-gradient(135deg, #c2185b, #ad1457);
+            color: white;
+        }
+        
+        .wishlist-link-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(233, 30, 99, 0.3);
+            transition: all 0.1s ease;
+        }
+        
+        .wishlist-link-btn:focus {
+            outline: none;
+            box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3), 0 0 0 3px rgba(233, 30, 99, 0.2);
+        }
+        
+        .wishlist-link-btn i {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+        
+        .wishlist-link-btn:hover i {
+            transform: scale(1.1);
+        }
+        
+        @media (max-width: 768px) {
+            .wishlist-link-btn {
+                top: 15px;
+                left: 15px;
+                padding: 10px 16px;
+                font-size: 13px;
+                border-radius: 20px;
+            }
+            
+            .wishlist-link-btn i {
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .wishlist-link-btn {
+                top: 10px;
+                left: 10px;
+                padding: 8px 14px;
+                font-size: 12px;
+                gap: 6px;
+            }
+            
+            .wishlist-link-btn i {
+                font-size: 13px;
+            }
+        }
         </style>
     </head>
     <body>
     <a href="javascript:history.back()" class="reverse-btn" style="top: 60px; left: 20px;"><i class="fas fa-undo"></i>← Back </a>
+    <a href="Wishlist.jsp" class="wishlist-link-btn" style="top: 60px; left: 160px;"><i class="fas fa-heart"></i> My Wishlist</a>
         <div class="container">
             <header>
                 <h1>🛍️ Product Details</h1>
@@ -1880,46 +1959,78 @@ try {
                     removeFromWishlist(productId);
                     wishlistHeart.classList.remove('active');
                     heartIcon.textContent = '🤍';
-                    showNotification('Removed from wishlist', 'success');
+                    showNotification('Removing from wishlist...', 'success');
                 } else {
                     // Add to wishlist
-                    addToWishlist(productId, productName, productPrice, productImage);
+                    addToWishlist(productId);
                     wishlistHeart.classList.add('active');
                     heartIcon.textContent = '❤️';
-                    showNotification('Added to wishlist', 'success');
+                    showNotification('Adding to wishlist...', 'success');
                 }
             }
             
-            function addToWishlist(productId, productName, productPrice, productImage) {
-                // Get current wishlist from localStorage
-                let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            function addToWishlist(productId) {
+                // Send AJAX request to WishlistServlet
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'WishlistServlet', true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            try {
+                                const response = JSON.parse(xhr.responseText);
+                                if (response.success) {
+                                    showNotification(response.message, 'success');
+                                } else {
+                                    // Revert UI if failed
+                                    const wishlistHeart = document.getElementById('wishlistHeart');
+                                    const heartIcon = wishlistHeart.querySelector('.heart-icon');
+                                    wishlistHeart.classList.remove('active');
+                                    heartIcon.textContent = '🤍';
+                                    showNotification(response.message, 'error');
+                                }
+                            } catch (e) {
+                                showNotification('Error adding to wishlist', 'error');
+                            }
+                        } else {
+                            showNotification('Server error. Please try again.', 'error');
+                        }
+                    }
+                };
                 
-                // Check if product already exists
-                const existingIndex = wishlist.findIndex(item => item.id === productId);
-                if (existingIndex === -1) {
-                    // Add new product to wishlist
-                    wishlist.push({
-                        id: productId,
-                        name: productName,
-                        price: productPrice,
-                        image: productImage,
-                        addedAt: new Date().toISOString()
-                    });
-                    
-                    // Save to localStorage
-                    localStorage.setItem('wishlist', JSON.stringify(wishlist));
-                }
+                xhr.send('action=add&productId=' + encodeURIComponent(productId));
             }
             
             function removeFromWishlist(productId) {
-                // Get current wishlist from localStorage
-                let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+                // Send AJAX request to WishlistServlet
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'WishlistServlet', true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            try {
+                                const response = JSON.parse(xhr.responseText);
+                                if (response.success) {
+                                    showNotification(response.message, 'success');
+                                } else {
+                                    // Revert UI if failed
+                                    const wishlistHeart = document.getElementById('wishlistHeart');
+                                    const heartIcon = wishlistHeart.querySelector('.heart-icon');
+                                    wishlistHeart.classList.add('active');
+                                    heartIcon.textContent = '❤️';
+                                    showNotification(response.message, 'error');
+                                }
+                            } catch (e) {
+                                showNotification('Error removing from wishlist', 'error');
+                            }
+                        } else {
+                            showNotification('Server error. Please try again.', 'error');
+                        }
+                    }
+                };
                 
-                // Remove product from wishlist
-                wishlist = wishlist.filter(item => item.id !== productId);
-                
-                // Save to localStorage
-                localStorage.setItem('wishlist', JSON.stringify(wishlist));
+                xhr.send('action=remove&productId=' + encodeURIComponent(productId));
             }
             
             // Check if product is already in wishlist on page load
@@ -1928,18 +2039,31 @@ try {
                 const heartIcon = wishlistHeart.querySelector('.heart-icon');
                 const productId = '<%=productId%>';
                 
-                // Get current wishlist from localStorage
-                let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+                // Check if product is in wishlist via AJAX
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'WishlistServlet', true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            try {
+                                const response = JSON.parse(xhr.responseText);
+                                if (response.success && response.inWishlist) {
+                                    wishlistHeart.classList.add('active');
+                                    heartIcon.textContent = '❤️';
+                                } else {
+                                    heartIcon.textContent = '🤍';
+                                }
+                            } catch (e) {
+                                heartIcon.textContent = '🤍';
+                            }
+                        } else {
+                            heartIcon.textContent = '🤍';
+                        }
+                    }
+                };
                 
-                // Check if product exists in wishlist
-                const isInWishlist = wishlist.some(item => item.id === productId);
-                
-                if (isInWishlist) {
-                    wishlistHeart.classList.add('active');
-                    heartIcon.textContent = '❤️';
-                } else {
-                    heartIcon.textContent = '🤍';
-                }
+                xhr.send('action=check&productId=' + encodeURIComponent(productId));
             });
         </script>
     </body>
