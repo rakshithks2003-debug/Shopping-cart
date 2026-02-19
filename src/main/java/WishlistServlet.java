@@ -98,6 +98,10 @@ public class WishlistServlet extends HttpServlet {
                     handleAddToWishlist(request, response, con, username);
                     break;
                     
+                case "addMultiple":
+                    handleAddMultipleToWishlist(request, response, con, username);
+                    break;
+                    
                 case "remove":
                     handleRemoveFromWishlist(request, response, con, username);
                     break;
@@ -134,27 +138,35 @@ public class WishlistServlet extends HttpServlet {
     }
     
     private void createWishlistTable(Connection con) throws SQLException {
-        // Drop existing table to remove old columns
-        try (Statement dropStmt = con.createStatement()) {
-            dropStmt.execute("DROP TABLE IF EXISTS wishlist");
-            System.out.println("🗑️ Dropped existing wishlist table to remove old columns");
+        // Check if table exists first
+        String checkTableSQL = "SHOW TABLES LIKE 'wishlist'";
+        try (Statement stmt = con.createStatement()) {
+            ResultSet rs = stmt.executeQuery(checkTableSQL);
+            if (rs.next()) {
+                // Table exists, no need to create
+                System.out.println("✅ Wishlist table already exists");
+                rs.close();
+                return;
+            }
+            rs.close();
         } catch (Exception e) {
-            System.out.println("⚠️ Warning: Could not drop table (may not exist): " + e.getMessage());
+            System.out.println("⚠️ Could not check if table exists: " + e.getMessage());
         }
         
-        // Create new simplified table
-        String createTableSQL = "CREATE TABLE wishlist (" +
+        // Create new simplified table only if it doesn't exist
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS wishlist (" +
             "id INT NOT NULL AUTO_INCREMENT, " +
             "user_id varchar(20) NOT NULL, " +
             "pro_name VARCHAR(255) NOT NULL, " +
             "pro_image VARCHAR(255) NOT NULL, " +
             "saved_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-            "PRIMARY KEY (id)" +
+            "PRIMARY KEY (id), " +
+            "UNIQUE KEY unique_user_product (user_id, pro_name)" +
             ")";
         
         try (Statement stmt = con.createStatement()) {
             stmt.execute(createTableSQL);
-            System.out.println("✅ New simplified wishlist table created successfully");
+            System.out.println("✅ Wishlist table created successfully");
         }
     }
     
@@ -261,6 +273,163 @@ public class WishlistServlet extends HttpServlet {
                 responseMap.put("message", "Item not found in wishlist");
             }
         }
+        
+        out.print(buildJsonResponse(responseMap));
+    }
+    
+    private void handleAddMultipleToWishlist(HttpServletRequest request, HttpServletResponse response, 
+                                       Connection con, String username) throws IOException, SQLException {
+        PrintWriter out = response.getWriter();
+        Map<String, Object> responseMap = new HashMap<>();
+        
+        String productsParam = request.getParameter("products");
+        System.out.println("🔍 DEBUG: Received products parameter: '" + productsParam + "'");
+        System.out.println("🔍 DEBUG: Products parameter length: " + (productsParam != null ? productsParam.length() : "null"));
+        
+        if (productsParam == null || productsParam.trim().isEmpty()) {
+            responseMap.put("success", false);
+            responseMap.put("message", "Products list is required");
+            out.print(buildJsonResponse(responseMap));
+            return;
+        }
+        
+        // Get user_id from users table
+        String userId = getUserId(con, username);
+        if (userId == null) {
+            responseMap.put("success", false);
+            responseMap.put("message", "User not found");
+            out.print(buildJsonResponse(responseMap));
+            return;
+        }
+        
+        // Split products by comma and trim
+        String[] productNames = productsParam.split(",");
+        System.out.println("🔍 DEBUG: Split into " + productNames.length + " products:");
+        for (int i = 0; i < productNames.length; i++) {
+            System.out.println("🔍 DEBUG: Product[" + i + "]: '" + productNames[i].trim() + "'");
+        }
+        
+        int addedCount = 0;
+        int duplicateCount = 0;
+        int notFoundCount = 0;
+        StringBuilder duplicates = new StringBuilder();
+        StringBuilder notFound = new StringBuilder();
+        
+        // Use batch processing for better performance
+        try {
+            con.setAutoCommit(false); // Start transaction
+            
+            for (String productName : productNames) {
+                productName = productName.trim();
+                if (productName.isEmpty()) continue;
+                
+                System.out.println("🔍 DEBUG: Processing product: '" + productName + "'");
+                
+                // Check if product exists and get details
+                String[] productDetails = getProductDetails(con, productName);
+                if (productDetails == null) {
+                    notFoundCount++;
+                    if (notFound.length() > 0) notFound.append(", ");
+                    notFound.append(productName);
+                    continue;
+                }
+                
+                // Check if already in wishlist
+                String checkSQL = "SELECT COUNT(*) FROM wishlist WHERE user_id = ? AND pro_name = ?";
+                try (PreparedStatement checkPs = con.prepareStatement(checkSQL)) {
+                    checkPs.setString(1, userId);
+                    checkPs.setString(2, productDetails[0]);
+                    ResultSet checkRs = checkPs.executeQuery();
+                    checkRs.next();
+                    int count = checkRs.getInt(1);
+                    checkRs.close();
+                    
+                    if (count > 0) {
+                        duplicateCount++;
+                        if (duplicates.length() > 0) duplicates.append(", ");
+                        duplicates.append(productName);
+                        continue;
+                    }
+                    
+                    // Add to wishlist
+                    String insertSQL = "INSERT INTO wishlist (user_id, pro_name, pro_image) VALUES (?, ?, ?)";
+                    try (PreparedStatement insertPs = con.prepareStatement(insertSQL)) {
+                        insertPs.setString(1, userId);
+                        insertPs.setString(2, productDetails[0]);
+                        insertPs.setString(3, productDetails[3]);
+                        
+                        int result = insertPs.executeUpdate();
+                        if (result > 0) {
+                            addedCount++;
+                            System.out.println("✅ Added to wishlist: " + productDetails[0]);
+                        }
+                    }
+                }
+            }
+            
+            con.commit(); // Commit transaction
+            System.out.println("✅ Transaction committed. Added: " + addedCount + ", Duplicates: " + duplicateCount + ", Not found: " + notFoundCount);
+            
+            // Verify actual database records
+            String verifySQL = "SELECT COUNT(*) FROM wishlist WHERE user_id = ?";
+            try (PreparedStatement verifyPs = con.prepareStatement(verifySQL)) {
+                verifyPs.setString(1, userId);
+                ResultSet verifyRs = verifyPs.executeQuery();
+                verifyRs.next();
+                int totalRecords = verifyRs.getInt(1);
+                verifyRs.close();
+                System.out.println("🔍 VERIFICATION: Total records in wishlist for user " + userId + ": " + totalRecords);
+                
+                // Get recent additions for debugging
+                String recentSQL = "SELECT pro_name, saved_date FROM wishlist WHERE user_id = ? ORDER BY saved_date DESC LIMIT 5";
+                try (PreparedStatement recentPs = con.prepareStatement(recentSQL)) {
+                    recentPs.setString(1, userId);
+                    ResultSet recentRs = recentPs.executeQuery();
+                    System.out.println("🔍 RECENT ADDITIONS:");
+                    while (recentRs.next()) {
+                        System.out.println("  - " + recentRs.getString("pro_name") + " (added: " + recentRs.getTimestamp("saved_date") + ")");
+                    }
+                    recentRs.close();
+                }
+            }
+            
+        } catch (Exception e) {
+            try {
+                con.rollback(); // Rollback on error
+                System.out.println("❌ Transaction rolled back: " + e.getMessage());
+            } catch (Exception rollbackEx) {
+                System.out.println("❌ Rollback failed: " + rollbackEx.getMessage());
+            }
+            throw e;
+        } finally {
+            try {
+                con.setAutoCommit(true); // Reset auto-commit
+            } catch (Exception e) {
+                System.out.println("⚠️ Could not reset auto-commit: " + e.getMessage());
+            }
+        }
+        
+        // Build response message
+        StringBuilder message = new StringBuilder();
+        if (addedCount > 0) {
+            message.append("Added ").append(addedCount).append(" product").append(addedCount > 1 ? "s" : "").append(" to wishlist");
+        }
+        
+        if (duplicateCount > 0) {
+            if (message.length() > 0) message.append(". ");
+            message.append(duplicateCount).append(" already in wishlist: ").append(duplicates.toString());
+        }
+        
+        if (notFoundCount > 0) {
+            if (message.length() > 0) message.append(". ");
+            message.append(notFoundCount).append(" not found: ").append(notFound.toString());
+        }
+        
+        responseMap.put("success", addedCount > 0);
+        responseMap.put("message", message.toString());
+        responseMap.put("addedCount", addedCount);
+        responseMap.put("duplicateCount", duplicateCount);
+        responseMap.put("notFoundCount", notFoundCount);
         
         out.print(buildJsonResponse(responseMap));
     }
