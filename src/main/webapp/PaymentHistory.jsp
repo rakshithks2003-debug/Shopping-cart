@@ -121,11 +121,11 @@ try {
         }
 
         :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --secondary: #3b82f6;
+            --primary: #667eea;
+            --primary-dark: #5a6fd8;
+            --secondary: #764ba2;
             --accent: #8b5cf6;
-            --success: #22c55e;
+            --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
             --dark: #0f172a;
@@ -138,7 +138,7 @@ try {
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg-light);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             color: var(--dark);
             line-height: 1.6;
             margin: 0;
@@ -174,7 +174,10 @@ try {
         }
 
         .header-title i {
-            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-size: 1.8rem;
         }
 
@@ -205,7 +208,7 @@ try {
         .btn-primary:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         /* Container */
@@ -235,7 +238,7 @@ try {
 
         .stat-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
         }
 
         .stat-header {
@@ -262,18 +265,18 @@ try {
         }
 
         .stat-icon.blue {
-            background: #dbeafe;
-            color: #2563eb;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            color: var(--white);
         }
 
         .stat-icon.purple {
-            background: #e9d5ff;
-            color: #7c3aed;
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            color: var(--white);
         }
 
         .stat-icon.orange {
-            background: #fed7aa;
-            color: #ea580c;
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: var(--white);
         }
 
         .stat-value {
@@ -318,7 +321,10 @@ try {
         }
 
         .content-title i {
-            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .filter-controls {
@@ -342,7 +348,33 @@ try {
         .select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-btn {
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background: white;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-btn:hover {
+            background: var(--bg-light);
+            border-color: var(--primary);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: var(--primary);
         }
 
         /* Table */
@@ -387,7 +419,10 @@ try {
         /* Table Cell Styles */
         .tx-id {
             font-weight: 600;
-            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-family: monospace;
         }
 
@@ -499,7 +534,7 @@ try {
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(16,185,129,0.4);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
         /* Responsive */

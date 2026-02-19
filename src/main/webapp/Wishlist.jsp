@@ -566,7 +566,7 @@
                     System.out.println("✅ Found user_id: " + userId + " for username: " + username);
                     
                     // Get wishlist items for the user
-                    String query = "SELECT w.pro_name, w.pro_image, w.saved_date, p.product_name, p.price, p.description, p.brand " +
+                    String query = "SELECT w.pro_name, w.pro_image, w.saved_date, p.id, p.product_name, p.price, p.description, p.brand, p.seller_id " +
                                  "FROM wishlist w " +
                                  "JOIN product p ON w.pro_name = p.product_name " +
                                  "WHERE w.user_id = ? " +
@@ -598,8 +598,10 @@
                         String imageName = rs.getString("pro_image");
                         String productName = rs.getString("product_name");
                         double price = rs.getDouble("price");
+                        String productId = rs.getString("id");
+                        String sellerId = rs.getString("seller_id");
                         
-                        System.out.println("🔍 DEBUG: Displaying item - Name: " + productName + ", Image: " + imageName + ", Price: " + price);
+                        System.out.println("🔍 DEBUG: Displaying item - ID: " + productId + ", Name: " + productName + ", Image: " + imageName + ", Price: " + price + ", Seller: " + sellerId);
             %>
                                 <div class="wishlist-item" data-product-id="<%=rs.getString("pro_name")%>">
                                     <div class="wishlist-item-checkbox">
@@ -620,7 +622,7 @@
                                         <h3 class="wishlist-item-name"><%=rs.getString("product_name")%></h3>
                                         <div class="wishlist-item-price">₹<%=String.format("%.2f", rs.getDouble("price"))%></div>
                                         <div class="wishlist-item-actions">
-                                            <a href="Payment.jsp?productId=<%=rs.getString("pro_name")%>&productName=<%=java.net.URLEncoder.encode(rs.getString("product_name"), "UTF-8")%>&price=<%=rs.getDouble("price")%>&quantity=1" class="buy-now-btn">
+                                            <a href="Payment.jsp?buyNow=true&productId=<%=rs.getString("id")%>&sellerId=<%=rs.getString("seller_id") != null ? rs.getString("seller_id") : ""%>" class="buy-now-btn">
                                                 <i class="fas fa-bolt"></i> Buy Now
                                             </a>
                                             <div class="action-buttons">
