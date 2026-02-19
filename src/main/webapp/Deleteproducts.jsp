@@ -528,11 +528,7 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
             <h1>🗑️ Delete Products</h1>
             <div class="user-info">👤 <%= username != null ? username : "Admin" %> (<%= userRole != null ? userRole : "Admin" %>)</div>
             
-            <div class="nav-buttons">
-                <a href="Showproducts.jsp" class="nav-btn primary">🛍️ View Products</a>
-                <a href="admin.jsp" class="nav-btn admin">🔧 Add Products</a>
-            </div>
-        </header>
+                    </header>
         
         <main>
             <div class="main-content">
