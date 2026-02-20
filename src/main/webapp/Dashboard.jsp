@@ -533,8 +533,7 @@ tr:hover {
     <div class="sidebar">
     	<a href="Home.jsp">🏠 Home</a>
         <a href="#">📊 Dashboard</a>
-        <a href="Wishlist.jsp">❤️ My Wishlist</a>
-        <a href="Adminproduct.jsp">🛍️ Addproduct</a>
+                <a href="Adminproduct.jsp">🛍️ Addproduct</a>
         <a href="Updateproduct.jsp">🔧  Update product </a>
         <a href="Deleteproducts.jsp">🗑️ Delete products</a>
         

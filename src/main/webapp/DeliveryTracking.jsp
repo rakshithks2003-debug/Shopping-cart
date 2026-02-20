@@ -110,6 +110,8 @@ UTF-8" pageEncoding="UTF-8"%>
         .header h1 {
             font-size: 2.5rem;
             margin: 0;
+            text-align: center;
+            width: 100%;
         }
 
         .search-section {
@@ -454,10 +456,7 @@ UTF-8" pageEncoding="UTF-8"%>
                 <i class="fas fa-box-open"></i>
                 <h3>No Deliveries Found</h3>
                 <p>No delivery records found. Complete a payment to see delivery tracking.</p>
-                <a href="Showproducts.jsp" class="btn btn-primary">
-                    <i class="fas fa-shopping-bag"></i> Start Shopping
-                </a>
-            </div>
+                </div>
         <% } else { %>
             <% for (Map<String, Object> delivery : deliveryDetails) { %>
                 <% if (orderId == null || orderId.equals((String)delivery.get("orderId"))) { %>

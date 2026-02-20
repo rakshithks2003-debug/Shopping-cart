@@ -31,12 +31,42 @@
         }
 
         .top-bar-content {
-            max-width: 1400px;
-            margin: 0 auto;
+            margin: 0;
             padding: 0 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
+            width: 100%;
+        }
+
+        .back-to-home-btn-left {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 2px solid transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            cursor: pointer;
+            white-space: nowrap;
+            text-transform: none;
+            letter-spacing: 0.5px;
+        }
+
+        .back-to-home-btn-left:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+            background: linear-gradient(135deg, #45a049, #3d8b40);
+            border-color: rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+            color: white;
         }
 
         .back-btn {
@@ -484,11 +514,8 @@
     <!-- Top Bar -->
     <div class="top-bar">
         <div class="top-bar-content">
-            <a href="Dashboard.jsp" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back to Home
-            </a>
-        </div>
-    </div>
+               <a href="javascript:history.back()" class="back-to-home-btn-left" aria-label="Go back to previous page"><i class="fas fa-home"></i> Back </a>
+           </div>
 
     <!-- Header -->
     <div class="header">
@@ -647,10 +674,7 @@
                             <i class="fas fa-heart"></i>
                             <h2>Your wishlist is empty</h2>
                             <p>Start adding products you love to your wishlist!</p>
-                            <a href="Showproducts.jsp" class="shop-now-btn">
-                                <i class="fas fa-shopping-bag"></i> Shop Now
-                            </a>
-                        </div>
+                            </div>
             <%
                     }
                 } catch (Exception e) {
@@ -695,6 +719,8 @@
         }
 
         function removeFromWishlist(productId, showConfirm = true) {
+            console.log('🔍 DEBUG: Removing product from wishlist:', productId);
+            
             if (showConfirm && !confirm('Are you sure you want to remove this item from your wishlist?')) {
                 return;
             }
@@ -707,6 +733,8 @@
                     if (xhr.status === 200) {
                         try {
                             const response = JSON.parse(xhr.responseText);
+                            console.log('🔍 DEBUG: Wishlist removal response:', response);
+                            
                             if (response.success) {
                                 showNotification('Removed from wishlist', 'success');
                                 // Remove the item from DOM with animation
@@ -725,14 +753,17 @@
                                 showNotification(response.message, 'error');
                             }
                         } catch (e) {
+                            console.log('🔍 DEBUG: Error parsing response:', e);
                             showNotification('Error removing item', 'error');
                         }
                     } else {
+                        console.log('🔍 DEBUG: Server error status:', xhr.status);
                         showNotification('Server error. Please try again.', 'error');
                     }
                 }
             };
             
+            console.log('🔍 DEBUG: Sending removal request for:', productId);
             xhr.send('action=remove&productId=' + encodeURIComponent(productId));
         }
 

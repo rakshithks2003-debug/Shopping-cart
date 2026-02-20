@@ -559,16 +559,266 @@ String username = (String) sessionObg.getAttribute("username");
         font-size: 1rem;
     }
     
+    /* Search Bar Styles */
+    .search-section-with-cart {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        margin-bottom: 40px;
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 30px;
+    }
+    
+    .search-section {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        margin-bottom: 40px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .search-container {
+        flex: 1;
+        max-width: 700px;
+    }
+    
+    .cart-section {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        min-width: 300px;
+        gap: 10px;
+        margin-top: 60px;
+    }
+    
+    .nav-btn {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 12px 20px;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 2px solid transparent;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        cursor: pointer;
+        white-space: nowrap;
+        text-transform: none;
+        letter-spacing: 0.5px;
+        position: relative;
+    }
+    
+    .nav-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        border-color: rgba(255, 255, 255, 0.1);
+        text-decoration: none;
+        color: white;
+    }
+    
+    .nav-btn.cart {
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+    
+    .nav-btn.cart:hover {
+        background: linear-gradient(135deg, #45a049, #3d8b40);
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    }
+    
+    .nav-btn.wishlist {
+        background: linear-gradient(135deg, #e91e63, #c2185b);
+        box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+    }
+    
+    .nav-btn.wishlist:hover {
+        background: linear-gradient(135deg, #c2185b, #ad1457);
+        box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+    }
+    
+    .cart-badge {
+        background: #ff4757;
+        color: white;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 12px;
+        font-weight: bold;
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        min-width: 20px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
+    }
+    
+    .search-title {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .search-box {
+        display: flex;
+        gap: 10px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        border-radius: 50px;
+        overflow: hidden;
+        background: white;
+    }
+    
+    .search-input {
+        flex: 1;
+        padding: 16px 25px;
+        border: none;
+        font-size: 1rem;
+        outline: none;
+        background: transparent;
+        color: #333;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .search-input::placeholder {
+        color: #999;
+    }
+    
+    .search-button {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 0 35px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .search-button:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: scale(1.02);
+    }
+    
+    .search-button i {
+        font-size: 1.1rem;
+    }
+    
+    .clear-search {
+        display: none;
+        text-align: center;
+        margin-top: 15px;
+    }
+    
+    .clear-search.show {
+        display: block;
+    }
+    
+    .clear-btn {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+        padding: 8px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+    
+    .clear-btn:hover {
+        background: #667eea;
+        color: white;
+    }
+    
+    .no-results {
+        display: none;
+        text-align: center;
+        padding: 60px 20px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        margin-top: 30px;
+    }
+    
+    .no-results.show {
+        display: block;
+    }
+    
+    .no-results i {
+        font-size: 4rem;
+        color: #667eea;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+    
+    .no-results h3 {
+        font-size: 1.8rem;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .no-results p {
+        color: #666;
+        font-size: 1.1rem;
+    }
+    
     @media (max-width: 768px) {
         .products-grid {
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
+        }
+        
+        .search-section-with-cart {
+            padding: 20px;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .search-box {
+            flex-direction: column;
+            border-radius: 20px;
+        }
+        
+        .search-input, .search-button {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 0;
+        }
+        
+        .search-input {
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cart-section {
+            justify-content: center;
+            min-width: auto;
         }
     }
     
     @media (max-width: 480px) {
         .products-grid {
             grid-template-columns: 1fr;
+        }
+        
+        .search-title {
+            font-size: 1.2rem;
         }
     }
 </style>
@@ -580,20 +830,36 @@ String username = (String) sessionObg.getAttribute("username");
     <div class="container">
         <header>
             <h1>🛍️ Mini Shopping cart</h1>
-            <p class="subtitle">Browse our amazing cuisine</p>
+        </header>
+        
+        <!-- Search Section with Cart -->
+        <div class="search-section-with-cart">
+            <div class="search-container">
+                <h2 class="search-title">🔍 Find Your Perfect Product</h2>
+                <div class="search-box">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search for products, brands, categories..." onkeypress="handleSearchKeyPress(event)">
+                    <button class="search-button" onclick="performSearch()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+                <div class="clear-search" id="clearSearchDiv">
+                    <button class="clear-btn" onclick="clearSearch()">
+                        <i class="fas fa-times"></i> Clear Search
+                    </button>
+                </div>
+            </div>
             
-            <div class="nav-buttons">
+            <!-- Cart and Wishlist Buttons -->
+            <div class="cart-section">
                 <a href="Cart.jsp" class="nav-btn cart" id="cartButton">
                     🛒 My Cart
                     <span class="cart-badge" id="cartBadge" style="display: none;">0</span>
                 </a>
-                <% if ("admin".equals(userRole)) { %>
-                    <a href="LogoutServlet" class="nav-btn logout">🚪 Logout</a>
-                <% } else { %>
-                    <a href="LogoutServlet" class="nav-btn logout">🚪 Logout</a>
-                <% } %>
+                <a href="Wishlist.jsp" class="nav-btn wishlist" id="wishlistButton">
+                    ❤️ My Wishlist
+                </a>
             </div>
-        </header>
+        </div>
         
         <main>
             <div class="products-section">
@@ -602,7 +868,7 @@ String username = (String) sessionObg.getAttribute("username");
                     <p class="section-subtitle">Discover our Accurated collection of premium items</p>
                 </div>
                 
-                <div class="products-grid">
+                <div class="products-grid" id="productsGrid">
 <%
 try {
     Dbase db = new Dbase();
@@ -919,6 +1185,120 @@ try {
                 img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4=';
             }
         }
+        
+        // ========================================
+        // SEARCH FUNCTIONALITY
+        // ========================================
+        
+        let allProducts = [];
+        let currentFilter = 'all';
+        
+        // Store all products on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach(card => {
+                const productName = card.querySelector('.product-name')?.textContent.toLowerCase() || '';
+                const productPrice = card.querySelector('.product-price')?.textContent || '';
+                allProducts.push({
+                    element: card,
+                    name: productName,
+                    price: productPrice,
+                    visible: true
+                });
+            });
+        });
+        
+        // Search function
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                showAllProducts();
+                return;
+            }
+            
+            let visibleCount = 0;
+            
+            allProducts.forEach(product => {
+                const matchesSearch = product.name.includes(searchTerm);
+                
+                if (matchesSearch) {
+                    product.element.style.display = 'block';
+                    product.visible = true;
+                    visibleCount++;
+                } else {
+                    product.element.style.display = 'none';
+                    product.visible = false;
+                }
+            });
+            
+            // Show/hide no results message
+            showNoResultsMessage(visibleCount === 0, searchTerm);
+            
+            // Show clear button
+            document.getElementById('clearSearchDiv').classList.add('show');
+        }
+        
+        // Handle Enter key press in search input
+        function handleSearchKeyPress(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        }
+        
+        // Clear search
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            showAllProducts();
+            document.getElementById('clearSearchDiv').classList.remove('show');
+        }
+        
+        // Show all products
+        function showAllProducts() {
+            allProducts.forEach(product => {
+                product.element.style.display = 'block';
+                product.visible = true;
+            });
+            
+            showNoResultsMessage(false);
+        }
+        
+        // Show/hide no results message
+        function showNoResultsMessage(show, searchTerm = '') {
+            let noResultsDiv = document.getElementById('noResultsMessage');
+            
+            if (!noResultsDiv) {
+                // Create no results message div
+                noResultsDiv = document.createElement('div');
+                noResultsDiv.id = 'noResultsMessage';
+                noResultsDiv.className = 'no-results';
+                noResultsDiv.innerHTML = `
+                    <i class="fas fa-search"></i>
+                    <h3>No Products Found</h3>
+                    <p>We couldn't find any products matching "<span id="searchTermDisplay"></span>"</p>
+                    <p>Try adjusting your search or browse all products.</p>
+                `;
+                document.querySelector('.products-section').appendChild(noResultsDiv);
+            }
+            
+            if (show) {
+                document.getElementById('searchTermDisplay').textContent = searchTerm;
+                noResultsDiv.classList.add('show');
+            } else {
+                noResultsDiv.classList.remove('show');
+            }
+        }
+        
+        // Real-time search (optional - searches as you type)
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    // Uncomment the line below for real-time search
+                    // performSearch();
+                });
+            }
+        });
     </script>
 </body>
 </html>

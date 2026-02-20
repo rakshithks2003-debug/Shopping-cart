@@ -494,6 +494,87 @@ try {
             margin: 0 auto;
         }
 
+        /* Back button left alignment */
+        .header-actions .btn-secondary {
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
+            background: linear-gradient(135deg, #667eea, #764ba2) !important;
+            color: white !important;
+            padding: 12px 20px !important;
+            text-decoration: none !important;
+            border-radius: 25px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+            transition: all 0.3s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            cursor: pointer !important;
+            white-space: nowrap !important;
+            text-transform: none !important;
+            letter-spacing: 0.5px !important;
+            z-index: 1000 !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+
+        .header-actions .btn-secondary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .header-actions .btn-secondary:hover::before {
+            left: 100%;
+        }
+
+        .header-actions .btn-secondary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+            transition: all 0.1s ease;
+        }
+
+        .header-actions .btn-secondary:focus {
+            outline: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3), 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .header-actions .btn-secondary i {
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+            color: #FFFFFF;
+        }
+
+        .header-actions .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            border-color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            color: white;
+        }
+
+        .header-actions .btn-secondary:hover i {
+            transform: translateX(-3px);
+        }
+
+        /* Additional specific selector for back button */
+        body .header-actions .btn-secondary {
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
+            z-index: 1000 !important;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px 15px;
@@ -528,7 +609,7 @@ try {
             <div class="header-actions">
                 <a href="Dashboard.jsp" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i>
-                    Back to Dashboard
+                    Back 
                 </a>
                 <a href="Home.jsp" class="btn btn-primary">
                     <i class="fas fa-home"></i>

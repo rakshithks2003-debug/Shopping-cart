@@ -377,6 +377,102 @@ try {
             border-color: var(--primary);
         }
 
+        /* Search Box Styles */
+        .search-container {
+            margin-bottom: 24px;
+            margin-top: 60px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            background: white;
+            color: var(--dark);
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--gray);
+        }
+
+        .search-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .clear-search-btn {
+            padding: 12px 20px;
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .clear-search-btn.show {
+            display: flex;
+        }
+
+        .clear-search-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .search-info {
+            text-align: center;
+            margin-top: 12px;
+            color: var(--gray);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .search-info.show {
+            display: block;
+        }
+
+        .search-info strong {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
         /* Table */
         .table-wrapper {
             overflow-x: auto;
@@ -537,6 +633,75 @@ try {
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
+        /* Back button left alignment */
+        .header-actions .btn-primary:first-child {
+            position: fixed !important;
+            top: 60px !important;
+            left: 20px !important;
+            background: linear-gradient(135deg, #667eea, #764ba2) !important;
+            color: white !important;
+            padding: 12px 20px !important;
+            text-decoration: none !important;
+            border-radius: 25px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+            transition: all 0.3s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            cursor: pointer !important;
+            white-space: nowrap !important;
+            text-transform: none !important;
+            letter-spacing: 0.5px !important;
+            z-index: 1000 !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+
+        /* Additional specific selector */
+        body .header-actions .btn-primary:first-child {
+            position: fixed !important;
+            top: 60px !important;
+            left: 20px !important;
+            z-index: 1000 !important;
+        }
+
+        .header-actions .btn-primary:first-child::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .header-actions .btn-primary:first-child:hover::before {
+            left: 100%;
+        }
+
+        .header-actions .btn-primary:first-child:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            border-color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            color: white;
+        }
+
+        .header-actions .btn-primary:first-child i {
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .header-actions .btn-primary:first-child:hover i {
+            transform: translateX(-3px);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header-content {
@@ -563,6 +728,15 @@ try {
             .filter-controls {
                 flex-direction: column;
                 width: 100%;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .search-btn, .clear-search-btn {
+                width: 100%;
+                justify-content: center;
             }
 
             .select {
@@ -691,6 +865,24 @@ try {
                     </div>
                     <div class="stat-label">Completed</div>
                 </div>
+            </div>
+
+            <!-- Search Container -->
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" 
+                           class="search-input" 
+                           id="searchInput" 
+                           placeholder="Search by Order ID, Amount, Status, User, or Method..." 
+                           onkeypress="handleSearchKeyPress(event)">
+                    <button class="search-btn" onclick="performSearch()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <button class="clear-search-btn" id="clearSearchBtn" onclick="clearSearch()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+                <div class="search-info" id="searchInfo"></div>
             </div>
 
             <!-- Content Header -->
@@ -839,7 +1031,105 @@ try {
             </div>
         <% } %>
     </div>
+
+    <script>
+        // Search functionality
+        let allRows = [];
+        
+        // Store all table rows on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const tableBody = document.querySelector('.data-table tbody');
+            if (tableBody) {
+                allRows = Array.from(tableBody.querySelectorAll('tr'));
+            }
+        });
+        
+        // Perform search
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                showAllRows();
+                return;
+            }
+            
+            let visibleCount = 0;
+            
+            allRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                let rowText = '';
+                
+                // Concatenate all cell text
+                cells.forEach(cell => {
+                    rowText += cell.textContent.toLowerCase() + ' ';
+                });
+                
+                // Check if search term matches
+                if (rowText.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Show clear button and search info
+            document.getElementById('clearSearchBtn').classList.add('show');
+            showSearchInfo(visibleCount, allRows.length, searchTerm);
+        }
+        
+        // Handle Enter key press
+        function handleSearchKeyPress(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        }
+        
+        // Clear search
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            showAllRows();
+            document.getElementById('clearSearchBtn').classList.remove('show');
+            hideSearchInfo();
+        }
+        
+        // Show all rows
+        function showAllRows() {
+            allRows.forEach(row => {
+                row.style.display = '';
+            });
+        }
+        
+        // Show search info
+        function showSearchInfo(visibleCount, totalCount, searchTerm) {
+            const searchInfo = document.getElementById('searchInfo');
+            if (visibleCount === 0) {
+                searchInfo.innerHTML = '<i class="fas fa-exclamation-circle"></i> No transactions found matching "<strong>' + searchTerm + '</strong>"';
+                searchInfo.style.color = 'var(--danger)';
+            } else {
+                searchInfo.innerHTML = 'Showing <strong>' + visibleCount + '</strong> of <strong>' + totalCount + '</strong> transactions';
+                searchInfo.style.color = 'var(--gray)';
+            }
+            searchInfo.classList.add('show');
+        }
+        
+        // Hide search info
+        function hideSearchInfo() {
+            const searchInfo = document.getElementById('searchInfo');
+            searchInfo.classList.remove('show');
+        }
+        
+        // Real-time search (optional - uncomment to enable)
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    // Uncomment the line below for real-time search as you type
+                    // performSearch();
+                });
+            }
+        });
+    </script>
 </body>
 </html>
-</body>
 

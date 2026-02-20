@@ -478,10 +478,7 @@ try {
                 <i class="fas fa-box-open"></i>
                 <h3>No Approved Products Found</h3>
                 <p>There are no approved products in the Sproduct table yet.</p>
-                <a href="Seller.jsp" style="display: inline-block; padding: 12px 24px; background: var(--primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
-                    <i class="fas fa-plus"></i> Approve Products
-                </a>
-            </div>
+                </div>
         <% } else { %>
             <div class="products-grid">
                 <% for (java.util.Map<String, Object> product : approvedProducts) { %>

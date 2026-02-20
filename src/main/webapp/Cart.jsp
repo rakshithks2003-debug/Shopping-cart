@@ -9,9 +9,9 @@
         response.sendRedirect("Login.html");
         return;
     }
-    String SessionId = session.getId();
-    out.println("Session ID: " +
-    SessionId);
+  //  String SessionId = session.getId();
+   // out.println("Session ID: " +
+  //  SessionId);
     
     // Get sorting parameters
     String sortBy = request.getParameter("sortBy");
@@ -776,20 +776,10 @@
                     <i class="fas fa-shopping-cart"></i>
                     <h1>Shopping Cart</h1>
                 </div>
-                <div class="breadcrumb">
-                    <a href="Dashboard.jsp"><i class="fas fa-home"></i> Home</a>
-                    <span>/</span>
-                    <a href="Showproducts.jsp">Products</a>
-                    <span>/</span>
-                    <span>Cart</span>
-                </div>
             </div>
             <div class="nav-actions">
                 <a href="DeliveryTracking.jsp" class="btn btn-outline">
                     <i class="fas fa-shipping-fast"></i> Track Order
-                </a>
-                <a href="Showproducts.jsp" class="btn btn-outline">
-                    <i class="fas fa-arrow-left"></i> Continue Shopping
                 </a>
             </div>
         </div>
@@ -800,10 +790,7 @@
                     <i class="fas fa-shopping-cart"></i>
                     <h2>Your cart is empty</h2>
                     <p>Looks like you haven't added anything yet</p>
-                    <a href="Showproducts.jsp" class="btn btn-primary">
-                        <i class="fas fa-shopping-bag"></i> Start Shopping
-                    </a>
-                </div>
+                    </div>
             </div>
         <% } else { %>
             <div class="cart-layout">

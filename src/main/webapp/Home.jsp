@@ -395,7 +395,9 @@ String username = (String) sessionObg.getAttribute("username");
                 <h1 class="app-name">Mini Shopping Cart</h1>
             </div>
             <div class="user-info">
-                👤 <%= username != null ? username : "User" %> (<%= userRole != null ? userRole : "Guest" %>)
+                <a href="Profile.jsp" style="text-decoration: none; color: inherit;">
+                    👤 <%= username != null ? username : "User" %> (<%= userRole != null ? userRole : "Guest" %>)
+                </a>
             </div>
         </div>
     </header>
@@ -416,12 +418,12 @@ String username = (String) sessionObg.getAttribute("username");
         <div class="nav-container">
             <a href="Cart.jsp" class="nav-link">🛒 Cart</a>
             <a href="DeliveryTracking.jsp" class="nav-link">🚚 Track Order</a>
-            <a href="Profile.jsp" class="nav-link">👤 My Profile</a>
+            <a href="Wishlist.jsp" class="nav-link">❤️ Wishlist</a>
                <% if ("admin".equals(userRole)) { %>
                 <a href="Dashboard.jsp" class="nav-link">🔧 Admin Panel</a>
             <% } %>
             <a href="LogoutServlet" class="nav-link">🚪 Logout</a>
-        </div>
+        </div> 
     </nav>
 
     <!-- Hero Section -->

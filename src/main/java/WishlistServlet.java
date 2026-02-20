@@ -259,9 +259,18 @@ public class WishlistServlet extends HttpServlet {
             return;
         }
         
-        String deleteSQL = "DELETE FROM wishlist WHERE username = ? AND product_id = ?";
+        // Get user_id from users table
+        String userId = getUserId(con, username);
+        if (userId == null) {
+            responseMap.put("success", false);
+            responseMap.put("message", "User not found");
+            out.print(buildJsonResponse(responseMap));
+            return;
+        }
+        
+        String deleteSQL = "DELETE FROM wishlist WHERE user_id = ? AND pro_name = ?";
         try (PreparedStatement deletePs = con.prepareStatement(deleteSQL)) {
-            deletePs.setString(1, username);
+            deletePs.setString(1, userId);
             deletePs.setString(2, productId);
             int result = deletePs.executeUpdate();
             

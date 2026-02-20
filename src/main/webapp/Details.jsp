@@ -142,6 +142,52 @@ try {
             color: white;
             animation: slideDown 0.6s ease-out;
         }
+
+        .header-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .wishlist-btn {
+            background: linear-gradient(135deg, #e91e63, #c2185b);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 2px solid transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            cursor: pointer;
+            white-space: nowrap;
+            text-transform: none;
+            letter-spacing: 0.5px;
+        }
+
+        .wishlist-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+            background: linear-gradient(135deg, #c2185b, #ad1457);
+            border-color: rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+            color: white;
+        }
+
+        .wishlist-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        .wishlist-btn:hover i {
+            transform: scale(1.1);
+        }
         
         h1 {
             font-size: 3rem;
@@ -155,23 +201,55 @@ try {
         }
         
         .back-link {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.15);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 12px 25px;
+            padding: 14px 28px;
             text-decoration: none;
-            border-radius: 30px;
-            margin-bottom: 10px;
+            border-radius: 50px;
+            margin-bottom: 20px;
             transition: all 0.3s ease;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            font-weight: 500;
-            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .back-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .back-link:hover::before {
+            left: 100%;
         }
         
         .back-link:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-3px) translateX(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+        }
+        
+        .back-link i {
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .back-link:hover i {
+            transform: translateX(-3px);
         }
         
         /* FORCE HORIZONTAL LAYOUT - OVERRIDE ALL */
@@ -873,6 +951,111 @@ try {
                     padding: 15px;
                 }
             }
+        
+        /* ========================================
+           BACK BUTTON STYLES
+           ======================================== */
+        
+        .reverse-btn {
+            position: fixed;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 14px 28px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .reverse-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .reverse-btn:hover::before {
+            left: 100%;
+        }
+
+        .reverse-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+            transition: all 0.1s ease;
+        }
+
+        .reverse-btn:focus {
+            outline: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4), 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .reverse-btn i {
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+            color: #FFFFFF;
+        }
+
+        .reverse-btn:hover {
+            transform: translateY(-2px) translateX(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            border-color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            color: white;
+        }
+
+        .reverse-btn:hover i {
+            transform: translateX(-3px) scale(1.1);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .reverse-btn {
+                top: 15px;
+                left: 15px;
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .reverse-btn i {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .reverse-btn {
+                top: 10px;
+                left: 10px;
+                padding: 10px 18px;
+                font-size: 0.85rem;
+                gap: 6px;
+            }
+            
+            .reverse-btn i {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* ========================================
+           BACK TO HOME BUTTON STYLES
+                font-size: 13px;
+            }
+        }
         
         /* ========================================
            BACK TO HOME BUTTON STYLES
@@ -1614,10 +1797,15 @@ try {
     </head>
     <body>
     <a href="javascript:history.back()" class="reverse-btn" style="top: 60px; left: 20px;"><i class="fas fa-undo"></i>← Back </a>
-    <a href="Wishlist.jsp" class="wishlist-link-btn" style="top: 60px; left: 160px;"><i class="fas fa-heart"></i> My Wishlist</a>
+    
         <div class="container">
             <header>
                 <h1>🛍️ Product Details</h1>
+                <div class="header-actions">
+                    <a href="Wishlist.jsp" class="wishlist-btn">
+                        <i class="fas fa-heart"></i> My Wishlist
+                    </a>
+                </div>
             </header>
             
     <%
@@ -1710,7 +1898,7 @@ try {
             <div class="error-container">
                 <h2 class="error-title">📦 Product Not Found</h2>
                 <p class="error-message">The product you're looking for doesn't exist or has been removed.</p>
-                <a href="Showproducts.jsp" class="back-link">← Back to Products</a>
+                <a href="Showproducts.jsp" class="back-link"><i class="fas fa-arrow-left"></i> Back to Products</a>
             </div>
     <%
     }

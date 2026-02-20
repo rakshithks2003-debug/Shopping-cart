@@ -487,7 +487,9 @@ try {
 <body>
     <div class="header">
         <div class="user-info">
-            👤 <%= username %> (Seller)
+            <a href="Profile.jsp" style="text-decoration: none; color: inherit;">
+                👤 <%= username %> (Seller)
+            </a>
         </div>
         <h1>🏪 Seller Dashboard</h1>
         <div class="subtitle"><%= sellerInfo.get("shopName") %></div>
@@ -514,10 +516,7 @@ try {
             <a href="PaymentHistory.jsp">
                 <i class="fas fa-credit-card"></i> Payment History
             </a>
-            <a href="Profile.jsp">
-                <i class="fas fa-user"></i> Profile
-            </a>
-           
+            
             <a href="LogoutServlet">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
