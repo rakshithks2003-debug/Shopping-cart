@@ -73,11 +73,13 @@ public class Loginservlet extends HttpServlet {
 		
 			
 		} catch (Exception e) {
-			out.println("<h3>Database Error: " + e.getMessage() + "</h3>");
-			out.println("<p><pre>");
-			e.printStackTrace(out);
-			out.println("</pre></p>");
-		};
+			// Set error message and forward back to login page
+			out.println("<font color=red size=18>Login Failed<br>");
+			out.println("<a href=Login.html>Try AGAIN</a>");
+			RequestDispatcher rd=request.getRequestDispatcher("Login.jsp");
+			rd.forward(request,response);
+		}
+
 	}
 
 }
