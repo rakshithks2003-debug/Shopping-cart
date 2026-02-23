@@ -585,13 +585,6 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                     </div>
                     
                     <div class="profile-info">
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="fas fa-id-badge"></i> User ID
-                            </span>
-                            <span class="info-value"><%= userId != null ? userId : "N/A" %></span>
-                        </div>
-                        
                         <% if (sellerId != null) { %>
                         <div class="info-item">
                             <span class="info-label">
@@ -600,13 +593,6 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                             <span class="info-value"><%= sellerId %></span>
                         </div>
                         <% } %>
-                        
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="fas fa-calendar"></i> Member Since
-                            </span>
-                            <span class="info-value"><%= registrationDate != null ? registrationDate.substring(0, 10) : "N/A" %></span>
-                        </div>
                     </div>
                 </div>
 

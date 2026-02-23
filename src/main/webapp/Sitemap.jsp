@@ -291,7 +291,7 @@ if (sessionObj != null && sessionObj.getAttribute("isLoggedIn") != null) {
     </style>
 </head>
 <body>
-    <a href="<%= isLoggedIn ? "Home.jsp" : "Login.html" %>" class="back-btn">
+    <a href="javascript:history.back()" class="back-btn">
         <i class="fas fa-arrow-left"></i> Back
     </a>
 

@@ -150,6 +150,64 @@ try {
 } catch (Exception e) {
     System.err.println("Error loading recent orders: " + e.getMessage());
 }
+
+// Load payment history for graph
+List<Map<String, Object>> paymentHistory = new ArrayList<>();
+try {
+    Dbase db = new Dbase();
+    Connection con = db.initailizeDatabase();
+    
+    if (con != null && !con.isClosed()) {
+        // Get seller's payment transactions
+        String paymentSql = "SELECT * FROM payment_transactions WHERE Seller_id = ? ORDER BY transaction_date DESC LIMIT 30";
+        PreparedStatement paymentStmt = con.prepareStatement(paymentSql);
+        paymentStmt.setString(1, sellerId);
+        ResultSet paymentRs = paymentStmt.executeQuery();
+        
+        while (paymentRs.next()) {
+            Map<String, Object> payment = new HashMap<>();
+            payment.put("transaction_id", paymentRs.getString("transaction_id"));
+            payment.put("amount", paymentRs.getDouble("amount"));
+            payment.put("transaction_date", paymentRs.getString("transaction_date"));
+            payment.put("payment_method", paymentRs.getString("payment_method"));
+            payment.put("status", paymentRs.getString("status"));
+            paymentHistory.add(payment);
+        }
+        
+        paymentRs.close();
+        paymentStmt.close();
+        con.close();
+    }
+} catch (Exception e) {
+    System.err.println("Error loading payment history: " + e.getMessage());
+}
+
+// Prepare payment data for JavaScript
+StringBuilder paymentJson = new StringBuilder();
+paymentJson.append("[");
+for (int i = 0; i < paymentHistory.size(); i++) {
+    Map<String, Object> payment = paymentHistory.get(i);
+    String date = (String) payment.get("transaction_date");
+    Double amount = (Double) payment.get("amount");
+    String method = (String) payment.get("payment_method");
+    String status = (String) payment.get("status");
+    
+    // Escape strings for JSON
+    date = date != null ? date.replace("\"", "\\\"") : "";
+    method = method != null ? method.replace("\"", "\\\"") : "";
+    status = status != null ? status.replace("\"", "\\\"") : "";
+    
+    paymentJson.append("{")
+                .append("\"date\":\"").append(date).append("\",")
+                .append("\"amount\":").append(amount != null ? amount : 0).append(",")
+                .append("\"method\":\"").append(method).append("\",")
+                .append("\"status\":\"").append(status).append("\"")
+                .append("}");
+    if (i < paymentHistory.size() - 1) {
+        paymentJson.append(",");
+    }
+}
+paymentJson.append("]");
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -158,6 +216,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seller Dashboard - <%= sellerInfo.get("shopName") %></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -458,6 +517,81 @@ try {
             display: block;
         }
 
+        /* Graph Section */
+        .graph-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .graph-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .graph-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .graph-period {
+            display: flex;
+            gap: 10px;
+        }
+
+        .period-btn {
+            padding: 8px 16px;
+            border: 1px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .period-btn:hover, .period-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .graph-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .graph-stat {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .graph-stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .graph-stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
         /* Footer */
         .footer {
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -605,27 +739,40 @@ try {
                 </a>
             </div>
 
-            <!-- Stats Cards -->
-            <div class="stats-container">
-                <div class="stat-card">
-                    <i class="fas fa-box"></i>
-                    <h3><%= stats.getOrDefault("productCount", 0) %></h3>
-                    <p>Total Products</p>
+            <!-- Revenue Graph -->
+            <div class="graph-section">
+                <div class="graph-header">
+                    <h2 class="graph-title">
+                        <i class="fas fa-chart-line"></i> Revenue Analytics
+                    </h2>
+                    <div class="graph-period">
+                        <button class="period-btn" onclick="updateGraph('7d')">7 Days</button>
+                        <button class="period-btn active" onclick="updateGraph('30d')">30 Days</button>
+                        <button class="period-btn" onclick="updateGraph('90d')">90 Days</button>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <i class="fas fa-shopping-cart"></i>
-                    <h3><%= stats.getOrDefault("orderCount", 0) %></h3>
-                    <p>Total Orders</p>
+                
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
                 </div>
-                <div class="stat-card">
-                    <i class="fas fa-rupee-sign"></i>
-                    <h3>₹<%= String.format("%.2f", (Double) stats.getOrDefault("totalRevenue", 0.0)) %></h3>
-                    <p>Total Revenue</p>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-check-circle"></i>
-                    <h3><%= "approved".equals(sellerInfo.get("status")) ? "✅" : "⏳" %></h3>
-                    <p>Account Status</p>
+                
+                <div class="graph-stats">
+                    <div class="graph-stat">
+                        <div class="graph-stat-value" id="totalRevenue">₹0</div>
+                        <div class="graph-stat-label">Total Revenue</div>
+                    </div>
+                    <div class="graph-stat">
+                        <div class="graph-stat-value" id="avgRevenue">₹0</div>
+                        <div class="graph-stat-label">Average Revenue</div>
+                    </div>
+                    <div class="graph-stat">
+                        <div class="graph-stat-value" id="totalTransactions">0</div>
+                        <div class="graph-stat-label">Total Transactions</div>
+                    </div>
+                    <div class="graph-stat">
+                        <div class="graph-stat-value" id="growthRate">0%</div>
+                        <div class="graph-stat-label">Growth Rate</div>
+                    </div>
                 </div>
             </div>
 
@@ -682,6 +829,147 @@ try {
     </div>
 
     <script>
+        // Payment history data from server
+        const paymentData = <%= paymentJson.toString() %>;
+
+        // Chart initialization
+        let revenueChart;
+        let currentPeriod = '30d';
+
+        function initChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            const chartData = prepareChartData(currentPeriod);
+            
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: chartData.data,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#667eea',
+                            borderWidth: 1,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Revenue: ₹' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                },
+                                color: '#666'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#666'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            updateStats(chartData.data);
+        }
+
+        function prepareChartData(period) {
+            const days = period === '7d' ? 7 : period === '30d' ? 30 : 90;
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(endDate.getDate() - days);
+            
+            // Create date labels
+            const labels = [];
+            const data = [];
+            
+            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toISOString().split('T')[0];
+                labels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                
+                // Calculate revenue for this date
+                const dayRevenue = paymentData
+                    .filter(p => p.date.startsWith(dateStr) && p.status === 'completed')
+                    .reduce((sum, p) => sum + p.amount, 0);
+                
+                data.push(dayRevenue);
+            }
+            
+            return { labels, data };
+        }
+
+        function updateStats(data) {
+            const totalRevenue = data.reduce((sum, val) => sum + val, 0);
+            const avgRevenue = data.length > 0 ? totalRevenue / data.filter(val => val > 0).length : 0;
+            const totalTransactions = paymentData.filter(p => p.status === 'completed').length;
+            
+            // Calculate growth rate (simplified - compare first half vs second half)
+            const midpoint = Math.floor(data.length / 2);
+            const firstHalf = data.slice(0, midpoint).reduce((sum, val) => sum + val, 0);
+            const secondHalf = data.slice(midpoint).reduce((sum, val) => sum + val, 0);
+            const growthRate = firstHalf > 0 ? ((secondHalf - firstHalf) / firstHalf * 100) : 0;
+            
+            document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toLocaleString();
+            document.getElementById('avgRevenue').textContent = '₹' + Math.round(avgRevenue).toLocaleString();
+            document.getElementById('totalTransactions').textContent = totalTransactions;
+            document.getElementById('growthRate').textContent = (growthRate >= 0 ? '+' : '') + growthRate.toFixed(1) + '%';
+        }
+
+        function updateGraph(period) {
+            currentPeriod = period;
+            
+            // Update button states
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update chart data
+            const chartData = prepareChartData(period);
+            revenueChart.data.labels = chartData.labels;
+            revenueChart.data.datasets[0].data = chartData.data;
+            revenueChart.update();
+            
+            updateStats(chartData.data);
+        }
+
         // Auto-refresh dashboard every 30 seconds
         setInterval(function() {
             // Uncomment below to enable auto-refresh
@@ -696,6 +984,9 @@ try {
             } else if (status === 'rejected') {
                 showNotification('Your seller account has been rejected. Please contact support.', 'error');
             }
+            
+            // Initialize chart after page load
+            initChart();
         });
 
         function showNotification(message, type) {
