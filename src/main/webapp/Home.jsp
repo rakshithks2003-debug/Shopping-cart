@@ -298,7 +298,7 @@ String username = (String) sessionObg.getAttribute("username");
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             text-align: center;
-            padding: 30px 20px;
+            padding: 40px 20px;
             margin-top: 60px;
         }
 
@@ -307,8 +307,43 @@ String username = (String) sessionObg.getAttribute("username");
             margin: 0 auto;
         }
 
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .footer-divider {
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 20px 0;
+        }
+
         .developers {
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin-top: 10px;
             opacity: 0.9;
         }
@@ -381,6 +416,18 @@ String username = (String) sessionObg.getAttribute("username");
                 width: 80px;
                 height: 80px;
                 font-size: 2.5rem;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .footer-link {
+                width: 100%;
+                max-width: 300px;
+                margin: 0 auto;
+                justify-content: center;
             }
         }
     </style>
@@ -466,7 +513,13 @@ String username = (String) sessionObg.getAttribute("username");
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
-            <p>© 2024 Mini Shopping Cart - All Rights Reserved</p>
+            <div class="footer-links">
+                <a href="Sitemap.jsp" class="footer-link">
+                    <i class="fas fa-sitemap"></i> Sitemap
+                </a>
+            </div>
+            <div class="footer-divider"></div>
+            <p> 2024 Mini Shopping Cart - All Rights Reserved</p>
             <p class="developers">Developed and Designed by Rakshith.k.S, Saajida.A.M, Prajwal.B.R, Mohammed Adil</p>
         </div>
     </footer>

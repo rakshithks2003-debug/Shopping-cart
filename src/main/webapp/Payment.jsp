@@ -8,9 +8,9 @@
         response.sendRedirect("Login.html");
         return;
     }
-    String SessionId = session.getId();
-    out.println("Session ID: " +
-    SessionId);
+   // String SessionId = session.getId();
+  //  out.println("Session ID: " +
+   // SessionId);
     
     // Check if this is a Buy Now request
     String isBuyNowParam = request.getParameter("buyNow");

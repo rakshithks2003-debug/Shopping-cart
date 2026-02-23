@@ -458,6 +458,70 @@ try {
             display: block;
         }
 
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 40px;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            padding: 0 30px;
+        }
+
+        .footer-section h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: white;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .footer-link {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            padding: 8px 0;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+        .footer-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+            padding-left: 10px;
+        }
+
+        .footer-link i {
+            margin-right: 10px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .footer-bottom p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .container {
@@ -614,45 +678,7 @@ try {
                 </div>
             </div>
 
-            <!-- Recent Orders -->
-            <div class="recent-orders">
-                <h2>📦 Recent Orders</h2>
-                <% if (recentOrders.isEmpty()) { %>
-                    <div class="empty-state">
-                        <i class="fas fa-shopping-cart"></i>
-                        <h3>No Orders Yet</h3>
-                        <p>When customers place orders, they will appear here.</p>
                     </div>
-                <% } else { %>
-                    <table class="order-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% for (Map<String, Object> order : recentOrders) { %>
-                                <tr>
-                                    <td><%= order.get("orderId") %></td>
-                                    <td><%= order.get("customerName") %></td>
-                                    <td>₹<%= String.format("%.2f", (Double) order.get("totalAmount")) %></td>
-                                    <td>
-                                        <span class="status-badge status-<%= order.get("status") %>">
-                                            <%= order.get("status") %>
-                                        </span>
-                                    </td>
-                                    <td><%= order.get("orderDate") %></td>
-                                </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
-                <% } %>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -695,5 +721,19 @@ try {
             }, 5000);
         }
     </script>
+
+    <!-- Footer with Sitemap -->
+    <footer class="footer">
+        <div class="footer-content">
+            <a href="Sitemap.jsp" class="footer-link">
+                <i class="fas fa-sitemap"></i> Sitemap
+            </a>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 Mini Shopping Cart - Seller Dashboard</p>
+            <p>Developed with ❤️ for seamless seller experience</p>
+        </div>
+    </footer>
 </body>
 </html>
