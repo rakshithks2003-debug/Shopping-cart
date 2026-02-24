@@ -953,31 +953,641 @@ try {
             }
         
         /* ========================================
-           BACK BUTTON STYLES
+           BACK BUTTON DEDICATED STYLESHEET
+           ======================================== */
+        
+        /* Back Button Base Styles */
+        .back-button-container {
+            position: fixed;
+            top: 60px;
+            left: 20px;
+            z-index: 1000;
+        }
+        
+        .back-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: white;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+            position: relative;
+            min-width: 120px;
+            justify-content: center;
+        }
+        
+        /* Back Button Icon Styles */
+        .back-button i {
+            font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #FFFFFF;
+            position: relative;
+            z-index: 3;
+            display: block;
+        }
+        
+        /* Back Button Text Styles */
+        .back-button span {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 3;
+            transition: all 0.3s ease;
+        }
+        
+        /* Back Button Hover Effects */
+        .back-button:hover {
+            transform: translateY(-4px) translateX(-6px) scale(1.08);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 50%, #e074f7 100%);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+        }
+        
+        .back-button:hover i {
+            transform: translateX(-4px) scale(1.2) rotate(-8deg);
+            color: #FFFFFF;
+        }
+        
+        .back-button:hover span {
+            transform: translateX(-2px);
+            letter-spacing: 1px;
+        }
+        
+        /* Back Button Active State */
+        .back-button:active {
+            transform: translateY(-2px) translateX(-3px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.1s ease;
+        }
+        
+        /* Back Button Focus State */
+        .back-button:focus {
+            outline: none;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4), 0 0 0 4px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Back Button Shine Effect */
+        .back-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+            z-index: 2;
+        }
+        
+        .back-button:hover::before {
+            left: 100%;
+        }
+        
+        /* Back Button Ripple Effect */
+        .back-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            transition: width 0.8s ease, height 0.8s ease;
+            z-index: 1;
+        }
+        
+        .back-button:hover::after {
+            width: 120%;
+            height: 120%;
+        }
+        
+        /* Back Button Particle Effect */
+        .back-button .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            opacity: 0;
+            transition: all 0.6s ease;
+            z-index: 4;
+        }
+        
+        .back-button:hover .particle:nth-child(1) {
+            transform: translate(-20px, -10px);
+            opacity: 1;
+            transition-delay: 0.1s;
+        }
+        
+        .back-button:hover .particle:nth-child(2) {
+            transform: translate(15px, -15px);
+            opacity: 1;
+            transition-delay: 0.2s;
+        }
+        
+        .back-button:hover .particle:nth-child(3) {
+            transform: translate(-10px, 15px);
+            opacity: 1;
+            transition-delay: 0.3s;
+        }
+        
+        /* Back Button Glow Effect */
+        .back-button .glow {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #667eea);
+            border-radius: 50px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+            animation: glowRotate 3s linear infinite;
+        }
+        
+        .back-button:hover .glow {
+            opacity: 0.7;
+        }
+        
+        @keyframes glowRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Back Button Pulse Effect */
+        .back-button .pulse {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50px;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            z-index: 0;
+        }
+        
+        .back-button:hover .pulse {
+            animation: pulseEffect 1.5s ease-out infinite;
+        }
+        
+        @keyframes pulseEffect {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.3);
+                opacity: 0;
+            }
+        }
+        
+        /* ========================================
+           BACK BUTTON COLOR STYLESHEET
+           ======================================== */
+        
+        /* Primary Color Theme - Default */
+        .back-button.color-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .back-button.color-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 50%, #e074f7 100%);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+        
+        .back-button.color-primary .glow {
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #667eea);
+        }
+        
+        /* Success Color Theme */
+        .back-button.color-success {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #10b981 100%);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+        }
+        
+        .back-button.color-success:hover {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #059669 100%);
+            box-shadow: 0 15px 40px rgba(34, 197, 94, 0.6);
+        }
+        
+        .back-button.color-success .glow {
+            background: linear-gradient(45deg, #22c55e, #16a34a, #10b981, #22c55e);
+        }
+        
+        /* Warning Color Theme */
+        .back-button.color-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #ea580c 100%);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+        
+        .back-button.color-warning:hover {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 50%, #c2410c 100%);
+            box-shadow: 0 15px 40px rgba(245, 158, 11, 0.6);
+        }
+        
+        .back-button.color-warning .glow {
+            background: linear-gradient(45deg, #f59e0b, #d97706, #ea580c, #f59e0b);
+        }
+        
+        /* Danger Color Theme */
+        .back-button.color-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+        
+        .back-button.color-danger:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
+            box-shadow: 0 15px 40px rgba(239, 68, 68, 0.6);
+        }
+        
+        .back-button.color-danger .glow {
+            background: linear-gradient(45deg, #ef4444, #dc2626, #b91c1c, #ef4444);
+        }
+        
+        /* Info Color Theme */
+        .back-button.color-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+        
+        .back-button.color-info:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.6);
+        }
+        
+        .back-button.color-info .glow {
+            background: linear-gradient(45deg, #3b82f6, #2563eb, #1d4ed8, #3b82f6);
+        }
+        
+        /* Dark Color Theme */
+        .back-button.color-dark {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 50%, #030712 100%);
+            box-shadow: 0 8px 25px rgba(31, 41, 55, 0.4);
+        }
+        
+        .back-button.color-dark:hover {
+            background: linear-gradient(135deg, #111827 0%, #030712 50%, #000000 100%);
+            box-shadow: 0 15px 40px rgba(31, 41, 55, 0.6);
+        }
+        
+        .back-button.color-dark .glow {
+            background: linear-gradient(45deg, #1f2937, #111827, #030712, #1f2937);
+        }
+        
+        /* Light Color Theme */
+        .back-button.color-light {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+            color: #1e293b;
+            box-shadow: 0 8px 25px rgba(248, 250, 252, 0.4);
+        }
+        
+        .back-button.color-light:hover {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+            box-shadow: 0 15px 40px rgba(248, 250, 252, 0.6);
+        }
+        
+        .back-button.color-light .glow {
+            background: linear-gradient(45deg, #f8fafc, #e2e8f0, #cbd5e1, #f8fafc);
+        }
+        
+        /* Purple Color Theme */
+        .back-button.color-purple {
+            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #6d28d9 100%);
+            box-shadow: 0 8px 25px rgba(147, 51, 234, 0.4);
+        }
+        
+        .back-button.color-purple:hover {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%);
+            box-shadow: 0 15px 40px rgba(147, 51, 234, 0.6);
+        }
+        
+        .back-button.color-purple .glow {
+            background: linear-gradient(45deg, #9333ea, #7c3aed, #6d28d9, #9333ea);
+        }
+        
+        /* Pink Color Theme */
+        .back-button.color-pink {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 50%, #be185d 100%);
+            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4);
+        }
+        
+        .back-button.color-pink:hover {
+            background: linear-gradient(135deg, #db2777 0%, #be185d 50%, #9f1239 100%);
+            box-shadow: 0 15px 40px rgba(236, 72, 153, 0.6);
+        }
+        
+        .back-button.color-pink .glow {
+            background: linear-gradient(45deg, #ec4899, #db2777, #be185d, #ec4899);
+        }
+        
+        /* Teal Color Theme */
+        .back-button.color-teal {
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+            box-shadow: 0 8px 25px rgba(20, 184, 166, 0.4);
+        }
+        
+        .back-button.color-teal:hover {
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 50%, #115e59 100%);
+            box-shadow: 0 15px 40px rgba(20, 184, 166, 0.6);
+        }
+        
+        .back-button.color-teal .glow {
+            background: linear-gradient(45deg, #14b8a6, #0d9488, #0f766e, #14b8a6);
+        }
+        
+        /* Indigo Color Theme */
+        .back-button.color-indigo {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .back-button.color-indigo:hover {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 50%, #3730a3 100%);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.6);
+        }
+        
+        .back-button.color-indigo .glow {
+            background: linear-gradient(45deg, #6366f1, #4f46e5, #4338ca, #6366f1);
+        }
+        
+        /* Rose Color Theme */
+        .back-button.color-rose {
+            background: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%);
+            box-shadow: 0 8px 25px rgba(244, 63, 94, 0.4);
+        }
+        
+        .back-button.color-rose:hover {
+            background: linear-gradient(135deg, #e11d48 0%, #be123c 50%, #9f1239 100%);
+            box-shadow: 0 15px 40px rgba(244, 63, 94, 0.6);
+        }
+        
+        .back-button.color-rose .glow {
+            background: linear-gradient(45deg, #f43f5e, #e11d48, #be123c, #f43f5e);
+        }
+        
+        /* Emerald Color Theme */
+        .back-button.color-emerald {
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+        
+        .back-button.color-emerald:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.6);
+        }
+        
+        .back-button.color-emerald .glow {
+            background: linear-gradient(45deg, #10b981, #059669, #047857, #10b981);
+        }
+        
+        /* Amber Color Theme */
+        .back-button.color-amber {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
+        }
+        
+        .back-button.color-amber:hover {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+            box-shadow: 0 15px 40px rgba(251, 191, 36, 0.6);
+        }
+        
+        .back-button.color-amber .glow {
+            background: linear-gradient(45deg, #fbbf24, #f59e0b, #d97706, #fbbf24);
+        }
+        
+        /* Cyan Color Theme */
+        .back-button.color-cyan {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0e7490 100%);
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4);
+        }
+        
+        .back-button.color-cyan:hover {
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 50%, #155e75 100%);
+            box-shadow: 0 15px 40px rgba(6, 182, 212, 0.6);
+        }
+        
+        .back-button.color-cyan .glow {
+            background: linear-gradient(45deg, #06b6d4, #0891b2, #0e7490, #06b6d4);
+        }
+        
+        /* Slate Color Theme */
+        .back-button.color-slate {
+            background: linear-gradient(135deg, #64748b 0%, #475569 50%, #334155 100%);
+            box-shadow: 0 8px 25px rgba(100, 116, 139, 0.4);
+        }
+        
+        .back-button.color-slate:hover {
+            background: linear-gradient(135deg, #475569 0%, #334155 50%, #1e293b 100%);
+            box-shadow: 0 15px 40px rgba(100, 116, 139, 0.6);
+        }
+        
+        .back-button.color-slate .glow {
+            background: linear-gradient(45deg, #64748b, #475569, #334155, #64748b);
+        }
+        
+        /* ========================================
+           BACK BUTTON GRADIENT VARIATIONS
+           ======================================== */
+        
+        /* Sunset Gradient */
+        .back-button.gradient-sunset {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 50%, #ff9ff3 100%);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+        
+        .back-button.gradient-sunset:hover {
+            background: linear-gradient(135deg, #ee5a52 0%, #feca57 50%, #ff6b9d 100%);
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6);
+        }
+        
+        .back-button.gradient-sunset .glow {
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #ff9ff3, #ff6b6b);
+        }
+        
+        /* Ocean Gradient */
+        .back-button.gradient-ocean {
+            background: linear-gradient(135deg, #0077be 0%, #00a8cc 50%, #74c0fc 100%);
+            box-shadow: 0 8px 25px rgba(0, 119, 190, 0.4);
+        }
+        
+        .back-button.gradient-ocean:hover {
+            background: linear-gradient(135deg, #005a8b 0%, #0088aa 50%, #5a9fd4 100%);
+            box-shadow: 0 15px 40px rgba(0, 119, 190, 0.6);
+        }
+        
+        .back-button.gradient-ocean .glow {
+            background: linear-gradient(45deg, #0077be, #00a8cc, #74c0fc, #0077be);
+        }
+        
+        /* Forest Gradient */
+        .back-button.gradient-forest {
+            background: linear-gradient(135deg, #2d5016 0%, #73a942 50%, #aad576 100%);
+            box-shadow: 0 8px 25px rgba(45, 80, 22, 0.4);
+        }
+        
+        .back-button.gradient-forest:hover {
+            background: linear-gradient(135deg, #1a2f0a 0%, #5a8c2a 50%, #8bc34a 100%);
+            box-shadow: 0 15px 40px rgba(45, 80, 22, 0.6);
+        }
+        
+        .back-button.gradient-forest .glow {
+            background: linear-gradient(45deg, #2d5016, #73a942, #aad576, #2d5016);
+        }
+        
+        /* Galaxy Gradient */
+        .back-button.gradient-galaxy {
+            background: linear-gradient(135deg, #2e1065 0%, #7c3aed 50%, #a78bfa 100%);
+            box-shadow: 0 8px 25px rgba(46, 16, 101, 0.4);
+        }
+        
+        .back-button.gradient-galaxy:hover {
+            background: linear-gradient(135deg, #1e0a3c 0%, #6d28d9 50%, #8b5cf6 100%);
+            box-shadow: 0 15px 40px rgba(46, 16, 101, 0.6);
+        }
+        
+        .back-button.gradient-galaxy .glow {
+            background: linear-gradient(45deg, #2e1065, #7c3aed, #a78bfa, #2e1065);
+        }
+        
+        /* Candy Gradient */
+        .back-button.gradient-candy {
+            background: linear-gradient(135deg, #ff006e 0%, #ffbe0b 50%, #fb5607 100%);
+            box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4);
+        }
+        
+        .back-button.gradient-candy:hover {
+            background: linear-gradient(135deg, #e6005c 0%, #ffb700 50%, #fa4d0a 100%);
+            box-shadow: 0 15px 40px rgba(255, 0, 110, 0.6);
+        }
+        
+        .back-button.gradient-candy .glow {
+            background: linear-gradient(45deg, #ff006e, #ffbe0b, #fb5607, #ff006e);
+        }
+        
+        /* ========================================
+           BACK BUTTON COLOR RESPONSIVE STYLES
+           ======================================== */
+        
+        /* Tablet Responsive */
+        @media (max-width: 768px) {
+            .back-button-container {
+                top: 15px;
+                left: 15px;
+            }
+            
+            .back-button {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                min-width: 100px;
+            }
+            
+            .back-button i {
+                font-size: 1rem;
+            }
+            
+            .back-button:hover {
+                transform: translateY(-3px) translateX(-4px) scale(1.06);
+            }
+            
+            .back-button:hover i {
+                transform: translateX(-3px) scale(1.15) rotate(-6deg);
+            }
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 480px) {
+            .back-button-container {
+                top: 10px;
+                left: 10px;
+            }
+            
+            .back-button {
+                padding: 10px 18px;
+                font-size: 0.85rem;
+                min-width: 90px;
+                gap: 6px;
+            }
+            
+            .back-button i {
+                font-size: 0.9rem;
+            }
+            
+            .back-button:hover {
+                transform: translateY(-2px) translateX(-3px) scale(1.04);
+            }
+            
+            .back-button:hover i {
+                transform: translateX(-2px) scale(1.1) rotate(-4deg);
+            }
+            
+            .back-button span {
+                font-weight: 500;
+            }
+        }
+        
+        /* Small Mobile Responsive */
+        @media (max-width: 360px) {
+            .back-button-container {
+                top: 8px;
+                left: 8px;
+            }
+            
+            .back-button {
+                padding: 8px 16px;
+                font-size: 0.8rem;
+                min-width: 80px;
+            }
+            
+            .back-button i {
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* ========================================
+           LEGACY BACK BUTTON STYLES (FOR COMPATIBILITY)
            ======================================== */
         
         .reverse-btn {
             position: fixed;
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 14px 28px;
-            text-decoration: none;
+            padding: 14px 24px;
+            border: none;
             border-radius: 50px;
-            font-weight: 600;
             font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-            transition: all 0.3s ease;
-            z-index: 1000;
-            display: inline-flex;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
             align-items: center;
             gap: 8px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
             backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
+            position: relative;
         }
-
+        
         .reverse-btn::before {
             content: '';
             position: absolute;
@@ -1006,21 +1616,40 @@ try {
 
         .reverse-btn i {
             font-size: 1.1rem;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             color: #FFFFFF;
-        }
-
-        .reverse-btn:hover {
-            transform: translateY(-2px) translateX(-5px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-            background: linear-gradient(135deg, #5a6fd8, #6a4190);
-            border-color: rgba(255, 255, 255, 0.5);
-            text-decoration: none;
-            color: white;
+            position: relative;
+            z-index: 2;
         }
 
         .reverse-btn:hover i {
-            transform: translateX(-3px) scale(1.1);
+            transform: translateX(-3px) scale(1.15) rotate(-5deg);
+        }
+
+        .reverse-btn:hover {
+            transform: translateY(-3px) translateX(-5px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: white;
+        }
+
+        .reverse-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .reverse-btn:hover::after {
+            width: 100%;
+            height: 100%;
         }
 
         /* Responsive design */
@@ -1796,7 +2425,17 @@ try {
         </style>
     </head>
     <body>
-    <a href="javascript:history.back()" class="reverse-btn" style="top: 60px; left: 20px;"><i class="fas fa-undo"></i>← Back </a>
+    <div class="back-button-container">
+    <a href="javascript:history.back()" class="back-button">
+        <div class="glow"></div>
+        <div class="pulse"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <i class="fas fa-arrow-left"></i>
+        <span>Back</span>
+    </a>
+</div>
     
         <div class="container">
             <header>

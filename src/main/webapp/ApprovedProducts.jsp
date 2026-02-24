@@ -391,6 +391,39 @@ try {
         color: var(--danger);
     }
 
+    .success-message {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .success-message i {
+        font-size: 20px;
+    }
+
+    .success-message span {
+        flex: 1;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     .no-products {
         text-align: center;
         padding: 4rem 2rem;
@@ -446,6 +479,12 @@ try {
     </a>
 
     <div class="container">
+        <!-- Success Message Container -->
+        <div id="successMessage" class="success-message" style="display: none;">
+            <i class="fas fa-check-circle"></i>
+            <span id="successText">Product approved successfully!</span>
+        </div>
+        
         <div class="header">
             <h1><i class="fas fa-check-circle"></i> Approved Products</h1>
             <p>View all approved products from Sproduct table</p>
@@ -581,8 +620,11 @@ try {
                             try {
                                 var response = JSON.parse(xhr.responseText);
                                 if (response.success) {
-                                    alert('Product approved successfully! It has been moved to the main store with ID: ' + response.message.split(': ')[1]);
-                                    location.reload(); // Refresh the page to show updated list
+                                    // Show success message instead of alert
+                                    showSuccessMessage('Product approved successfully! It has been moved to the main store.');
+                                    setTimeout(function() {
+                                        location.reload(); // Refresh the page to show updated list
+                                    }, 2000);
                                 } else {
                                     alert('Error approving product: ' + response.message);
                                 }
@@ -640,6 +682,19 @@ try {
                 
                 xhr.send('proId=' + encodeURIComponent(proId) + '&status=' + encodeURIComponent(status));
             }
+        }
+
+        function showSuccessMessage(message) {
+            var successDiv = document.getElementById('successMessage');
+            var successText = document.getElementById('successText');
+            
+            successText.textContent = message;
+            successDiv.style.display = 'flex';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(function() {
+                successDiv.style.display = 'none';
+            }, 5000);
         }
     </script>
 </body>
