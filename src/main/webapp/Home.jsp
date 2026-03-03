@@ -525,16 +525,49 @@ String username = (String) sessionObg.getAttribute("username");
     </footer>
 
     <script>
-        // Search functionality
+        // Search functionality with category detection
         function performSearch() {
-            const searchTerm = document.getElementById('searchInput').value.trim();
+            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
             if (searchTerm) {
-                // Redirect to Showproducts.jsp with search parameter
-                window.location.href = 'Showproducts.jsp?search=' + encodeURIComponent(searchTerm);
+                // Check if search term matches a category
+                const category = detectCategory(searchTerm);
+                
+                if (category) {
+                    // Redirect to category page if category detected
+                    window.location.href = 'Showproducts.jsp?category=' + category;
+                } else {
+                    // Redirect to general search if no category match
+                    window.location.href = 'Showproducts.jsp?search=' + encodeURIComponent(searchTerm);
+                }
             } else {
                 // If no search term, redirect to all products
                 window.location.href = 'Showproducts.jsp';
             }
+        }
+
+        // Function to detect category from search term
+        function detectCategory(searchTerm) {
+            const categories = {
+                // Mobile phones category
+                'mo': ['mobile', 'phone', 'smartphone', 'android', 'iphone', 'samsung', 'xiaomi', 'oppo', 'vivo', 'oneplus', 'nokia', 'motorola', 'lg', 'htc', 'sony', 'asus', 'realme', 'tecno', 'infinix'],
+                // Men's shoes category  
+                'ms': ['shoes', 'shoe', 'men shoes', 'mens shoes', 'footwear', 'sneakers', 'sports shoes', 'formal shoes', 'casual shoes', 'boots', 'sandals', 'loafers'],
+                // Laptops category
+                'lp': ['laptop', 'laptops', 'notebook', 'computer', 'pc', 'macbook', 'dell', 'hp', 'lenovo', 'asus', 'acer', 'msi', 'gaming laptop', 'business laptop'],
+                // Fashion category
+                'wo': ['fashion', 'clothes', 'clothing', 'dress', 'women', 'womens', 'apparel', 'outfit', 'wear', 'garments', 'style']
+            };
+
+            // Check each category for keyword matches
+            for (const [categoryCode, keywords] of Object.entries(categories)) {
+                for (const keyword of keywords) {
+                    if (searchTerm.includes(keyword) || keyword.includes(searchTerm)) {
+                        return categoryCode;
+                    }
+                }
+            }
+            
+            return null; // No category detected
         }
 
         // Allow search on Enter key
