@@ -571,6 +571,14 @@ UTF-8" pageEncoding="UTF-8"%>
         <% } %>
     </div>
 
+    <!-- Continue Shopping Button -->
+    <div class="continue-shopping-section">
+        <a href="Home.jsp" class="continue-shopping-btn">
+            <i class="fas fa-shopping-bag"></i>
+            Continue Shopping
+        </a>
+    </div>
+
     <script>
         function trackDelivery(event) {
             event.preventDefault();
@@ -722,7 +730,7 @@ UTF-8" pageEncoding="UTF-8"%>
                         ">
                             Your order has been delivered and the tracking record has been removed.
                         </p>
-                        <button onclick="location.href='Showproducts.jsp'" style="
+                        <button onclick="location.href='Home.jsp'" style="
                             background: white;
                             color: #667eea;
                             border: none;
@@ -826,6 +834,63 @@ UTF-8" pageEncoding="UTF-8"%>
                 background: #10b981;
                 color: white;
                 animation: checkmark 0.5s ease-out;
+            }
+            
+            /* Continue Shopping Button Styles */
+            .continue-shopping-section {
+                text-align: center;
+                margin: 40px 0;
+                padding: 20px;
+            }
+            
+            .continue-shopping-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                background: linear-gradient(135deg, #22c55e, #16a34a);
+                color: white;
+                text-decoration: none;
+                padding: 15px 30px;
+                border-radius: 50px;
+                font-size: 1.1rem;
+                font-weight: 600;
+                box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+                transition: all 0.3s ease;
+                border: 2px solid transparent;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .continue-shopping-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transition: left 0.5s ease;
+            }
+            
+            .continue-shopping-btn:hover {
+                background: linear-gradient(135deg, #16a34a, #15803d);
+                transform: translateY(-3px);
+                box-shadow: 0 12px 35px rgba(34, 197, 94, 0.4);
+                border-color: rgba(255, 255, 255, 0.2);
+            }
+            
+            .continue-shopping-btn:hover::before {
+                left: 100%;
+            }
+            
+            .continue-shopping-btn:active {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
+            }
+            
+            .continue-shopping-btn i {
+                font-size: 1.2rem;
+                animation: bounce 2s infinite;
             }
             
             @keyframes checkmark {

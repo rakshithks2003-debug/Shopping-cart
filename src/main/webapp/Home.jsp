@@ -529,10 +529,11 @@ String username = (String) sessionObg.getAttribute("username");
         function performSearch() {
             const searchTerm = document.getElementById('searchInput').value.trim();
             if (searchTerm) {
-                // Redirect to search results page with the search term
-                window.location.href = 'SearchResults.jsp?query=' + encodeURIComponent(searchTerm);
+                // Redirect to Showproducts.jsp with search parameter
+                window.location.href = 'Showproducts.jsp?search=' + encodeURIComponent(searchTerm);
             } else {
-                alert('Please enter a search term');
+                // If no search term, redirect to all products
+                window.location.href = 'Showproducts.jsp';
             }
         }
 

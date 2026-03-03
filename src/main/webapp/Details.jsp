@@ -2425,18 +2425,14 @@ try {
         </style>
     </head>
     <body>
-    <div class="back-button-container">
-    <a href="javascript:history.back()" class="back-button">
-        <div class="glow"></div>
-        <div class="pulse"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <i class="fas fa-arrow-left"></i>
-        <span>Back</span>
-    </a>
-</div>
-    
+        <!-- Back Button -->
+        <div class="back-button-container">
+            <a href="javascript:history.back()" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back</span>
+            </a>
+        </div>
+        
         <div class="container">
             <header>
                 <h1>🛍️ Product Details</h1>
