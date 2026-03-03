@@ -835,7 +835,28 @@ String username = (String) sessionObg.getAttribute("username");
         <!-- Search Section with Cart -->
         <div class="search-section-with-cart">
             <div class="search-container">
-                <h2 class="search-title">🔍 Find Your Perfect Product</h2>
+                <h2 class="search-title">
+                    <% 
+                    String searchParam = request.getParameter("search");
+                    String categoryParam = request.getParameter("category");
+                    if (searchParam != null && !searchParam.trim().isEmpty()) { 
+                    %>
+                        🔍 Search Results for "<%= searchParam %>"
+                    <% } else if (categoryParam != null && !categoryParam.trim().isEmpty()) { 
+                        String categoryName = "";
+                        switch(categoryParam) {
+                            case "Mo": categoryName = "Mobile Phones"; break;
+                            case "Ms": categoryName = "Men's Shoes"; break;
+                            case "Lp": categoryName = "Laptops"; break;
+                            case "Wo": categoryName = "Fashion"; break;
+                            default: categoryName = "Products"; break;
+                        }
+                    %>
+                        📱 <%= categoryName %>
+                    <% } else { %>
+                        🔍 Find Your Perfect Product
+                    <% } %>
+                </h2>
                 <div class="search-box">
                     <input type="text" class="search-input" id="searchInput" placeholder="Search for products, brands, categories..." onkeypress="handleSearchKeyPress(event)">
                     <button class="search-button" onclick="performSearch()">
@@ -892,10 +913,16 @@ try {
         PreparedStatement ps;
         String sql;
         String category = request.getParameter("category");
+        String search = request.getParameter("search");
         
         // Debug: Show what category is being filtered
         if (category != null && !category.trim().isEmpty()) {
             System.out.println("Filtering products by category: " + category);
+        }
+        
+        // Debug: Show what search term is being used
+        if (search != null && !search.trim().isEmpty()) {
+            System.out.println("Searching for products: " + search);
         }
         
         // Filter by category if parameter is provided
@@ -903,8 +930,19 @@ try {
             sql = "SELECT id, product_name, brand, price, image, description FROM product WHERE Category_id = ? ORDER BY id DESC";
             ps = con.prepareStatement(sql);
             ps.setString(1, category);
+        } else if (search != null && !search.trim().isEmpty()) {
+            // Search by product name, brand, or description
+            sql = "SELECT id, product_name, brand, price, image, description FROM product WHERE " +
+                  "LOWER(product_name) LIKE LOWER(?) OR " +
+                  "LOWER(brand) LIKE LOWER(?) OR " +
+                  "LOWER(description) LIKE LOWER(?) ORDER BY id DESC";
+            ps = con.prepareStatement(sql);
+            String searchPattern = "%" + search + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ps.setString(3, searchPattern);
         } else {
-            // Show all products if no category filter
+            // Show all products if no category or search filter
             sql = "SELECT id, product_name, brand, price, image, description FROM product ORDER BY id DESC";
             ps = con.prepareStatement(sql);
         }
@@ -1006,6 +1044,7 @@ try {
             Dbase db2 = new Dbase();
             Connection con2 = null;
             String category = request.getParameter("category"); // Re-declare category variable
+            String search = request.getParameter("search"); // Re-declare search variable
             
             try {
                 con2 = db2.initailizeDatabase();
@@ -1019,11 +1058,22 @@ try {
                 PreparedStatement ps2;
                 String sql2;
                 
-                // Get product images based on category filter
+                // Get product images based on category filter or search
                 if (category != null && !category.trim().isEmpty()) {
                     sql2 = "SELECT id, image FROM product WHERE Category_id = ? ORDER BY id DESC";
                     ps2 = con2.prepareStatement(sql2);
                     ps2.setString(1, category);
+                } else if (search != null && !search.trim().isEmpty()) {
+                    // Search by product name, brand, or description for images
+                    sql2 = "SELECT id, image FROM product WHERE " +
+                          "LOWER(product_name) LIKE LOWER(?) OR " +
+                          "LOWER(brand) LIKE LOWER(?) OR " +
+                          "LOWER(description) LIKE LOWER(?) ORDER BY id DESC";
+                    ps2 = con2.prepareStatement(sql2);
+                    String searchPattern = "%" + search + "%";
+                    ps2.setString(1, searchPattern);
+                    ps2.setString(2, searchPattern);
+                    ps2.setString(3, searchPattern);
                 } else {
                     sql2 = "SELECT id, image FROM product ORDER BY id DESC";
                     ps2 = con2.prepareStatement(sql2);
