@@ -399,6 +399,24 @@ if (sessionObj != null && sessionObj.getAttribute("isLoggedIn") != null) {
                                 <span>Approve Products</span>
                             </a>
                         </div>
+                        <div class="child-node">
+                            <a href="DeliveryTracking.jsp" class="child-link">
+                                <i class="fas fa-shipping-fast"></i>
+                                <span>Delivery Tracking</span>
+                            </a>
+                        </div>
+                        <div class="child-node">
+                            <a href="OrderHistory.jsp" class="child-link">
+                                <i class="fas fa-history"></i>
+                                <span>Order History</span>
+                            </a>
+                        </div>
+                        <div class="child-node">
+                            <a href="PaymentHistory.jsp" class="child-link">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                                <span>Payment History</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -597,27 +615,6 @@ if (sessionObj != null && sessionObj.getAttribute("isLoggedIn") != null) {
                             <a href="DeliveryTracking.jsp" class="child-link">
                                 <i class="fas fa-truck"></i>
                                 <span>Track Order</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tree-node">
-                    <div class="node-content">
-                        <i class="fas fa-credit-card"></i>
-                        <span>Payment</span>
-                    </div>
-                    <div class="node-children">
-                        <div class="child-node <%= !isLoggedIn ? "restricted" : "" %>">
-                            <a href="Payment.jsp" class="child-link">
-                                <i class="fas fa-credit-card"></i>
-                                <span>Make Payment</span>
-                            </a>
-                        </div>
-                        <div class="child-node <%= !isLoggedIn ? "restricted" : "" %>">
-                            <a href="PaymentHistory.jsp" class="child-link">
-                                <i class="fas fa-file-invoice-dollar"></i>
-                                <span>Payment History</span>
                             </a>
                         </div>
                     </div>

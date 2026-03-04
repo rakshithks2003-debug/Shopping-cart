@@ -85,7 +85,6 @@ try {
         con.close();
     }
 } catch (Exception e) {
-    System.err.println("Error loading payment data: " + e.getMessage());
     e.printStackTrace();
 }
 %>

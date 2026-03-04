@@ -51,7 +51,6 @@
             con.close();
         }
     } catch (Exception e) {
-        System.err.println("Error loading cart: " + e.getMessage());
         e.printStackTrace();
     }
 %>
@@ -860,27 +859,6 @@
                             
                             // Use the first path (primary)
                             imageSrc = possiblePaths[0];
-                            
-                            // Debug all possible paths
-                            System.out.println("=== IMAGE DEBUG INFO ===");
-                            System.out.println("Original image: " + image);
-                            System.out.println("Using first image: " + firstImage);
-                            System.out.println("Clean image: " + cleanImage);
-                            System.out.println("Context path: '" + contextPath + "'");
-                            System.out.println("Primary path: " + imageSrc);
-                            for (int i = 0; i < possiblePaths.length; i++) {
-                                System.out.println("Path " + (i+1) + ": " + possiblePaths[i]);
-                            }
-                            System.out.println("=====================");
-                            
-                            // Additional debug: Check if image file exists
-                            java.io.File imageFile = new java.io.File(getServletContext().getRealPath("/") + "product_images/" + cleanImage);
-                            System.out.println("Image file exists at " + imageFile.getAbsolutePath() + ": " + imageFile.exists());
-                            
-                            // Try to construct absolute path for debugging
-                            String absolutePath = getServletContext().getRealPath("/") + "product_images/" + cleanImage;
-                            System.out.println("Absolute image path: " + absolutePath);
-                            System.out.println("File exists: " + new java.io.File(absolutePath).exists());
                         }
                         
                         int prevQty = quantity - 1;
@@ -1093,12 +1071,7 @@
         
         // Enhanced fallback image function - tries multiple paths systematically
         function tryFallbackImage(img, fileName) {
-            console.log('=== IMAGE FALLBACK START ===');
-            console.log('Fallback triggered for:', fileName);
-            console.log('Current image src:', img.src);
-            
             if (!fileName || fileName.trim() === '') {
-                console.log('No filename provided, using placeholder');
                 img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik00MCAzMEg2MFY1MEg0MFYzMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iNTAiIHk9IjcwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEyIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+';
                 return;
             }
@@ -1122,22 +1095,18 @@
             // Try each path
             function tryNextPath() {
                 if (attemptCount >= possiblePaths.length) {
-                    console.log('All fallback attempts failed, using placeholder');
                     img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik00MCAzMEg2MFY1MEg0MFYzMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iNTAiIHk9IjcwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEyIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+';
                     return;
                 }
                 
                 const nextPath = possiblePaths[attemptCount];
-                console.log(`Attempt ${attemptCount + 1}: trying path: ${nextPath}`);
                 
                 // Create a new image to test the path
                 const testImg = new Image();
                 testImg.onload = function() {
-                    console.log(`SUCCESS: Path ${attemptCount + 1} worked: ${nextPath}`);
                     img.src = nextPath;
                 };
                 testImg.onerror = function() {
-                    console.log(`FAILED: Path ${attemptCount + 1} failed: ${nextPath}`);
                     attemptCount++;
                     tryNextPath();
                 };
@@ -1151,14 +1120,12 @@
         // Add image loading verification
         function verifyImageLoading() {
             const images = document.querySelectorAll('.item-image');
-            console.log('Verifying', images.length, 'cart images...');
             
             images.forEach((img, index) => {
                 // Check if image loaded successfully
                 if (img.complete && img.naturalHeight !== 0) {
-                    console.log(`Image ${index + 1} loaded successfully:`, img.src);
+                    // Image loaded successfully
                 } else {
-                    console.log(`Image ${index + 1} failed to load:`, img.src);
                     // Trigger fallback manually if needed
                     if (img.naturalHeight === 0) {
                         img.onerror();

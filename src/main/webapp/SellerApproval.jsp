@@ -72,7 +72,6 @@ try {
         con.close();
     }
 } catch (Exception e) {
-    System.err.println("Error loading sellers: " + e.getMessage());
     e.printStackTrace();
 }
 %>

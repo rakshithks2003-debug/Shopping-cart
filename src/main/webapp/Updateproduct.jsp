@@ -34,7 +34,7 @@
             sellerStmt.close();
             con.close();
         } catch (Exception e) {
-            System.err.println("Error fetching seller_id: " + e.getMessage());
+            // Error fetching seller_id
         }
     }
     

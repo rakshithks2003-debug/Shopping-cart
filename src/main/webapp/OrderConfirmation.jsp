@@ -24,14 +24,30 @@
         
         if (con != null && !con.isClosed()) {
             // Get order details with shipping information
-            String orderSql = "SELECT o.order_id, o.created_at as order_date, o.total_amount, o.payment_method, o.status, " +
-                            "s.first_name, s.last_name, s.email, s.phone, s.address, s.city, s.zip_code as pincode " +
-                            "FROM orders o " +
-                            "LEFT JOIN order_shipping s ON o.order_id = s.order_id " +
-                            "WHERE o.order_id = ? AND o.user_id = ?";
-            PreparedStatement orderStmt = con.prepareStatement(orderSql);
-            orderStmt.setString(1, orderId);
-            orderStmt.setString(2, username);
+            String orderSql;
+            PreparedStatement orderStmt;
+            
+            if ("admin".equals(userRole)) {
+                // Admin can view any order
+                orderSql = "SELECT o.order_id, o.created_at as order_date, o.total_amount, o.payment_method, o.status, o.user_id, " +
+                                "s.first_name, s.last_name, s.email, s.phone, s.address, s.city, s.zip_code as pincode " +
+                                "FROM orders o " +
+                                "LEFT JOIN order_shipping s ON o.order_id = s.order_id " +
+                                "WHERE o.order_id = ?";
+                orderStmt = con.prepareStatement(orderSql);
+                orderStmt.setString(1, orderId);
+            } else {
+                // Regular users can only view their own orders
+                orderSql = "SELECT o.order_id, o.created_at as order_date, o.total_amount, o.payment_method, o.status, " +
+                                "s.first_name, s.last_name, s.email, s.phone, s.address, s.city, s.zip_code as pincode " +
+                                "FROM orders o " +
+                                "LEFT JOIN order_shipping s ON o.order_id = s.order_id " +
+                                "WHERE o.order_id = ? AND o.user_id = ?";
+                orderStmt = con.prepareStatement(orderSql);
+                orderStmt.setString(1, orderId);
+                orderStmt.setString(2, username);
+            }
+            
             ResultSet orderRs = orderStmt.executeQuery();
             
             if (orderRs.next()) {
@@ -62,7 +78,6 @@
             con.close();
         }
     } catch (Exception e) {
-        System.err.println("Error loading order: " + e.getMessage());
         e.printStackTrace();
     }
     

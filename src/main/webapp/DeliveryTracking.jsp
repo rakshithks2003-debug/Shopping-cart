@@ -673,16 +673,13 @@ UTF-8" pageEncoding="UTF-8"%>
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log('Delivery record deleted successfully');
                     showBlankPage();
                 } else {
-                    console.error('Failed to delete delivery record:', data.message);
                     // Still show blank page even if deletion fails
                     showBlankPage();
                 }
             })
             .catch(error => {
-                console.error('Error deleting delivery record:', error);
                 // Still show blank page even if there's an error
                 showBlankPage();
             });

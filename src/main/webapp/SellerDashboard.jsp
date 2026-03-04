@@ -35,7 +35,7 @@ try {
     sellerStmt.close();
     con.close();
 } catch (Exception e) {
-    System.err.println("Error fetching seller_id: " + e.getMessage());
+    // Error fetching seller_id
 }
 
 // Load seller information
@@ -72,7 +72,7 @@ try {
         con.close();
     }
 } catch (Exception e) {
-    System.err.println("Error loading seller info: " + e.getMessage());
+    // Error loading seller info
 }
 
 // Load seller statistics
@@ -118,7 +118,7 @@ try {
         con.close();
     }
 } catch (Exception e) {
-    System.err.println("Error loading seller stats: " + e.getMessage());
+    // Error loading seller stats
 }
 
 // Load recent orders
@@ -148,7 +148,7 @@ try {
         con.close();
     }
 } catch (Exception e) {
-    System.err.println("Error loading recent orders: " + e.getMessage());
+    // Error loading recent orders
 }
 
 // Load payment history for graph
@@ -179,7 +179,7 @@ try {
         con.close();
     }
 } catch (Exception e) {
-    System.err.println("Error loading payment history: " + e.getMessage());
+    // Error loading payment history
 }
 
 // Prepare payment data for JavaScript

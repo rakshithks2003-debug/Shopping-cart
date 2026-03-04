@@ -53,10 +53,6 @@
                     cartItems.add(item);
                     
                     total = rs.getDouble("price"); // Single product price
-                    
-                    // Debug seller_id
-                    System.out.println("Payment.jsp - Buy Now - Product ID: " + productId);
-                    System.out.println("Payment.jsp - Buy Now - Seller ID: " + rs.getString("seller_id"));
                 }
                 
                 rs.close();
@@ -116,7 +112,6 @@
             con.close();
         }
     } catch (Exception e) {
-        System.err.println("Error loading cart: " + e.getMessage());
         e.printStackTrace();
     }
     
@@ -763,18 +758,6 @@
                             
                             // Use the first path (primary)
                             imageSrc = possiblePaths[0];
-                            
-                            // Debug all possible paths
-                            System.out.println("=== PAYMENT IMAGE DEBUG INFO ===");
-                            System.out.println("Original image: " + image);
-                            System.out.println("Using first image: " + firstImage);
-                            System.out.println("Clean image: " + cleanImage);
-                            System.out.println("Context path: '" + contextPath + "'");
-                            System.out.println("Primary path: " + imageSrc);
-                            for (int i = 0; i < possiblePaths.length; i++) {
-                                System.out.println("Path " + (i+1) + ": " + possiblePaths[i]);
-                            }
-                            System.out.println("===============================");
                         }
                     %>
                         <div class="order-item">
@@ -841,14 +824,6 @@
             singleSellerId = "<%= cartItems.get(0).get("sellerId") != null ? cartItems.get(0).get("sellerId") : "" %>";
             cartItemsCount = "<%= cartItems.size() %>";
         <% } %>
-        
-        console.log('=== PAYMENT DEBUG INFO ===');
-        console.log('isSingleProduct:', isSingleProduct);
-        console.log('singleProductId:', singleProductId);
-        console.log('singleProductName:', singleProductName);
-        console.log('singleSellerId:', singleSellerId);
-        console.log('cartItemsCount:', cartItemsCount);
-        console.log('========================');
         
         // Payment method selection
         document.querySelectorAll('.payment-method').forEach(method => {
@@ -940,17 +915,6 @@
             const city = document.getElementById('city').value;
             const pincode = document.getElementById('pincode').value;
             
-            // Debug: Log values to console
-            console.log('Payment Method:', selectedMethod);
-            console.log('Full Name:', fullName);
-            console.log('Email:', email);
-            console.log('Phone:', phone);
-            console.log('Address:', address);
-            console.log('City:', city);
-            console.log('Pincode:', pincode);
-            console.log('Total Amount:', '<%= finalAmount %>');
-            console.log('Cart Items Count:', '<%= cartItems.size() %>');
-            
             // Send order data to server
             const xhr = new XMLHttpRequest();
             xhr.open('POST', 'OrderServlet', true);
@@ -962,7 +926,6 @@
                     if (xhr.status === 200) {
                         try {
                             const response = JSON.parse(xhr.responseText);
-                            console.log('Server Response:', response);
                             if (response.success) {
                                 // Create payment transaction record
                                 createPaymentTransaction(response.orderId, selectedMethod, fullName, email, phone, address, city, pincode, singleSellerId);
@@ -972,13 +935,11 @@
                                 payBtn.disabled = false;
                             }
                         } catch (e) {
-                            console.log('JSON Parse Error:', e);
                             showNotification('Payment processing failed', 'error');
                             payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay ₹<%= finalAmount %>';
                             payBtn.disabled = false;
                         }
                     } else {
-                        console.log('HTTP Error:', xhr.status);
                         showNotification('Server error. Please try again.', 'error');
                         payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay ₹<%= finalAmount %>';
                         payBtn.disabled = false;
@@ -1005,7 +966,6 @@
                         '&singleImage=' + encodeURIComponent(singleImage);
             }
             
-            console.log('Sending data:', data);
             xhr.send(data);
         }
         
@@ -1016,7 +976,6 @@
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     // Cart cleared, proceed to order confirmation
-                    console.log('Cart cleared after successful payment');
                 }
             };
             xhr.send('action=clear');
@@ -1031,7 +990,6 @@
                     if (xhr.status === 200) {
                         try {
                             const response = JSON.parse(xhr.responseText);
-                            console.log('Payment Transaction Response:', response);
                             if (response.success) {
                                 showNotification('Payment recorded successfully! Redirecting...', 'success');
                                 clearCartAfterPayment(); // Clear cart after successful payment
@@ -1045,14 +1003,12 @@
                                 }, 3000);
                             }
                         } catch (e) {
-                            console.log('Payment Transaction JSON Parse Error:', e);
                             showNotification('Order created! Redirecting...', 'success');
                             setTimeout(() => {
                                 window.location.href = 'OrderConfirmation.jsp?orderId=' + orderId;
                             }, 2000);
                         }
                     } else {
-                        console.log('Payment Transaction HTTP Error:', xhr.status);
                         showNotification('Order created! Redirecting...', 'success');
                         setTimeout(() => {
                             window.location.href = 'OrderConfirmation.jsp?orderId=' + orderId;
@@ -1083,12 +1039,6 @@
                         '&billingCity=' + encodeURIComponent(city) +
                         '&billingPincode=' + encodeURIComponent(pincode);
             
-            console.log('=== PAYMENT DEBUG ===');
-            console.log('GST Value from JSP: <%= gst %>');
-            console.log('Final Amount: <%= finalAmount %>');
-            console.log('Seller ID: ' + (sellerId || 'Not provided'));
-            console.log('Sending payment transaction data:', data);
-            console.log('===================');
             xhr.send(data);
         }
         
@@ -1105,12 +1055,8 @@
         
         // Enhanced fallback image function - tries multiple paths systematically
         function tryFallbackImage(img, fileName) {
-            console.log('=== PAYMENT IMAGE FALLBACK START ===');
-            console.log('Fallback triggered for:', fileName);
-            console.log('Current image src:', img.src);
             
             if (!fileName || fileName.trim() === '') {
-                console.log('No filename provided, using placeholder');
                 img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MFY0MEgyMFYyMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iMzAiIHk9IjQ1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEwIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+';
                 return;
             }
@@ -1134,22 +1080,18 @@
             // Try each path
             function tryNextPath() {
                 if (attemptCount >= possiblePaths.length) {
-                    console.log('All fallback attempts failed, using placeholder');
                     img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MFY0MEgyMFYyMFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHRleHQgeD0iMzAiIHk9IjQ1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5OTk5IiBmb250LXNpemU9IjEwIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+';
                     return;
                 }
                 
                 const nextPath = possiblePaths[attemptCount];
-                console.log(`Attempt ${attemptCount + 1}: trying path: ${nextPath}`);
                 
                 // Create a new image to test the path
                 const testImg = new Image();
                 testImg.onload = function() {
-                    console.log(`SUCCESS: Path ${attemptCount + 1} worked: ${nextPath}`);
                     img.src = nextPath;
                 };
                 testImg.onerror = function() {
-                    console.log(`FAILED: Path ${attemptCount + 1} failed: ${nextPath}`);
                     attemptCount++;
                     tryNextPath();
                 };
@@ -1163,14 +1105,12 @@
         // Add image loading verification
         function verifyImageLoading() {
             const images = document.querySelectorAll('.order-item-image');
-            console.log('Verifying', images.length, 'payment images...');
             
             images.forEach((img, index) => {
                 // Check if image loaded successfully
                 if (img.complete && img.naturalHeight !== 0) {
-                    console.log(`Payment Image ${index + 1} loaded successfully:`, img.src);
+                    // Image loaded successfully
                 } else {
-                    console.log(`Payment Image ${index + 1} failed to load:`, img.src);
                     // Trigger fallback manually if needed
                     if (img.naturalHeight === 0) {
                         img.onerror();

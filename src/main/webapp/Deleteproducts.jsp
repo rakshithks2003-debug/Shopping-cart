@@ -35,7 +35,7 @@ if ("seller".equals(userRole)) {
         sellerStmt.close();
         con.close();
     } catch (Exception e) {
-        System.err.println("Error fetching seller_id: " + e.getMessage());
+        // Error fetching seller_id
     }
 }
 
@@ -45,8 +45,6 @@ String messageType = "";
 
 if ("POST".equalsIgnoreCase(request.getMethod())) {
     String productName = request.getParameter("productName");
-    
-    System.out.println("Deleteproducts.jsp: Attempting to delete product with name: " + productName);
     
     if (productName != null && !productName.trim().isEmpty()) {
         try {
@@ -91,10 +89,9 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                         productFound = true;
                         productId = checkRs.getInt("id");
                         foundPid = checkRs.getString("pid");
-                        System.out.println("Found product with name: " + productName + " - ID: " + productId + ", PID: " + foundPid);
                     }
                 } catch (Exception e) {
-                    System.out.println("Product name check failed: " + e.getMessage());
+                    // Product name check failed
                 } finally {
                     if (checkRs != null) checkRs.close();
                     if (checkPs != null) checkPs.close();
@@ -118,7 +115,6 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                             ps.setString(1, productName);
                         }
                         result = ps.executeUpdate();
-                        System.out.println("Delete with product_name affected " + result + " rows");
                         
                     } finally {
                         if (ps != null) ps.close();
@@ -132,9 +128,8 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                         messageType = "error";
                     }
                 } else {
-                    System.out.println("No product found with name: " + productName);
                     
-                    // Show all available product names for debugging
+                    // Show all available product names
                     String allQuery;
                     PreparedStatement allPs;
                     if ("seller".equals(userRole) && sellerId != null) {
@@ -155,9 +150,6 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                         String pid = allRs.getString("pid");
                         String name = allRs.getString("product_name");
                         
-                        // Debug each product
-                        System.out.println("Product " + productCount + " - ID: " + id + ", PID: " + pid + ", Name: " + name);
-                        
                         // Handle null name gracefully
                         String displayName = (name != null && !name.trim().isEmpty() ? name : "No Name");
                         
@@ -166,11 +158,8 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                     allRs.close();
                     allPs.close();
                     
-                    System.out.println("Total products found: " + productCount);
-                    
                     if (availableProducts.length() > 2) {
                         availableProducts.setLength(availableProducts.length() - 2); // Remove trailing comma
-                        System.out.println(availableProducts.toString());
                         
                         // Safely truncate the message for display
                         String displayMessage = availableProducts.toString();

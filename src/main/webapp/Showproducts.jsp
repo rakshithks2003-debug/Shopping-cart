@@ -915,14 +915,12 @@ try {
         String category = request.getParameter("category");
         String search = request.getParameter("search");
         
-        // Debug: Show what category is being filtered
         if (category != null && !category.trim().isEmpty()) {
-            System.out.println("Filtering products by category: " + category);
+            // Filtering products by category
         }
         
-        // Debug: Show what search term is being used
         if (search != null && !search.trim().isEmpty()) {
-            System.out.println("Searching for products: " + search);
+            // Searching for products
         }
         
         // Filter by category if parameter is provided
@@ -1229,7 +1227,6 @@ try {
             
             if (img.src.includes('product_images/')) {
                 const newSrc = img.src.replace('product_images/', 'seller_images/');
-                console.log('Image fallback: trying', newSrc);
                 img.src = newSrc;
             } else {
                 img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0xMzcuNSA5My43NUwxNTAgMTA2LjI1TDE2Mi41IDkzLjc1TDE3NSAxMTIuNUgxNTBIMTI1TDEzNy41IDkzLjc1WiIgZmlsbD0iI0NDQ0NDQyIvPgo8dGV4dCB4PSIxNTAiIHk9IjE2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OTk5OSIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5JbWFnZSBOb3QgQXZhaWxhYmxlPC90ZXh0Pgo8L3N2Zz4=';

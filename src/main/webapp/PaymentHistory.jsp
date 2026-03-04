@@ -38,7 +38,7 @@ if ("seller".equals(userRole)) {
         sellerStmt.close();
         sellerCon.close();
     } catch (Exception e) {
-        System.err.println("Error fetching seller_id: " + e.getMessage());
+        // Error fetching seller_id
     }
 }
 
@@ -66,9 +66,7 @@ try {
             stmt = con.prepareStatement(sql);
         }
         
-        System.out.println("DEBUG: Executing SQL: " + sql);
         if (sellerId != null) {
-            System.out.println("DEBUG: Filtering for seller_id: " + sellerId);
         }
         
         ResultSet rs = stmt.executeQuery();
@@ -85,7 +83,6 @@ try {
                 String columnName = metaData.getColumnName(i);
                 Object value = rs.getObject(i);
                 payment.put(columnName, value);
-                System.out.println("DEBUG: Column " + i + ": " + columnName + " = " + (value != null ? value.toString() : "NULL"));
             }
             
             paymentHistory.add(payment);
@@ -95,12 +92,10 @@ try {
         stmt.close();
         con.close();
         
-        System.out.println("DEBUG: Loaded " + paymentHistory.size() + " payment records from payment_transactions table");
     } else {
-        System.out.println("DEBUG: Database connection failed");
+        // Database connection failed
     }
 } catch (Exception e) {
-    System.err.println("ERROR loading payment history: " + e.getMessage());
     e.printStackTrace();
 }
 %>
@@ -971,13 +966,6 @@ try {
                                 if (userObj == null) userObj = payment.get("account_holder");
                                 if (userObj == null) userObj = payment.get("name");
                                 if (userObj == null) userObj = payment.get("full_name");
-                                
-                                // Debug: Print what we found for user
-                                System.out.println("DEBUG: User column search results:");
-                                System.out.println("  user_id: " + payment.get("user_id"));
-                                System.out.println("  username: " + payment.get("username"));
-                                System.out.println("  user: " + payment.get("user"));
-                                System.out.println("  Final userObj: " + (userObj != null ? userObj.toString() : "NULL"));
                                 
                                 String id = idObj != null ? idObj.toString() : "N/A";
                                 String orderId = orderIdObj != null ? orderIdObj.toString() : "N/A";

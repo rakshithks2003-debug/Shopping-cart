@@ -42,7 +42,7 @@ try {
     ps.close();
     con.close();
 } catch (Exception e) {
-    System.err.println("Error fetching user profile: " + e.getMessage());
+    e.printStackTrace();
 }
 
 // Handle profile update

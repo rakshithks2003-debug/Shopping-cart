@@ -9,9 +9,9 @@ if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null ||
     response.sendRedirect("Login.jsp");
     return;
 }
-String SessionId = session.getId();
-out.println("Session ID: " +
-SessionId);
+//String SessionId = session.getId();
+///out.println("Session ID: " +
+//SessionId);
 
 String userRole = (String) sessionObg.getAttribute("userRole");
 String username = (String) sessionObg.getAttribute("username");
@@ -466,6 +466,7 @@ String username = (String) sessionObg.getAttribute("username");
             <a href="Cart.jsp" class="nav-link">🛒 Cart</a>
             <a href="DeliveryTracking.jsp" class="nav-link">🚚 Track Order</a>
             <a href="Wishlist.jsp" class="nav-link">❤️ Wishlist</a>
+            <a href="OrderHistory.jsp" class="nav-link">📦 Order History</a>
                <% if ("admin".equals(userRole)) { %>
                 <a href="Dashboard.jsp" class="nav-link">🔧 Admin Panel</a>
             <% } %>

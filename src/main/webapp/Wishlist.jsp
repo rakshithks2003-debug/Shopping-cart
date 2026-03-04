@@ -553,8 +553,6 @@
                         throw new Exception("Failed to establish database connection");
                     }
                     
-                    System.out.println("✅ Database connected successfully for wishlist");
-                    
                     // Create wishlist table if it doesn't exist
                     try {
                         String createWishlistTable = "CREATE TABLE IF NOT EXISTS wishlist (" +
@@ -567,9 +565,7 @@
                         Statement stmt = con.createStatement();
                         stmt.execute(createWishlistTable);
                         stmt.close();
-                        System.out.println("✅ Wishlist table created/verified successfully");
                     } catch (Exception tableEx) {
-                        System.out.println("❌ Error creating wishlist table: " + tableEx.getMessage());
                         throw tableEx;
                     }
                     
@@ -590,8 +586,6 @@
                         throw new Exception("User not found in database");
                     }
                     
-                    System.out.println("✅ Found user_id: " + userId + " for username: " + username);
-                    
                     // Get wishlist items for the user
                     String query = "SELECT w.pro_name, w.pro_image, w.saved_date, p.id, p.product_name, p.price, p.description, p.brand, p.seller_id " +
                                  "FROM wishlist w " +
@@ -601,8 +595,6 @@
                     
                     ps = con.prepareStatement(query);
                     ps.setString(1, userId); // user_id is now String
-                    System.out.println("🔍 Executing wishlist query for user_id: " + userId);
-                    System.out.println("🔍 SQL Query: " + query);
                     rs = ps.executeQuery();
                     
                     // Count total results first
@@ -610,7 +602,6 @@
                     while (rs.next()) {
                         totalCount++;
                     }
-                    System.out.println("🔍 DEBUG: Total wishlist items found: " + totalCount);
                     
                     // Reset ResultSet to beginning
                     rs = ps.executeQuery();
@@ -627,8 +618,6 @@
                         double price = rs.getDouble("price");
                         String productId = rs.getString("id");
                         String sellerId = rs.getString("seller_id");
-                        
-                        System.out.println("🔍 DEBUG: Displaying item - ID: " + productId + ", Name: " + productName + ", Image: " + imageName + ", Price: " + price + ", Seller: " + sellerId);
             %>
                                 <div class="wishlist-item" data-product-id="<%=rs.getString("pro_name")%>">
                                     <div class="wishlist-item-checkbox">
@@ -667,7 +656,6 @@
                     <%
                     
                     if (!hasResults) {
-                        System.out.println("📋 No wishlist items found for user: " + username);
                         // Empty wishlist
             %>
                         <div class="empty-wishlist">
@@ -679,7 +667,6 @@
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    System.out.println("Error loading wishlist: " + e.getMessage());
             %>
                     <div class="empty-wishlist">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -719,8 +706,6 @@
         }
 
         function removeFromWishlist(productId, showConfirm = true) {
-            console.log('🔍 DEBUG: Removing product from wishlist:', productId);
-            
             if (showConfirm && !confirm('Are you sure you want to remove this item from your wishlist?')) {
                 return;
             }
@@ -733,7 +718,6 @@
                     if (xhr.status === 200) {
                         try {
                             const response = JSON.parse(xhr.responseText);
-                            console.log('🔍 DEBUG: Wishlist removal response:', response);
                             
                             if (response.success) {
                                 showNotification('Removed from wishlist', 'success');
@@ -753,17 +737,14 @@
                                 showNotification(response.message, 'error');
                             }
                         } catch (e) {
-                            console.log('🔍 DEBUG: Error parsing response:', e);
                             showNotification('Error removing item', 'error');
                         }
                     } else {
-                        console.log('🔍 DEBUG: Server error status:', xhr.status);
                         showNotification('Server error. Please try again.', 'error');
                     }
                 }
             };
             
-            console.log('🔍 DEBUG: Sending removal request for:', productId);
             xhr.send('action=remove&productId=' + encodeURIComponent(productId));
         }
 

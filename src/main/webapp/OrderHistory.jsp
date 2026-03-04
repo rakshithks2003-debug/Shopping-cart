@@ -75,7 +75,6 @@
             con.close();
         }
     } catch (Exception e) {
-        System.err.println("Error loading order history: " + e.getMessage());
         e.printStackTrace();
     }
 %>
@@ -161,6 +160,42 @@
             font-size: 1.5rem;
             color: #333;
             font-weight: 700;
+        }
+        
+        .search-sort-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .search-bar {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-bar i {
+            position: absolute;
+            left: 12px;
+            color: #667eea;
+            font-size: 1rem;
+        }
+        
+        .search-bar input {
+            padding: 10px 15px 10px 40px;
+            border: 2px solid #e1e8ed;
+            border-radius: 25px;
+            background: white;
+            font-size: 0.9rem;
+            width: 300px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
         .sorting-controls {
@@ -257,22 +292,6 @@
             color: #155724;
         }
         
-        .view-details-btn {
-            padding: 8px 15px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-        
-        .view-details-btn:hover {
-            background: #5a6fd8;
-            transform: translateY(-1px);
-        }
-        
         .empty-state {
             text-align: center;
             padding: 50px 20px;
@@ -289,6 +308,24 @@
             .section-header {
                 flex-direction: column;
                 align-items: flex-start;
+            }
+            
+            .search-sort-controls {
+                width: 100%;
+                flex-direction: column;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .search-bar input {
+                width: 100%;
+            }
+            
+            .sorting-controls {
+                width: 100%;
+                justify-content: space-between;
             }
             
             .orders-table {
@@ -318,18 +355,24 @@
         <div class="order-history-container">
             <div class="section-header">
                 <h2 class="section-title">Your Orders</h2>
-                <div class="sorting-controls">
-                    <select class="sort-dropdown" onchange="window.location.href='OrderHistory.jsp?sortBy=' + this.value + '&sortOrder=<%= sortOrder %>'">
-                        <option value="o.created_at" <%= "o.created_at".equals(sortBy) ? "selected" : "" %>>Sort by Date</option>
-                        <option value="o.total_amount" <%= "o.total_amount".equals(sortBy) ? "selected" : "" %>>Sort by Amount</option>
-                        <option value="o.status" <%= "o.status".equals(sortBy) ? "selected" : "" %>>Sort by Status</option>
-                    </select>
-                    <a href="OrderHistory.jsp?sortBy=<%= sortBy %>&sortOrder=ASC" class="sort-btn <%= "ASC".equals(sortOrder) ? "active" : "" %>">
-                        <i class="fas fa-sort-alpha-down"></i> Asc
-                    </a>
-                    <a href="OrderHistory.jsp?sortBy=<%= sortBy %>&sortOrder=DESC" class="sort-btn <%= "DESC".equals(sortOrder) ? "active" : "" %>">
-                        <i class="fas fa-sort-alpha-down-alt"></i> Desc
-                    </a>
+                <div class="search-sort-controls">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search by Order ID, Status, or Amount..." onkeyup="searchOrders()">
+                    </div>
+                    <div class="sorting-controls">
+                        <select class="sort-dropdown" onchange="window.location.href='OrderHistory.jsp?sortBy=' + this.value + '&sortOrder=<%= sortOrder %>'">
+                            <option value="o.created_at" <%= "o.created_at".equals(sortBy) ? "selected" : "" %>>Sort by Date</option>
+                            <option value="o.total_amount" <%= "o.total_amount".equals(sortBy) ? "selected" : "" %>>Sort by Amount</option>
+                            <option value="o.status" <%= "o.status".equals(sortBy) ? "selected" : "" %>>Sort by Status</option>
+                        </select>
+                        <a href="OrderHistory.jsp?sortBy=<%= sortBy %>&sortOrder=ASC" class="sort-btn <%= "ASC".equals(sortOrder) ? "active" : "" %>">
+                            <i class="fas fa-sort-alpha-down"></i> Asc
+                        </a>
+                        <a href="OrderHistory.jsp?sortBy=<%= sortBy %>&sortOrder=DESC" class="sort-btn <%= "DESC".equals(sortOrder) ? "active" : "" %>">
+                            <i class="fas fa-sort-alpha-down-alt"></i> Desc
+                        </a>
+                    </div>
                 </div>
             </div>
             
@@ -351,7 +394,6 @@
                             <th>Amount</th>
                             <th>Status</th>
                             <th>Payment Method</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -370,12 +412,6 @@
                             <td>₹<%= String.format("%.2f", (Double) order.get("totalAmount")) %></td>
                             <td><span class="status-badge <%= statusClass %>"><%= status %></span></td>
                             <td><%= order.get("paymentMethod") != null ? order.get("paymentMethod").toString().toUpperCase() : "N/A" %></td>
-                            <td>
-                                <% String orderId = order.get("orderId").toString(); %>
-                                <button class="view-details-btn" onclick="viewOrderDetails('<%= orderId %>')">
-                                    <i class="fas fa-eye"></i> View
-                                </button>
-                            </td>
                         </tr>
                         <% } %>
                     </tbody>
@@ -385,10 +421,59 @@
     </div>
     
     <script>
-        function viewOrderDetails(orderId) {
-            // Open order details in a new window or modal
-            const url = 'OrderDetails.jsp?orderId=' + orderId;
-            window.open(url, 'orderDetails', 'width=800,height=600,scrollbars=yes,resizable=yes');
+        // Search function for orders
+        function searchOrders() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const table = document.querySelector('.orders-table');
+            const rows = table.getElementsByTagName('tr');
+            
+            let visibleCount = 0;
+            
+            // Loop through all table rows (skip header)
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+                
+                // Search through all cells in the row
+                for (let j = 0; j < cells.length; j++) {
+                    const cell = cells[j];
+                    if (cell) {
+                        const textValue = cell.textContent || cell.innerText;
+                        if (textValue.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (found) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+            
+            // Show/hide empty state message
+            const emptyState = document.querySelector('.empty-state');
+            if (visibleCount === 0 && filter !== '') {
+                if (!document.getElementById('noResultsMessage')) {
+                    const noResults = document.createElement('div');
+                    noResults.id = 'noResultsMessage';
+                    noResults.className = 'empty-state';
+                    noResults.innerHTML = '<i class="fas fa-search"></i><h3>No Results Found</h3><p>No orders match your search criteria.</p>';
+                    table.parentNode.insertBefore(noResults, table.nextSibling);
+                }
+                table.style.display = 'none';
+            } else {
+                const noResults = document.getElementById('noResultsMessage');
+                if (noResults) {
+                    noResults.remove();
+                }
+                table.style.display = 'table';
+            }
         }
     </script>
 </body>
