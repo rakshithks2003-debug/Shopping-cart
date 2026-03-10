@@ -65,7 +65,6 @@ public class PaymentSuccessServlet extends HttpServlet {
             }
             
         } catch (Exception e) {
-            e.printStackTrace();
             out.print("{\"success\": false, \"message\": \"Error processing payment: " + e.getMessage() + "\"}");
         }
     }
@@ -118,7 +117,6 @@ public class PaymentSuccessServlet extends HttpServlet {
             return rowsInserted > 0;
             
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }

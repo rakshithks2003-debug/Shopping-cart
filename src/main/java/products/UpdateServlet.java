@@ -38,14 +38,6 @@ public class UpdateServlet extends HttpServlet {
             String priceStr = request.getParameter("price");
             String description = request.getParameter("description");
             
-            // Debug output
-            System.out.println("DEBUG - Received parameters:");
-            System.out.println("ID: " + id);
-            System.out.println("Name: " + name);
-            System.out.println("PID: " + pid);
-            System.out.println("Price: " + priceStr);
-            System.out.println("Description: " + description);
-            
             // Validate required fields
             if (id == null || name == null || pid == null || priceStr == null || 
                 id.trim().isEmpty() || name.trim().isEmpty() || pid.trim().isEmpty() || priceStr.trim().isEmpty()) {
@@ -181,7 +173,6 @@ public class UpdateServlet extends HttpServlet {
             con.close();
             
         } catch (Exception e) {
-            System.err.println("ERROR in UpdateServlet: " + e.getMessage());
             e.printStackTrace();
             
             out.println("<html><body>");

@@ -529,7 +529,7 @@
             // Check if user is logged in
                 String username = (String) session.getAttribute("username");
                 if (username == null) {
-                    response.sendRedirect("Login.html");
+                    response.sendRedirect("Login.jsp");
                     return;
                 }
 

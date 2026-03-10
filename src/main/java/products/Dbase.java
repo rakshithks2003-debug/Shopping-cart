@@ -23,11 +23,9 @@ public class Dbase {
                         "jdbc:mysql://localhost:3306/mscart?useSSL=false&allowPublicKeyRetrieval=true", 
                         "root", pwd);
                     workingPassword = pwd;
-                    System.out.println("Connected with password: " + (pwd.isEmpty() ? "(empty)" : pwd));
                     break;
                 } catch (Exception e) {
                     lastError = e.getMessage();
-                    System.out.println("Failed with password '" + pwd + "': " + e.getMessage());
                 }
             }
             
@@ -38,18 +36,15 @@ public class Dbase {
             // Create database if it doesn't exist
             try {
                 con.createStatement().executeUpdate("CREATE DATABASE IF NOT EXISTS mscart");
-                System.out.println("Database 'mscart' created or already exists");
             } catch (Exception e) {
-                System.out.println("Error creating database: " + e.getMessage());
+                // Error creating database
             }
             
             return con;
             
         } catch (ClassNotFoundException e) {
-            System.out.println("JDBC Driver not found: " + e.getMessage());
             return null;
         } catch (SQLException e) {
-            System.out.println("Database connection error: " + e.getMessage());
             return null;
         }
     }

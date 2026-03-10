@@ -34,17 +34,6 @@ public class OrderServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         
         PrintWriter out = response.getWriter();
-        
-        // Debug: Print all received parameters
-        System.out.println("=== DEBUG: OrderServlet ===");
-        System.out.println("Payment Method: " + request.getParameter("paymentMethod"));
-        System.out.println("Full Name: " + request.getParameter("fullName"));
-        System.out.println("Email: " + request.getParameter("email"));
-        System.out.println("Phone: " + request.getParameter("phone"));
-        System.out.println("Address: " + request.getParameter("address"));
-        System.out.println("City: " + request.getParameter("city"));
-        System.out.println("Pincode: " + request.getParameter("pincode"));
-        System.out.println("Total Amount: " + request.getParameter("totalAmount"));
 
         // Check if user is logged in
         HttpSession sessionObj = request.getSession(false);
@@ -66,18 +55,6 @@ public class OrderServlet extends HttpServlet {
         String pincode = request.getParameter("pincode");
         String totalAmountStr = request.getParameter("totalAmount");
 
-        // Build debug message
-        StringBuilder debugMsg = new StringBuilder();
-        debugMsg.append("Received parameters: ");
-        if (paymentMethod != null) debugMsg.append("paymentMethod=[").append(paymentMethod).append("] ");
-        if (fullName != null) debugMsg.append("fullName=[").append(fullName).append("] ");
-        if (email != null) debugMsg.append("email=[").append(email).append("] ");
-        if (phone != null) debugMsg.append("phone=[").append(phone).append("] ");
-        if (address != null) debugMsg.append("address=[").append(address).append("] ");
-        if (city != null) debugMsg.append("city=[").append(city).append("] ");
-        if (pincode != null) debugMsg.append("pincode=[").append(pincode).append("] ");
-        if (totalAmountStr != null) debugMsg.append("totalAmount=[").append(totalAmountStr).append("] ");
-
         // Check for missing parameters
         if (paymentMethod == null || fullName == null || email == null || phone == null || 
             address == null || city == null || pincode == null || totalAmountStr == null) {
@@ -92,7 +69,7 @@ public class OrderServlet extends HttpServlet {
             if (pincode == null) missingParams += "pincode ";
             if (totalAmountStr == null) missingParams += "totalAmount ";
             
-            out.print("{\"success\": false, \"message\": \"Missing required information: " + missingParams.trim() + "\", \"debug\": \"" + escapeJson(debugMsg.toString()) + "\"}");
+            out.print("{\"success\": false, \"message\": \"Missing required information: " + missingParams.trim() + "\"}");
             return;
         }
 
@@ -110,7 +87,7 @@ public class OrderServlet extends HttpServlet {
             if (pincode.trim().isEmpty()) emptyParams += "pincode ";
             if (totalAmountStr.trim().isEmpty()) emptyParams += "totalAmount ";
             
-            out.print("{\"success\": false, \"message\": \"Empty parameters: " + emptyParams.trim() + "\", \"debug\": \"" + escapeJson(debugMsg.toString()) + "\"}");
+            out.print("{\"success\": false, \"message\": \"Empty parameters: " + emptyParams.trim() + "\"}");
             return;
         }
 
@@ -142,14 +119,6 @@ public class OrderServlet extends HttpServlet {
                     orderStmt.setString(6, paymentMethod);
                     orderStmt.executeUpdate();
                     orderStmt.close();
-                    
-                    System.out.println("=== ORDER DEBUG ===");
-                    System.out.println("Order ID: " + orderId);
-                    System.out.println("Total Amount: " + totalAmount);
-                    System.out.println("GST: " + gst);
-                    System.out.println("Delivery Charges: " + deliveryCharges);
-                    System.out.println("Subtotal: " + subtotal);
-                    System.out.println("===================");
                     
                     // 2. Get cart items and insert into order_items
                     String cartSql = "SELECT product_id, product_name, price, quantity FROM cart WHERE user_id = ?";
@@ -235,7 +204,7 @@ public class OrderServlet extends HttpServlet {
                     // Commit transaction
                     con.commit();
                     
-                    out.print("{\"success\": true, \"message\": \"Order created successfully with " + itemCount + " items\", \"orderId\": \"" + orderId + "\", \"debug\": \"" + escapeJson(debugMsg.toString()) + "\"}");
+                    out.print("{\"success\": true, \"message\": \"Order created successfully with " + itemCount + " items\", \"orderId\": \"" + orderId + "\"}");
                     
                 } catch (Exception e) {
                     // Rollback transaction on error
@@ -246,14 +215,13 @@ public class OrderServlet extends HttpServlet {
                     con.close();
                 }
             } else {
-                out.print("{\"success\": false, \"message\": \"Database connection failed\", \"debug\": \"" + escapeJson(debugMsg.toString()) + "\"}");
+                out.print("{\"success\": false, \"message\": \"Database connection failed\"}");
             }
             
         } catch (NumberFormatException e) {
-            out.print("{\"success\": false, \"message\": \"Invalid total amount format: " + escapeJson(totalAmountStr) + "\", \"debug\": \"" + escapeJson(debugMsg.toString()) + "\"}");
+            out.print("{\"success\": false, \"message\": \"Invalid total amount format: " + escapeJson(totalAmountStr) + "\"}");
         } catch (Exception e) {
-            e.printStackTrace();
-            out.print("{\"success\": false, \"message\": \"Server error: " + escapeJson(e.getMessage()) + "\", \"debug\": \"" + escapeJson(debugMsg.toString()) + "\"}");
+            out.print("{\"success\": false, \"message\": \"Server error: " + escapeJson(e.getMessage()) + "\"}");
         } finally {
             out.close();
         }

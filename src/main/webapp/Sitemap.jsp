@@ -679,7 +679,7 @@ if (sessionObj != null && sessionObj.getAttribute("isLoggedIn") != null) {
                 <div class="node-children">
                     <% if (!isLoggedIn) { %>
                         <div class="child-node">
-                            <a href="Login.html" class="child-link">
+                            <a href="Login.jsp" class="child-link">
                                 <i class="fas fa-sign-in-alt"></i>
                                 <span>Login</span>
                             </a>

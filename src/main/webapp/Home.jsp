@@ -520,7 +520,7 @@ String username = (String) sessionObg.getAttribute("username");
                 </a>
             </div>
             <div class="footer-divider"></div>
-            <p> 2024 Mini Shopping Cart - All Rights Reserved</p>
+            <p> 2026 Mini Shopping Cart - All Rights Reserved</p>
             <p class="developers">Developed and Designed by Rakshith.k.S, Saajida.A.M, Prajwal.B.R, Mohammed Adil</p>
         </div>
     </footer>

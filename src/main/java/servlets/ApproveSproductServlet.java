@@ -96,7 +96,6 @@ public class ApproveSproductServlet extends HttpServlet {
             }
         } catch (Exception e) {
             message = "Database error: " + e.getMessage();
-            e.printStackTrace();
         }
         
         // Create JSON response
@@ -159,8 +158,7 @@ public class ApproveSproductServlet extends HttpServlet {
                 if (rs != null) rs.close();
                 if (checkStmt != null) checkStmt.close();
             } catch (SQLException e) {
-                // Log error but don't throw
-                System.err.println("Error closing resources in generateFourDigitId: " + e.getMessage());
+                // Silently handle resource cleanup errors
             }
         }
     }

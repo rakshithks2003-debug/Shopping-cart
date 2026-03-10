@@ -1,11 +1,9 @@
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import products.Dbase;
-import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -18,20 +16,24 @@ public class Loginservlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		PrintWriter out = response.getWriter();
 		try {
-			 Dbase db = new Dbase();
-	            Connection con = db.initailizeDatabase();
+			Dbase db = new Dbase();
+			Connection con = db.initailizeDatabase();
 			
+			String n = request.getParameter("username");
+			String p = request.getParameter("password");
 			
-			String n=request.getParameter("username");
-			String p=request.getParameter("password");
+			// Validate input
+			if (n == null || n.trim().isEmpty() || p == null || p.trim().isEmpty()) {
+				response.sendRedirect("Login.jsp?error=" + java.net.URLEncoder.encode("Username and password are required", "UTF-8"));
+				return;
+			}
 			
 			// First check users table for admin and customer roles
-			PreparedStatement ps=con.prepareStatement("select username, role from users where username=? and password=?");
+			PreparedStatement ps = con.prepareStatement("select username, role from users where username=? and password=?");
 			ps.setString(1, n);
 			ps.setString(2, p);
-			ResultSet rs=ps.executeQuery();
+			ResultSet rs = ps.executeQuery();
 			
 			boolean authenticated = false;
 			String userRole = null;
@@ -44,9 +46,9 @@ public class Loginservlet extends HttpServlet {
 			}
 			rs.close();
 			ps.close();
+			con.close();
 			
 			if(authenticated) {
-				
 				// Create session and store user data
 				HttpSession session = request.getSession();
 				session.setAttribute("userRole", userRole);
@@ -55,31 +57,25 @@ public class Loginservlet extends HttpServlet {
 				
 				// Redirect based on role
 				if ("admin".equals(userRole)) {
-					RequestDispatcher rd=request.getRequestDispatcher("Home.jsp");
-					rd.forward(request,response);
+					response.sendRedirect("Home.jsp");
 				} else if ("seller".equals(userRole)) {
-					RequestDispatcher rd=request.getRequestDispatcher("SellerDashboard.jsp");
-					rd.forward(request,response);
+					response.sendRedirect("SellerDashboard.jsp");
 				} else {
-					RequestDispatcher rd=request.getRequestDispatcher("Home.jsp");
-					rd.forward(request,response);
+					response.sendRedirect("Home.jsp");
 				}
+			} else {
+				// Authentication failed - redirect back to login with error message
+				response.sendRedirect("Login.jsp?error=" + java.net.URLEncoder.encode("Invalid username or password", "UTF-8") + "&username=" + java.net.URLEncoder.encode(n, "UTF-8"));
 			}
-			else
-			{
-				out.println("<font color=red size=18>Login Failed<br>");
-				out.println("<a href=Login.html>Try AGAIN</a>");
-			}
-		
 			
 		} catch (Exception e) {
-			// Set error message and forward back to login page
-			out.println("<font color=red size=18>Login Failed<br>");
-			out.println("<a href=Login.html>Try AGAIN</a>");
-			RequestDispatcher rd=request.getRequestDispatcher("Login.jsp");
-			rd.forward(request,response);
+			// Set error message and redirect back to login page
+			try {
+				response.sendRedirect("Login.jsp?error=" + java.net.URLEncoder.encode("An error occurred. Please try again.", "UTF-8"));
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
-
 	}
 
 }

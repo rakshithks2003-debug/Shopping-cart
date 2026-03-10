@@ -6,7 +6,7 @@
 HttpSession sessionObg = request.getSession(false);
 if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null || 
     !(Boolean) sessionObg.getAttribute("isLoggedIn")) {
-    response.sendRedirect("Login.html");
+    response.sendRedirect("Login.jsp");
     return;
 }
 
@@ -729,11 +729,7 @@ try {
                                     </div>
                                     
                                     <div class="seller-actions">
-                                        <button class="btn btn-view" onclick="viewSellerDetails(<%= seller.get("id") %>)">
-                                            <i class="fas fa-eye"></i>
-                                            View Details
-                                        </button>
-                                        <button class="btn btn-reject" onclick="rejectSeller(<%= seller.get("id") %>, '<%= seller.get("username") %>')">
+                                                                                <button class="btn btn-reject" onclick="rejectSeller(<%= seller.get("id") %>, '<%= seller.get("username") %>')">
                                             <i class="fas fa-times"></i>
                                             Reject
                                         </button>
@@ -814,11 +810,7 @@ try {
                                     </div>
                                     
                                     <div class="seller-actions">
-                                        <button class="btn btn-view" onclick="viewSellerDetails(<%= seller.get("id") %>)">
-                                            <i class="fas fa-eye"></i>
-                                            View Details
-                                        </button>
-                                        <button class="btn btn-delete" onclick="deleteSeller(<%= seller.get("id") %>, '<%= seller.get("username") %>')">
+                                                                                <button class="btn btn-delete" onclick="deleteSeller(<%= seller.get("id") %>, '<%= seller.get("username") %>')">
                                             <i class="fas fa-trash"></i>
                                             Delete
                                         </button>
@@ -900,11 +892,7 @@ try {
                                     <% } %>
                                     
                                     <div class="seller-actions">
-                                        <button class="btn btn-view" onclick="viewSellerDetails(<%= seller.get("id") %>)">
-                                            <i class="fas fa-eye"></i>
-                                            View Details
-                                        </button>
-                                        <button class="btn btn-delete" onclick="deleteSeller(<%= seller.get("id") %>, '<%= seller.get("username") %>')">
+                                                                                <button class="btn btn-delete" onclick="deleteSeller(<%= seller.get("id") %>, '<%= seller.get("username") %>')">
                                             <i class="fas fa-trash"></i>
                                             Delete
                                         </button>

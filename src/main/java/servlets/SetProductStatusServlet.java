@@ -56,13 +56,12 @@ public class SetProductStatusServlet extends HttpServlet {
                         PreparedStatement alterStmt = con.prepareStatement(alterQuery);
                         alterStmt.executeUpdate();
                         alterStmt.close();
-                        System.out.println("Added status column to Sproduct table");
                     }
                     
                     rs.close();
                     checkStmt.close();
                 } catch (Exception e) {
-                    System.err.println("Error checking/adding status column: " + e.getMessage());
+                    // Silently handle column check/add errors
                 }
                 
                 // Update product status or delete if rejected
@@ -77,7 +76,6 @@ public class SetProductStatusServlet extends HttpServlet {
                     if (rowsDeleted > 0) {
                         success = true;
                         message = "Product rejected and removed successfully";
-                        System.out.println("Deleted product PIN " + proId + " from Sproduct table");
                     } else {
                         message = "Product not found or deletion failed";
                     }
@@ -94,7 +92,6 @@ public class SetProductStatusServlet extends HttpServlet {
                     if (rowsUpdated > 0) {
                         success = true;
                         message = "Product status updated successfully to " + status;
-                        System.out.println("Updated product PIN " + proId + " status to: " + status);
                     } else {
                         message = "Product not found or status update failed";
                     }
@@ -104,7 +101,6 @@ public class SetProductStatusServlet extends HttpServlet {
             }
         } catch (Exception e) {
             message = "Database error: " + e.getMessage();
-            e.printStackTrace();
         }
         
         // Create JSON response

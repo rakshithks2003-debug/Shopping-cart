@@ -60,14 +60,6 @@ public class PaymentTransactionServlet extends HttpServlet {
         String billingCity = request.getParameter("billingCity");
         String billingPincode = request.getParameter("billingPincode");
         
-        // Debug logging
-        System.out.println("=== PAYMENT TRANSACTION DEBUG ===");
-        System.out.println("Order ID: " + orderId);
-        System.out.println("Amount: " + amountStr);
-        System.out.println("GST Parameter: " + gstStr);
-        System.out.println("Seller ID: " + sellerId);
-        System.out.println("================================");
-        
         boolean success = false;
         String message = "";
         int transactionId = 0;
@@ -83,14 +75,6 @@ public class PaymentTransactionServlet extends HttpServlet {
             } else {
                 double amount = Double.parseDouble(amountStr);
                 double gst = gstStr != null && !gstStr.trim().isEmpty() ? Double.parseDouble(gstStr) : 25.0;
-                
-                // Debug logging
-                System.out.println("=== PAYMENT TRANSACTION DEBUG ===");
-                System.out.println("Order ID: " + orderId);
-                System.out.println("Amount: " + amount);
-                System.out.println("GST Parameter: " + gstStr);
-                System.out.println("Parsed GST: " + gst);
-                System.out.println("================================");
                 
                 // Initialize database connection
                 Dbase db = new Dbase();
@@ -152,7 +136,6 @@ public class PaymentTransactionServlet extends HttpServlet {
             message = "Invalid amount format";
         } catch (Exception e) {
             message = "Error: " + e.getMessage();
-            System.err.println("Payment transaction error: " + e.getMessage());
             e.printStackTrace();
         }
         

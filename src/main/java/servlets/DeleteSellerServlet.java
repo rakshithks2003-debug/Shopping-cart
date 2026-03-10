@@ -24,7 +24,7 @@ public class DeleteSellerServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("isLoggedIn") == null || 
             !(Boolean) session.getAttribute("isLoggedIn")) {
-            response.sendRedirect("Login.html");
+            response.sendRedirect("Login.jsp");
             return;
         }
 
@@ -37,8 +37,6 @@ public class DeleteSellerServlet extends HttpServlet {
         String username = (String) session.getAttribute("username");
         String sellerId = request.getParameter("sellerId");
         String deletedBy = request.getParameter("deletedBy");
-
-        System.out.println("DeleteSellerServlet called with sellerId: " + sellerId + ", deletedBy: " + deletedBy);
 
         if (sellerId == null || sellerId.trim().isEmpty()) {
             response.sendRedirect("SellerApproval.jsp?message=Invalid seller ID&type=error");
@@ -99,13 +97,6 @@ public class DeleteSellerServlet extends HttpServlet {
 
                 con.commit(); // Commit transaction
 
-                System.out.println("Seller deletion successful:");
-                System.out.println("Seller: " + sellerUsername + " (" + shopName + ")");
-                System.out.println("Products deleted: " + productsDeleted);
-                System.out.println("Cart items deleted: " + cartDeleted);
-                System.out.println("Payment transactions deleted: " + paymentsDeleted);
-                System.out.println("Deleted by: " + deletedBy);
-
                 // Redirect with success message
                 response.sendRedirect("SellerApproval.jsp?message=Seller '" + sellerUsername + "' has been successfully deleted&type=success");
 
@@ -114,29 +105,26 @@ public class DeleteSellerServlet extends HttpServlet {
             }
 
         } catch (NumberFormatException e) {
-            System.err.println("Invalid seller ID format: " + e.getMessage());
             try {
                 if (con != null) con.rollback();
             } catch (SQLException ex) {
-                System.err.println("Rollback failed: " + ex.getMessage());
+                // Silently handle rollback failure
             }
             response.sendRedirect("SellerApproval.jsp?message=Invalid seller ID format&type=error");
             
         } catch (SQLException e) {
-            System.err.println("SQL Error during seller deletion: " + e.getMessage());
             try {
                 if (con != null) con.rollback();
             } catch (SQLException ex) {
-                System.err.println("Rollback failed: " + ex.getMessage());
+                // Silently handle rollback failure
             }
             response.sendRedirect("SellerApproval.jsp?message=Database error occurred while deleting seller&type=error");
             
         } catch (Exception e) {
-            System.err.println("Error during seller deletion: " + e.getMessage());
             try {
                 if (con != null) con.rollback();
             } catch (SQLException ex) {
-                System.err.println("Rollback failed: " + ex.getMessage());
+                // Silently handle rollback failure
             }
             response.sendRedirect("SellerApproval.jsp?message=Error occurred while deleting seller&type=error");
             
@@ -150,7 +138,7 @@ public class DeleteSellerServlet extends HttpServlet {
                 if (pstmt5 != null) pstmt5.close();
                 if (con != null) con.close();
             } catch (SQLException e) {
-                System.err.println("Error closing resources: " + e.getMessage());
+                // Silently handle resource cleanup errors
             }
         }
     }

@@ -6,7 +6,7 @@
 HttpSession sessionObg = request.getSession(false);
 if (sessionObg == null || sessionObg.getAttribute("isLoggedIn") == null || 
     !(Boolean) sessionObg.getAttribute("isLoggedIn")) {
-    response.sendRedirect("Login.html");
+    response.sendRedirect("Login.jsp");
     return;
 }
 String userRole = (String) sessionObg.getAttribute("userRole");

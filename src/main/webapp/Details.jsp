@@ -8,7 +8,7 @@ String username = (String) session.getAttribute("username");
 String userRole = (String) session.getAttribute("userRole");
 
 if (username == null) {
-    response.sendRedirect("Login.html");
+    response.sendRedirect("Login.jsp");
     return;
 }
 //String SessionId = session.getId();
@@ -172,6 +172,85 @@ try {
 
         .wishlist-btn:hover i {
             transform: scale(1.1);
+        }
+        
+        .cart-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 2px solid transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            cursor: pointer;
+            white-space: nowrap;
+            text-transform: none;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            border-color: rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+            color: white;
+        }
+
+        .cart-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        .cart-btn:hover i {
+            transform: scale(1.1);
+        }
+
+        .cart-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cart-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Cart Badge for Item Count */
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
         
         h1 {
@@ -511,6 +590,8 @@ try {
             display: flex;
             gap: 20px;
             margin-top: 20px;
+            flex-wrap: wrap;
+            align-items: center;
         }
         
         .add-cart-btn {
@@ -2036,188 +2117,6 @@ try {
         }
         
         /* ========================================
-           BACK TO HOME BUTTON STYLES
-           ======================================== */
-        .back-to-home-btn-left {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            color: white;
-            padding: 12px 20px;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-            transition: all 0.3s ease;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border: 2px solid transparent;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            cursor: pointer;
-            white-space: nowrap;
-            text-transform: none;
-            letter-spacing: 0.5px;
-        }
-
-        .back-to-home-btn-left:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
-            background: linear-gradient(135deg, #45a049, #3d8b40);
-            border-color: rgba(255, 255, 255, 0.1);
-            text-decoration: none;
-            color: white;
-        }
-
-        .back-to-home-btn-left:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
-            transition: all 0.1s ease;
-        }
-
-        .back-to-home-btn-left:focus {
-            outline: none;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3), 0 0 0 3px rgba(76, 175, 80, 0.2);
-        }
-
-        /* Icon styling */
-        .back-to-home-btn-left i {
-            font-size: 16px;
-            margin-right: 2px;
-            transition: transform 0.3s ease;
-        }
-
-        .back-to-home-btn-left:hover i {
-            transform: scale(1.1);
-        }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .back-to-home-btn-left {
-                top: 15px;
-                left: 15px;
-                padding: 10px 16px;
-                font-size: 13px;
-                border-radius: 20px;
-            }
-            
-            .back-to-home-btn-left i {
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .back-to-home-btn-left {
-                top: 10px;
-                left: 10px;
-                padding: 8px 14px;
-                font-size: 12px;
-                border-radius: 18px;
-                gap: 6px;
-            }
-            
-            .back-to-home-btn-left i {
-                font-size: 13px;
-            }
-        }
-
-        /* High contrast mode support */
-        @media (prefers-contrast: high) {
-            .back-to-home-btn-left {
-                border: 2px solid #ffffff;
-                background: #4CAF50;
-            }
-            
-            .back-to-home-btn-left:hover {
-                background: #45a049;
-                border: 2px solid #ffffff;
-            }
-        }
-
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-            .back-to-home-btn-left {
-                transition: none;
-            }
-            
-            .back-to-home-btn-left:hover {
-                transform: none;
-                transition: none;
-            }
-            
-            .back-to-home-btn-left i {
-                transition: none;
-            }
-            
-            .back-to-home-btn-left:hover i {
-                transform: none;
-            }
-        }
-
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            .back-to-home-btn-left {
-                background: linear-gradient(135deg, #45a049, #3d8b40);
-                box-shadow: 0 4px 15px rgba(69, 160, 73, 0.4);
-            }
-            
-            .back-to-home-btn-left:hover {
-                background: linear-gradient(135deg, #3d8b40, #2e7d32);
-                box-shadow: 0 6px 20px rgba(69, 160, 73, 0.5);
-            }
-        }
-
-        /* Print styles */
-        @media print {
-            .back-to-home-btn-left {
-                display: none !important;
-            }
-        }
-
-        /* Loading state */
-        .back-to-home-btn-left.loading {
-            pointer-events: none;
-            opacity: 0.7;
-        }
-
-        .back-to-home-btn-left.loading i::before {
-            content: "\f110"; /* fa-spinner */
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Success state */
-        .back-to-home-btn-left.success {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            animation: pulse 0.5s ease;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* Error state */
-        .back-to-home-btn-left.error {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            animation: shake 0.5s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        
-        /* ========================================
            WISHLIST HEART BUTTON STYLES
            ======================================== */
         .wishlist-heart {
@@ -2406,22 +2305,196 @@ try {
             .wishlist-link-btn i {
                 font-size: 13px;
             }
+            
+        }
+
+        /* ========================================
+           ENHANCED BACK BUTTON STYLES - OVERRIDE
+           ======================================== */
+        
+        /* Enhanced Back Button with Purple Theme */
+        .back-to-home-btn-left {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) !important;
+            padding: 14px 24px !important;
+            border-radius: 50px !important;
+            font-weight: 700 !important;
+            font-size: 16px !important;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            gap: 10px !important;
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            letter-spacing: 0.8px !important;
+            backdrop-filter: blur(15px) !important;
+            overflow: hidden !important;
+            position: relative !important;
+            min-width: 130px !important;
+            justify-content: center !important;
+        }
+
+        /* Enhanced Shine Effect */
+        .back-to-home-btn-left::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+            z-index: 2;
+        }
+
+        .back-to-home-btn-left:hover::before {
+            left: 100%;
+        }
+
+        /* Enhanced Hover Effects */
+        .back-to-home-btn-left:hover {
+            transform: translateY(-4px) translateX(-6px) scale(1.08) !important;
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6) !important;
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 50%, #e074f7 100%) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            text-decoration: none !important;
+            color: white !important;
+        }
+
+        /* Enhanced Icon Animation */
+        .back-to-home-btn-left i {
+            font-size: 18px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            color: #FFFFFF !important;
+            position: relative !important;
+            z-index: 3 !important;
+        }
+
+        .back-to-home-btn-left:hover i {
+            transform: translateX(-4px) scale(1.2) rotate(-8deg) !important;
+            color: #FFFFFF !important;
+        }
+
+        /* Enhanced Active State */
+        .back-to-home-btn-left:active {
+            transform: translateY(-2px) translateX(-3px) scale(1.05) !important;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4) !important;
+            transition: all 0.1s ease !important;
+        }
+
+        /* Enhanced Focus State */
+        .back-to-home-btn-left:focus {
+            outline: none !important;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4), 0 0 0 4px rgba(102, 126, 234, 0.3) !important;
+        }
+
+        /* Enhanced Responsive Design */
+        @media (max-width: 768px) {
+            .back-to-home-btn-left {
+                top: 15px !important;
+                left: 15px !important;
+                padding: 12px 20px !important;
+                font-size: 15px !important;
+                min-width: 110px !important;
+            }
+            
+            .back-to-home-btn-left i {
+                font-size: 16px !important;
+            }
+
+            .back-to-home-btn-left:hover {
+                transform: translateY(-3px) translateX(-4px) scale(1.06) !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .back-to-home-btn-left {
+                top: 10px !important;
+                left: 10px !important;
+                padding: 10px 18px !important;
+                font-size: 14px !important;
+                gap: 8px !important;
+                min-width: 100px !important;
+            }
+            
+            .back-to-home-btn-left i {
+                font-size: 15px !important;
+            }
+
+            .back-to-home-btn-left:hover {
+                transform: translateY(-2px) translateX(-3px) scale(1.04) !important;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .back-to-home-btn-left {
+                top: 8px !important;
+                left: 8px !important;
+                padding: 8px 16px !important;
+                font-size: 13px !important;
+                min-width: 90px !important;
+            }
+            
+            .back-to-home-btn-left i {
+                font-size: 14px !important;
+            }
+        }
+        
+        /* Quantity Selector Responsive Styles */
+        @media (max-width: 768px) {
+            .product-actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+            
+            .quantity-selector {
+                align-self: flex-start;
+                margin-bottom: 10px;
+            }
+            
+            .quantity-controls {
+                width: fit-content;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .quantity-selector {
+                margin-bottom: 15px;
+            }
+            
+            .qty-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+            
+            #quantity {
+                width: 50px;
+                height: 35px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .quantity-controls {
+                transform: scale(0.9);
+            }
         }
         </style>
     </head>
     <body>
-        <!-- Back Button -->
-        <div class="back-button-container">
-            <a href="javascript:history.back()" class="back-button">
-                <i class="fas fa-arrow-left"></i>
-                <span>Back</span>
-            </a>
-        </div>
+       
+        
+              <a href="javascript:history.back()" class="back-to-home-btn-left" aria-label="Go back to previous page"><i class="fas fa-home"></i> Back </a>
+
+       
         
         <div class="container">
             <header>
                 <h1>🛍️ Product Details</h1>
                 <div class="header-actions">
+                    <a href="Cart.jsp" class="cart-btn" id="cartBtn">
+                        <i class="fas fa-shopping-cart"></i> My Cart
+                        <span class="cart-badge" id="cartBadge" style="display: none;">0</span>
+                    </a>
                     <a href="Wishlist.jsp" class="wishlist-btn">
                         <i class="fas fa-heart"></i> My Wishlist
                     </a>
@@ -2645,6 +2718,7 @@ try {
             
             function addToCart() {
                 const productId = '<%=productId%>';
+                const quantity = 1;
                 const button = event.target;
                 const originalText = button.innerHTML;
                 
@@ -2666,7 +2740,9 @@ try {
                             try {
                                 const response = JSON.parse(xhr.responseText);
                                 if (response.success) {
-                                    showNotification(response.message, 'success');
+                                    showNotification('Added to cart successfully!', 'success');
+                                    // Update cart count after successful addition
+                                    updateCartCount();
                                 } else {
                                     showNotification(response.message, 'error');
                                 }
@@ -2681,6 +2757,39 @@ try {
                 
                 xhr.send('action=addToCart&productId=' + encodeURIComponent(productId));
             }
+            
+            // Function to update cart count badge
+            function updateCartCount() {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', 'CartServlet', true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.success && response.items) {
+                                const cartBadge = document.getElementById('cartBadge');
+                                const totalItems = response.items.reduce((sum, item) => sum + item.quantity, 0);
+                                
+                                if (totalItems > 0) {
+                                    cartBadge.textContent = totalItems > 99 ? '99+' : totalItems;
+                                    cartBadge.style.display = 'flex';
+                                } else {
+                                    cartBadge.style.display = 'none';
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Error updating cart count:', e);
+                        }
+                    }
+                };
+                xhr.send();
+            }
+            
+            // Load cart count on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                updateCartCount();
+            });
+            
             
             function showNotification(message, type) {
                 const notification = document.getElementById('notification');

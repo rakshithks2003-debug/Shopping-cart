@@ -44,7 +44,6 @@ public class DeleteDeliveryServlet extends HttpServlet {
             }
             
         } catch (Exception e) {
-            e.printStackTrace();
             out.print("{\"success\": false, \"message\": \"Error deleting delivery record: " + e.getMessage() + "\"}");
         }
     }
@@ -68,7 +67,6 @@ public class DeleteDeliveryServlet extends HttpServlet {
             return rowsDeleted > 0;
             
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }

@@ -5,7 +5,7 @@
     String userRole = (String) session.getAttribute("userRole");
     
     if (username == null) {
-        response.sendRedirect("Login.html");
+        response.sendRedirect("Login.jsp");
         return;
     }
     

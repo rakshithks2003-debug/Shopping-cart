@@ -60,7 +60,7 @@ public class AddProductServlet extends HttpServlet {
                 sellerStmt.close();
                 con.close();
             } catch (Exception e) {
-                System.err.println("Error fetching seller_id: " + e.getMessage());
+                // Error fetching seller_id
             }
         }
         
@@ -104,22 +104,19 @@ public class AddProductServlet extends HttpServlet {
                     
                     if (!existingColumns.contains("status")) {
                         alterStmt.executeUpdate("ALTER TABLE seller ADD COLUMN status VARCHAR(20) DEFAULT 'pending'");
-                        System.out.println("Added status column to seller table");
                     }
                     
                     if (!existingColumns.contains("submission_date")) {
                         alterStmt.executeUpdate("ALTER TABLE seller ADD COLUMN submission_date DATE");
-                        System.out.println("Added submission_date column to seller table");
                     }
                     
                     if (!existingColumns.contains("product_name")) {
                         alterStmt.executeUpdate("ALTER TABLE seller ADD COLUMN product_name VARCHAR(255)");
-                        System.out.println("Added product_name column to seller table");
                     }
                     
                     alterStmt.close();
                 } catch (Exception e) {
-                    System.err.println("Error checking/adding seller table columns: " + e.getMessage());
+                    // Error checking/adding seller table columns
                 }
                 
                 // Skip duplicate check - allow same Product IDs
@@ -155,8 +152,6 @@ public class AddProductServlet extends HttpServlet {
                                     part.write(file.getAbsolutePath());
                                     imagePaths.add(uniqueFileName);
                                     imageCount++;
-                                    
-                                    System.out.println("DEBUG: Uploaded image " + (imageCount) + ": " + uniqueFileName);
                                 }
                             }
                         }
@@ -166,7 +161,6 @@ public class AddProductServlet extends HttpServlet {
                         } else if (message != null && message.startsWith("Invalid file type")) {
                             // Image validation failed, don't proceed
                         } else {
-                            System.out.println("DEBUG: Total images uploaded: " + imageCount);
                             
                             // Combine image paths into comma-separated string
                             String imagePathsStr = String.join(",", imagePaths);
@@ -194,21 +188,15 @@ public class AddProductServlet extends HttpServlet {
                             int rowsInserted = insertStmt.executeUpdate();
                             insertStmt.close();
                             
-                            System.out.println("DEBUG: Product insertion result: " + rowsInserted + " rows affected");
-                            System.out.println("DEBUG: Inserted product with ID: " + productId + " into Sproduct table");
-                            
                             if (rowsInserted > 0) {
                                 success = true;
                                 message = "Product added successfully! Product ID: " + productId + ", PIN: " + proId + " (" + imageCount + " images uploaded - Available in Approved Products)";
-                                System.out.println("DEBUG: Product successfully added to Sproduct table with PIN: " + proId);
                             } else {
                                 message = "Failed to add product - no rows affected";
-                                System.err.println("DEBUG: INSERT failed - no rows affected");
                             }
                         }
                     } catch (Exception e) {
                         message = "Error uploading files: " + e.getMessage();
-                        System.err.println("Error uploading files: " + e.getMessage());
                     }
                 }
                 
@@ -216,7 +204,6 @@ public class AddProductServlet extends HttpServlet {
             }
         } catch (Exception e) {
             message = "Database error: " + e.getMessage();
-            e.printStackTrace();
         }
         
         // Redirect back to AddProduct.jsp with result
@@ -285,7 +272,6 @@ public class AddProductServlet extends HttpServlet {
                 if (checkStmt != null) checkStmt.close();
             } catch (SQLException e) {
                 // Log error but don't throw
-                System.err.println("Error closing resources in generateFourDigitPin: " + e.getMessage());
             }
         }
     }

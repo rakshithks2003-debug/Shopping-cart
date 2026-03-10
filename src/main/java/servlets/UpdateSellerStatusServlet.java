@@ -86,10 +86,6 @@ public class UpdateSellerStatusServlet extends HttpServlet {
                             updateStmt.setString(2, sellerUsername);
                             updateStmt.executeUpdate();
                             updateStmt.close();
-                            
-                            System.out.println("=== SELLER APPROVAL DEBUG ===");
-                            System.out.println("Updated users table: username=" + sellerUsername + ", seller_id=" + sellerId);
-                            System.out.println("=============================");
                         } else {
                             // User doesn't exist in users table, create entry
                             String insertUserQuery = "INSERT INTO users(username, password, role, seller_id) VALUES (?, ?, 'seller', ?)";
@@ -99,16 +95,11 @@ public class UpdateSellerStatusServlet extends HttpServlet {
                             insertStmt.setString(3, sellerId);
                             insertStmt.executeUpdate();
                             insertStmt.close();
-                            
-                            System.out.println("=== SELLER APPROVAL DEBUG ===");
-                            System.out.println("Created user entry: username=" + sellerUsername + ", seller_id=" + sellerId);
-                            System.out.println("=============================");
                         }
                         userRs.close();
                         checkStmt.close();
                     } catch (Exception userEx) {
-                        System.err.println("Warning: Could not update users table: " + userEx.getMessage());
-                        // Continue with approval even if users table update fails
+                        // Silently handle users table update errors
                     }
                 }
                 
@@ -142,8 +133,7 @@ public class UpdateSellerStatusServlet extends HttpServlet {
                     logStmt.executeUpdate();
                     logStmt.close();
                 } catch (Exception logEx) {
-                    // Log table might not exist, continue without logging
-                    System.err.println("Warning: Could not log admin action: " + logEx.getMessage());
+                    // Silently handle logging errors
                 }
                 
                 // Redirect with success message
@@ -157,7 +147,6 @@ public class UpdateSellerStatusServlet extends HttpServlet {
             }
             
         } catch (Exception e) {
-            e.printStackTrace();
             response.sendRedirect("Dashboard.jsp?error=" + 
                 java.net.URLEncoder.encode("Database error: " + e.getMessage(), "UTF-8"));
         } finally {
@@ -167,7 +156,7 @@ public class UpdateSellerStatusServlet extends HttpServlet {
                 if (stmt != null) stmt.close();
                 if (con != null) con.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                // Silently handle resource cleanup errors
             }
         }
     }

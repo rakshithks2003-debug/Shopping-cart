@@ -53,12 +53,11 @@ public class SellerRegistrationServlet extends HttpServlet {
                     // id column doesn't exist, add it
                     java.sql.Statement alterStmt = con.createStatement();
                     alterStmt.executeUpdate("ALTER TABLE signupseller ADD COLUMN id VARCHAR(10) UNIQUE");
-                    System.out.println("Added id column to signupseller table");
                     alterStmt.close();
                 }
                 columns.close();
             } catch (Exception e) {
-                System.err.println("Error checking/adding id column: " + e.getMessage());
+                // Silently handle column check/add errors
             }
             
             // Check if username already exists in signupseller table
@@ -121,12 +120,7 @@ public class SellerRegistrationServlet extends HttpServlet {
                 userResult = userStmt.executeUpdate();
                 userStmt.close();
             } catch (Exception userEx) {
-                // Handle duplicate entry or other insertion errors
-                if (userEx.getMessage().contains("Duplicate entry")) {
-                    System.err.println("Username already exists in users table: " + userEx.getMessage());
-                } else {
-                    System.err.println("Error inserting into users table: " + userEx.getMessage());
-                }
+                // Silently handle duplicate entry or other insertion errors
             }
             
             if (signupResult > 0) {
@@ -140,11 +134,6 @@ public class SellerRegistrationServlet extends HttpServlet {
             }
             
         } catch (SQLException e) {
-            e.printStackTrace();
-            System.err.println("SQL Error in SellerRegistration: " + e.getMessage());
-            System.err.println("SQL State: " + e.getSQLState());
-            System.err.println("Error Code: " + e.getErrorCode());
-            
             String errorMsg = "Database error: " + e.getMessage();
             if (e.getMessage().contains("Duplicate entry")) {
                 errorMsg = "Duplicate entry error. Please try again.";
@@ -155,8 +144,6 @@ public class SellerRegistrationServlet extends HttpServlet {
             response.sendRedirect("SellerRegistration.jsp?error=" + 
                 java.net.URLEncoder.encode(errorMsg, "UTF-8"));
         } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("General Error in SellerRegistration: " + e.getMessage());
             response.sendRedirect("SellerRegistration.jsp?error=" + 
                 java.net.URLEncoder.encode("An error occurred: " + e.getMessage(), "UTF-8"));
         } finally {
@@ -167,7 +154,7 @@ public class SellerRegistrationServlet extends HttpServlet {
                 if (insertStmt != null) insertStmt.close();
                 if (con != null) con.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                // Silently handle resource cleanup errors
             }
         }
     }
@@ -220,8 +207,7 @@ public class SellerRegistrationServlet extends HttpServlet {
                 if (rs != null) rs.close();
                 if (checkStmt != null) checkStmt.close();
             } catch (SQLException e) {
-                // Log error but don't throw
-                System.err.println("Error closing resources in generateSellerId: " + e.getMessage());
+                // Silently handle resource cleanup errors
             }
         }
     }

@@ -5,7 +5,7 @@
 HttpSession sessionObj = request.getSession(false);
 if (sessionObj == null || sessionObj.getAttribute("isLoggedIn") == null || 
     !(Boolean) sessionObj.getAttribute("isLoggedIn")) {
-    response.sendRedirect("Login.html");
+    response.sendRedirect("Login.jsp");
     return;
 }
 

@@ -1,10 +1,28 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+// Check if user is already logged in
+if (session.getAttribute("isLoggedIn") != null && (Boolean) session.getAttribute("isLoggedIn")) {
+    String userRole = (String) session.getAttribute("userRole");
+    if ("admin".equals(userRole)) {
+        response.sendRedirect("Dashboard.jsp");
+    } else {
+        response.sendRedirect("Home.jsp");
+    }
+    return;
+}
 
+// Get error message if any
+String errorMessage = request.getParameter("error");
+String successMessage = request.getParameter("success");
+%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Login - Mini Shopping Cart</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - MSCart</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
     * {
         margin: 0;
@@ -242,8 +260,8 @@
         transform: translateY(-2px);
     }
 
-    input[type="text"]:focus + .input-icon,
-    input[type="password"]:focus + .input-icon {
+    input[type="text"]:focus ~ .input-icon,
+    input[type="password"]:focus ~ .input-icon {
         color: #667eea;
     }
 
@@ -387,6 +405,64 @@
         100% { transform: rotate(360deg); }
     }
 
+    /* Alert Messages */
+    .alert {
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        animation: slideDown 0.5s ease-out;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+    }
+
+    .alert-error {
+        background: rgba(231, 76, 60, 0.15);
+        border: 2px solid #e74c3c;
+        color: #c0392b;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.2);
+    }
+
+    .alert-success {
+        background: rgba(39, 174, 96, 0.15);
+        border: 2px solid #27ae60;
+        color: #229954;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(39, 174, 96, 0.2);
+    }
+
+    .alert i {
+        font-size: 1.2rem;
+    }
+    
+    .alert-close {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: inherit;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 5px;
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+        width: auto;
+        height: auto;
+        animation: none;
+    }
+    
+    .alert-close:hover {
+        opacity: 1;
+        transform: translateY(-50%) scale(1.2);
+        box-shadow: none;
+    }
+
     @media (max-width: 480px) {
         .container {
             width: 90%;
@@ -420,8 +496,38 @@
         <div class="logo-section">
             <div class="logo">🛍️</div>
             <h1>Welcome back</h1>
-            <p class="subtitle">to Mini Shopping Cart</p>
+            <p class="subtitle">to MSCart Shopping</p>
         </div>
+
+        <% if (errorMessage != null && !errorMessage.trim().isEmpty()) { %>
+            <div class="alert alert-error" id="errorAlert">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><%= errorMessage %></span>
+                <button class="alert-close" onclick="closeAlert('errorAlert')" aria-label="Close alert">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <script>
+                // Add shake animation to the container when there's an error
+                document.addEventListener('DOMContentLoaded', function() {
+                    const container = document.querySelector('.container');
+                    container.style.animation = 'shake 0.5s ease-in-out';
+                    setTimeout(() => {
+                        container.style.animation = 'slideUp 0.8s ease-out, fadeIn 1s ease-out';
+                    }, 500);
+                });
+            </script>
+        <% } %>
+
+        <% if (successMessage != null && !successMessage.trim().isEmpty()) { %>
+            <div class="alert alert-success" id="successAlert">
+                <i class="fas fa-check-circle"></i>
+                <span><%= successMessage %></span>
+                <button class="alert-close" onclick="closeAlert('successAlert')" aria-label="Close alert">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        <% } %>
 
         <form action="Loginservlet" method="post" id="loginForm" onsubmit="return validateForm()">
             <div class="form-group">
@@ -430,8 +536,9 @@
                     <input type="text" id="username" name="username" required 
                            placeholder="Enter your username" 
                            onblur="validateUsername()" 
-                           oninput="clearError('username')">
-                    <span class="input-icon">👤</span>
+                           oninput="clearError('username')"
+                           value="<%= request.getParameter("username") != null ? request.getParameter("username") : "" %>">
+                    <span class="input-icon"><i class="fas fa-user"></i></span>
                 </div>
                 <div class="error-message" id="usernameError"></div>
                 <div class="validation-info" id="usernameInfo">3-20 characters, letters and numbers only</div>
@@ -444,7 +551,7 @@
                            placeholder="Enter your password" 
                            onblur="validatePassword()" 
                            oninput="clearError('password')">
-                    <span class="input-icon">🔒</span>
+                    <span class="input-icon"><i class="fas fa-lock"></i></span>
                 </div>
                 <div class="error-message" id="passwordError"></div>
                 <div class="validation-info" id="passwordInfo">6-20 characters, letters and numbers</div>
@@ -464,6 +571,17 @@
     </div>
 
 <script>
+function closeAlert(alertId) {
+    const alert = document.getElementById(alertId);
+    if (alert) {
+        alert.style.opacity = '0';
+        alert.style.transform = 'translateY(-20px)';
+        setTimeout(() => {
+            alert.style.display = 'none';
+        }, 300);
+    }
+}
+
 function validateForm() {
     let isValid = true;
     
@@ -485,10 +603,8 @@ function validateForm() {
         
         if (username === 'Rakshith' && password === 'rak1234') {
             userRole.value = 'admin';
-            console.log('Admin role assigned');
         } else {
             userRole.value = 'user';
-            console.log('User role assigned');
         }
 
         // Show loading state
@@ -616,6 +732,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Hide loading on page load (in case of refresh)
     hideLoading();
+    
+    // Auto-hide alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 300);
+        }, 5000);
+    });
+    
+    // Highlight fields if there's an error
+    <% if (errorMessage != null && !errorMessage.trim().isEmpty()) { %>
+        const passwordInput = document.getElementById('password');
+        const usernameInput = document.getElementById('username');
+        
+        // Add error styling
+        if ('<%= errorMessage %>'.includes('Invalid username or password')) {
+            passwordInput.classList.add('input-error');
+            usernameInput.classList.add('input-error');
+            
+            // Focus on password field
+            passwordInput.focus();
+            passwordInput.select();
+        }
+    <% } %>
 });
 </script>
 </body>

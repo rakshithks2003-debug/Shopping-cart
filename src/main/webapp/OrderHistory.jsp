@@ -3,7 +3,7 @@
 <%
     // Check if user is logged in
     if (session.getAttribute("username") == null) {
-        response.sendRedirect("Login.html");
+        response.sendRedirect("Login.jsp");
         return;
     }
     

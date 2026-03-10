@@ -65,7 +65,6 @@ public class AdminProductServlet extends HttpServlet {
             } catch (Exception e) {
                 userId = null;
                 idType = "Seller ID";
-                System.err.println("Error fetching seller_id: " + e.getMessage());
             }
         } else {
             // For other roles (admin), use pid from form
@@ -122,7 +121,6 @@ public class AdminProductServlet extends HttpServlet {
                             String imagePath = "default.jpg"; // Default image
                             
                             try {
-                                System.out.println("DEBUG: Starting image upload process...");
                                 
                                 // Count image parts
                                 int imageCount = 0;
@@ -132,35 +130,28 @@ public class AdminProductServlet extends HttpServlet {
                                     }
                                 }
                                 
-                                System.out.println("DEBUG: Found " + imageCount + " image parts");
-                                
                                 // Validate minimum 5 images
                                 if (imageCount < 5) {
                                     message = "Minimum 5 images required. You uploaded " + imageCount + " images.";
-                                    System.out.println("DEBUG: Not enough images: " + imageCount);
                                 } else if (imageCount > 10) {
                                     message = "Maximum 10 images allowed. You uploaded " + imageCount + " images.";
-                                    System.out.println("DEBUG: Too many images: " + imageCount);
                                 } else {
                                     // Process each image
                                     int imageIndex = 0;
                                     for (Part part : request.getParts()) {
                                         if (part.getName().equals("productImage") && part.getSize() > 0) {
                                             String fileName = part.getSubmittedFileName();
-                                            System.out.println("DEBUG: Processing image " + (imageIndex + 1) + ": " + fileName);
                                             
                                             if (fileName != null && !fileName.isEmpty()) {
                                                 // Validate file type
                                                 if (!fileName.toLowerCase().matches(".*\\.(jpg|jpeg|png|gif|webp)$")) {
                                                     message = "Invalid file type: " + fileName + ". Only JPG, PNG, GIF, and WEBP images are allowed.";
-                                                    System.out.println("DEBUG: Invalid file type detected: " + fileName);
                                                     break;
                                                 }
                                                 
                                                 // Validate file size (5MB max per image)
                                                 if (part.getSize() > 5 * 1024 * 1024) {
                                                     message = "File " + fileName + " is too large. Maximum size is 5MB per image.";
-                                                    System.out.println("DEBUG: File too large: " + fileName + " (" + part.getSize() + " bytes)");
                                                     break;
                                                 }
                                                 
@@ -171,18 +162,15 @@ public class AdminProductServlet extends HttpServlet {
                                                 // Save to product_images directory
                                                 String uploadPath = getServletContext().getRealPath("") + "product_images";
                                                 java.io.File uploadDir = new java.io.File(uploadPath);
-                                                System.out.println("DEBUG: Upload path: " + uploadPath);
                                                 
                                                 if (!uploadDir.exists()) {
                                                     boolean created = uploadDir.mkdir();
-                                                    System.out.println("DEBUG: Directory created: " + created);
                                                 }
                                                 
                                                 java.io.File file = new java.io.File(uploadDir, uniqueFileName);
                                                 part.write(file.getAbsolutePath());
                                                 imagePaths.add(uniqueFileName);
                                                 
-                                                System.out.println("DEBUG: Successfully uploaded image " + (imageIndex + 1) + ": " + uniqueFileName);
                                                 imageIndex++;
                                             }
                                         }
@@ -191,13 +179,11 @@ public class AdminProductServlet extends HttpServlet {
                                     // Combine image paths
                                     if (imagePaths.size() >= 5) {
                                         imagePath = String.join(",", imagePaths);
-                                        System.out.println("DEBUG: Combined image paths: " + imagePath);
                                     } else if (message == null || message.equals("Error adding product")) {
                                         message = "Failed to process required number of images. Processed: " + imagePaths.size();
                                     }
                                 }
                             } catch (Exception e) {
-                                System.err.println("Error uploading images: " + e.getMessage());
                                 e.printStackTrace();
                                 message = "Error processing images: " + e.getMessage();
                             }
@@ -218,27 +204,14 @@ public class AdminProductServlet extends HttpServlet {
                             insertStmt.setString(7, description != null ? description : ""); // description
                             insertStmt.setString(8, categoryId);           // category_id
                             
-                            System.out.println("DEBUG: Inserting product with values:");
-                            System.out.println("  Auto ID: " + autoId);
-                            System.out.println("  User ID: " + userId);
-                            System.out.println("  Name: " + productName);
-                            System.out.println("  Brand: " + brand);
-                            System.out.println("  Price: " + priceValue);
-                            System.out.println("  Image: " + imagePath);
-                            System.out.println("  Category: " + categoryId);
                             int rowsInserted = insertStmt.executeUpdate();
                             insertStmt.close();
-                            
-                            System.out.println("DEBUG: Product insertion result: " + rowsInserted + " rows affected");
-                            System.out.println("DEBUG: Inserted product with " + idType + ": " + userId + " into product table");
                             
                             if (rowsInserted > 0) {
                                 success = true;
                                 message = "Product added successfully! " + idType + ": " + userId + " - Available in Products";
-                                System.out.println("DEBUG: Product successfully added to product table");
                             } else {
                                 message = "Failed to add product - no rows affected";
-                                System.err.println("DEBUG: INSERT failed - no rows affected");
                             }
                         }
                         

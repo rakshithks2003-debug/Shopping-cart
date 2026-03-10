@@ -482,53 +482,6 @@
             color: white;
         }
         
-        .promo-section {
-            margin: 18px 0;
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 8px;
-        }
-        
-        .promo-label {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-        }
-        
-        .promo-input {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .promo-input input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            outline: none;
-        }
-        
-        .promo-input input:focus {
-            border-color: #667eea;
-        }
-        
-        .promo-input button {
-            padding: 8px 16px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        
-        .promo-input button:hover {
-            background: #5568d3;
-        }
-        
         /* Empty Cart */
         .cart-empty {
             text-align: center;
@@ -908,16 +861,6 @@
                         <span class="value">₹25.00</span>
                     </div>
                     
-                    <div class="promo-section">
-                        <div class="promo-label">
-                            <i class="fas fa-tag"></i> Promo Code
-                        </div>
-                        <div class="promo-input">
-                            <input type="text" placeholder="Enter code" id="promoCode">
-                            <button onclick="applyPromo()">Apply</button>
-                        </div>
-                    </div>
-                    
                     <div class="summary-divider"></div>
                     
                     <div class="summary-total">
@@ -1017,15 +960,7 @@
             xhr.send('action=clear');
         }
         
-        function applyPromo() {
-            const code = document.getElementById('promoCode').value;
-            if (code.trim() === '') {
-                showNotification('Please enter a promo code', 'error');
-                return;
-            }
-            showNotification('Promo code feature coming soon!', 'success');
-        }
-        
+                
         function checkout() {
             // Store cart data in session for Payment.jsp WITHOUT clearing cart
             const xhr = new XMLHttpRequest();

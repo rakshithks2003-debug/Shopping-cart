@@ -412,7 +412,7 @@
 </head>
 <body>
     <!-- Back to Home Button -->
-    <a href="Login.html" class="back-to-home-btn-left" aria-label="Go back to login">
+    <a href="Login.jsp" class="back-to-home-btn-left" aria-label="Go back to login">
         <i class="fas fa-home"></i> Back to Login
     </a>
 
@@ -557,7 +557,7 @@
             </form>
             
             <div class="login-link">
-                Already have a seller account? <a href="Login.html">Sign in here</a>
+                Already have a seller account? <a href="Login.jsp">Sign in here</a>
             </div>
         </div>
     </div>

@@ -67,7 +67,6 @@ public class DeliveryTrackingServlet extends HttpServlet {
             }
             
         } catch (Exception e) {
-            e.printStackTrace();
             out.print("{\"success\": false, \"message\": \"Error tracking order\"}");
         }
     }
@@ -114,7 +113,7 @@ public class DeliveryTrackingServlet extends HttpServlet {
                 con.close();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // Silently handle error
         }
         
         return trackingData;

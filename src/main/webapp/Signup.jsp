@@ -510,7 +510,7 @@
         </form>
 
         <div class="login-link">
-            <p>Already have an account? <a href="Login.html">Login here</a></p>
+            <p>Already have an account? <a href="Login.jsp">Login here</a></p>
             <p style="margin-top: 15px;">Want to sell products? <a href="SellerRegistration.jsp" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; display: inline-block;">Seller Registration</a></p>
         </div>
     </div>

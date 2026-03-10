@@ -144,13 +144,12 @@ public class WishlistServlet extends HttpServlet {
             ResultSet rs = stmt.executeQuery(checkTableSQL);
             if (rs.next()) {
                 // Table exists, no need to create
-                System.out.println("✅ Wishlist table already exists");
                 rs.close();
                 return;
             }
             rs.close();
         } catch (Exception e) {
-            System.out.println("⚠️ Could not check if table exists: " + e.getMessage());
+            // Could not check if table exists
         }
         
         // Create new simplified table only if it doesn't exist
@@ -166,7 +165,6 @@ public class WishlistServlet extends HttpServlet {
         
         try (Statement stmt = con.createStatement()) {
             stmt.execute(createTableSQL);
-            System.out.println("✅ Wishlist table created successfully");
         }
     }
     
@@ -176,7 +174,6 @@ public class WishlistServlet extends HttpServlet {
         Map<String, Object> responseMap = new HashMap<>();
         
         String productId = request.getParameter("productId");
-        System.out.println("🔍 DEBUG: Received productId: '" + productId + "' (type: " + (productId != null ? productId.getClass().getSimpleName() : "null") + ")");
         
         if (productId == null || productId.trim().isEmpty()) {
             responseMap.put("success", false);
@@ -227,8 +224,6 @@ public class WishlistServlet extends HttpServlet {
             insertPs.setString(1, userId); // user_id as String
             insertPs.setString(2, productDetails[0]); // pro_name
             
-            // Debug image insertion
-            System.out.println("🔍 DEBUG: Inserting image into wishlist: '" + productDetails[3] + "'");
             insertPs.setString(3, productDetails[3]); // pro_image
             
             int result = insertPs.executeUpdate();
@@ -292,8 +287,6 @@ public class WishlistServlet extends HttpServlet {
         Map<String, Object> responseMap = new HashMap<>();
         
         String productsParam = request.getParameter("products");
-        System.out.println("🔍 DEBUG: Received products parameter: '" + productsParam + "'");
-        System.out.println("🔍 DEBUG: Products parameter length: " + (productsParam != null ? productsParam.length() : "null"));
         
         if (productsParam == null || productsParam.trim().isEmpty()) {
             responseMap.put("success", false);
@@ -313,9 +306,9 @@ public class WishlistServlet extends HttpServlet {
         
         // Split products by comma and trim
         String[] productNames = productsParam.split(",");
-        System.out.println("🔍 DEBUG: Split into " + productNames.length + " products:");
+        
         for (int i = 0; i < productNames.length; i++) {
-            System.out.println("🔍 DEBUG: Product[" + i + "]: '" + productNames[i].trim() + "'");
+            productNames[i] = productNames[i].trim();
         }
         
         int addedCount = 0;
@@ -331,8 +324,6 @@ public class WishlistServlet extends HttpServlet {
             for (String productName : productNames) {
                 productName = productName.trim();
                 if (productName.isEmpty()) continue;
-                
-                System.out.println("🔍 DEBUG: Processing product: '" + productName + "'");
                 
                 // Check if product exists and get details
                 String[] productDetails = getProductDetails(con, productName);
@@ -370,14 +361,12 @@ public class WishlistServlet extends HttpServlet {
                         int result = insertPs.executeUpdate();
                         if (result > 0) {
                             addedCount++;
-                            System.out.println("✅ Added to wishlist: " + productDetails[0]);
                         }
                     }
                 }
             }
             
             con.commit(); // Commit transaction
-            System.out.println("✅ Transaction committed. Added: " + addedCount + ", Duplicates: " + duplicateCount + ", Not found: " + notFoundCount);
             
             // Verify actual database records
             String verifySQL = "SELECT COUNT(*) FROM wishlist WHERE user_id = ?";
@@ -387,16 +376,14 @@ public class WishlistServlet extends HttpServlet {
                 verifyRs.next();
                 int totalRecords = verifyRs.getInt(1);
                 verifyRs.close();
-                System.out.println("🔍 VERIFICATION: Total records in wishlist for user " + userId + ": " + totalRecords);
                 
-                // Get recent additions for debugging
+                // Get recent additions
                 String recentSQL = "SELECT pro_name, saved_date FROM wishlist WHERE user_id = ? ORDER BY saved_date DESC LIMIT 5";
                 try (PreparedStatement recentPs = con.prepareStatement(recentSQL)) {
                     recentPs.setString(1, userId);
                     ResultSet recentRs = recentPs.executeQuery();
-                    System.out.println("🔍 RECENT ADDITIONS:");
                     while (recentRs.next()) {
-                        System.out.println("  - " + recentRs.getString("pro_name") + " (added: " + recentRs.getTimestamp("saved_date") + ")");
+                        // Recent additions processed
                     }
                     recentRs.close();
                 }
@@ -405,16 +392,15 @@ public class WishlistServlet extends HttpServlet {
         } catch (Exception e) {
             try {
                 con.rollback(); // Rollback on error
-                System.out.println("❌ Transaction rolled back: " + e.getMessage());
             } catch (Exception rollbackEx) {
-                System.out.println("❌ Rollback failed: " + rollbackEx.getMessage());
+                // Rollback failed
             }
             throw e;
         } finally {
             try {
                 con.setAutoCommit(true); // Reset auto-commit
             } catch (Exception e) {
-                System.out.println("⚠️ Could not reset auto-commit: " + e.getMessage());
+                // Could not reset auto-commit
             }
         }
         
@@ -565,8 +551,6 @@ public class WishlistServlet extends HttpServlet {
     
     private String[] getProductDetails(Connection con, String productId) throws SQLException {
         String sql = "SELECT product_name, price, description, image, brand FROM product WHERE id = ?";
-        System.out.println("🔍 DEBUG: Executing SQL: " + sql);
-        System.out.println("🔍 DEBUG: With productId: '" + productId + "'");
         
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, productId);
@@ -583,29 +567,19 @@ public class WishlistServlet extends HttpServlet {
                     // Split by comma and take the first image if multiple exist
                     String[] images = imageField.split(",");
                     details[3] = images[0].trim(); // Take only the first image
-                    System.out.println("🔍 DEBUG: Original image field: '" + imageField + "'");
-                    System.out.println("🔍 DEBUG: Using first image: '" + details[3] + "'");
                 } else {
                     details[3] = ""; // Empty if no image
-                    System.out.println("🔍 DEBUG: No image found, using empty string");
                 }
                 
                 details[4] = rs.getString("brand"); // Seller_id (using brand as fallback)
                 
-                // Debug image retrieval
-                System.out.println("✅ DEBUG: Found product - Name: " + details[0]);
-                System.out.println("✅ DEBUG: Product Price: " + details[1]);
-                System.out.println("✅ DEBUG: Final Image for Wishlist: '" + details[3] + "'");
-                System.out.println("✅ DEBUG: Product Brand: " + details[4]);
-                
                 rs.close();
                 return details;
             } else {
-                System.out.println("❌ DEBUG: No product found with id: " + productId);
+                // No product found
             }
             rs.close();
         } catch (Exception e) {
-            System.out.println("❌ DEBUG: SQL Error in getProductDetails: " + e.getMessage());
             e.printStackTrace();
         }
         return null; // Not found
