@@ -553,7 +553,7 @@ try {
             left: 0;
             width: 60px;
             height: 3px;
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            background: linear-gradient(90deg, #e74c3c, #f39c12);
             border-radius: 2px;
         }
         

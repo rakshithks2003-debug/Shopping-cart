@@ -359,6 +359,345 @@ UTF-8" pageEncoding="UTF-8"%>
             opacity: 0.9;
         }
 
+        /* Return Order Section Styles */
+        .return-order-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border-left: 4px solid #ef4444;
+        }
+        
+        /* Cancel Order Section Styles */
+        .cancel-order-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .cancel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            color: #f59e0b;
+        }
+        
+        .cancel-header i {
+            font-size: 1.5rem;
+        }
+        
+        .cancel-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .cancel-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .cancel-reasons {
+            margin-bottom: 20px;
+        }
+        
+        .cancel-reason-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .cancel-reason-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .cancel-reason-select:focus {
+            outline: none;
+            border-color: #f59e0b;
+        }
+        
+        .cancel-comments {
+            margin-bottom: 20px;
+        }
+        
+        .cancel-comment-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .cancel-comment-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        .cancel-comment-textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+        }
+        
+        .cancel-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .cancel-btn:hover {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        }
+        
+        .cancel-btn:active {
+            transform: translateY(0);
+        }
+        
+        .cancel-policy-link {
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .cancel-policy-link i {
+            color: #f59e0b;
+        }
+
+        .return-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            color: #ef4444;
+        }
+
+        .return-header i {
+            font-size: 1.5rem;
+        }
+
+        .return-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .return-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .return-reasons {
+            margin-bottom: 20px;
+        }
+
+        .return-reason-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .return-reason-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .return-reason-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .return-comments {
+            margin-bottom: 20px;
+        }
+
+        .return-comment-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .return-comment-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .return-comment-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .return-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .return-btn:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .return-btn:active {
+            transform: translateY(0);
+        }
+
+        .return-policy-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .return-policy-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        .return-policy-link a:hover {
+            color: #5a6fd8;
+            text-decoration: underline;
+        }
+
+        /* Return Policy Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-modal {
+            font-size: 2rem;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s;
+            background: none;
+            border: none;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+
+        .policy-content {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .policy-content h3 {
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .policy-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .policy-content li {
+            margin-bottom: 8px;
+        }
+
         .no-deliveries {
             text-align: center;
             padding: 4rem 2rem;
@@ -566,6 +905,96 @@ UTF-8" pageEncoding="UTF-8"%>
                             </button>
                         </div>
                     </div>
+
+                    <!-- Cancel Order Section (Only visible when NOT delivered) -->
+                    <% 
+                    String currentStatus = (String)delivery.get("status");
+                    boolean isDelivered = "delivered".equalsIgnoreCase(currentStatus);
+                    boolean canCancel = !isDelivered && !"cancelled".equalsIgnoreCase(currentStatus);
+                    %>
+                    
+                    <% if (canCancel) { %>
+                    <div class="cancel-order-section">
+                        <div class="cancel-header">
+                            <i class="fas fa-times-circle"></i>
+                            <h3>Cancel Order</h3>
+                        </div>
+                        <p class="cancel-description">
+                            Need to cancel your order? You can cancel anytime before delivery.
+                        </p>
+                        <div class="cancel-reasons">
+                            <label class="cancel-reason-label">Select Cancellation Reason:</label>
+                            <select id="cancelReason_<%= delivery.get("orderId") %>" class="cancel-reason-select">
+                                <option value="">-- Select a reason --</option>
+                                <option value="changed_mind">Changed my mind</option>
+                                <option value="ordered_by_mistake">Ordered by mistake</option>
+                                <option value="found_better_price">Found better price elsewhere</option>
+                                <option value="delivery_too_long">Delivery taking too long</option>
+                                <option value="wrong_item_ordered">Ordered wrong item</option>
+                                <option value="financial_reasons">Financial reasons</option>
+                                <option value="other">Other reason</option>
+                            </select>
+                        </div>
+                        <div class="cancel-comments">
+                            <label class="cancel-comment-label">Additional Comments (Optional):</label>
+                            <textarea id="cancelComments_<%= delivery.get("orderId") %>" 
+                                      class="cancel-comment-textarea" 
+                                      placeholder="Please provide more details about your cancellation..."
+                                      rows="3"></textarea>
+                        </div>
+                        <button class="cancel-btn" onclick="cancelOrder('<%= delivery.get("orderId") %>', '<%= delivery.get("userId") %>')">
+                            <i class="fas fa-ban"></i> Cancel Order
+                        </button>
+                        <p class="cancel-policy-link">
+                            <i class="fas fa-info-circle"></i> Cancellation is free. Refund will be processed within 3-5 business days.
+                        </p>
+                    </div>
+                    <% } %>
+
+                    <!-- Return Order Section (Only visible when delivered) -->
+                    <% 
+                    boolean isDeliveredForReturn = "delivered".equalsIgnoreCase(currentStatus);
+                    %>
+                    
+                    <% if (isDeliveredForReturn) { %>
+                    <div class="return-order-section">
+                        <div class="return-header">
+                            <i class="fas fa-undo-alt"></i>
+                            <h3>Return Order</h3>
+                        </div>
+                        <p class="return-description">
+                            Not satisfied with your order? You can initiate a return within 7 days of delivery.
+                        </p>
+                        <div class="return-reasons">
+                            <label class="return-reason-label">Select Return Reason:</label>
+                            <select id="returnReason_<%= delivery.get("orderId") %>" class="return-reason-select">
+                                <option value="">-- Select a reason --</option>
+                                <option value="defective">Product is defective or damaged</option>
+                                <option value="wrong_item">Wrong item received</option>
+                                <option value="not_as_described">Product not as described</option>
+                                <option value="quality">Poor quality</option>
+                                <option value="size_fit">Size/fit issues</option>
+                                <option value="changed_mind">Changed my mind</option>
+                                <option value="other">Other reason</option>
+                            </select>
+                        </div>
+                        <div class="return-comments">
+                            <label class="return-comment-label">Additional Comments (Optional):</label>
+                            <textarea id="returnComments_<%= delivery.get("orderId") %>" 
+                                      class="return-comment-textarea" 
+                                      placeholder="Please provide more details about your return request..."
+                                      rows="3"></textarea>
+                        </div>
+                        <button class="return-btn" onclick="initiateReturn('<%= delivery.get("orderId") %>', '<%= delivery.get("userId") %>')">
+                            <i class="fas fa-undo"></i> Initiate Return
+                        </button>
+                        <p class="return-policy-link">
+                            <a href="#" onclick="showReturnPolicy(); return false;">
+                                <i class="fas fa-info-circle"></i> View Return Policy
+                            </a>
+                        </p>
+                    </div>
+                    <% } %>
                 <% } %>
             <% } %>
         <% } %>
@@ -577,6 +1006,48 @@ UTF-8" pageEncoding="UTF-8"%>
             <i class="fas fa-shopping-bag"></i>
             Continue Shopping
         </a>
+    </div>
+
+    <!-- Return Policy Modal -->
+    <div id="returnPolicyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-contract"></i> Return Policy</h2>
+                <button class="close-modal" onclick="closeReturnPolicy()">&times;</button>
+            </div>
+            <div class="policy-content">
+                <h3>Return Eligibility</h3>
+                <ul>
+                    <li>Returns must be initiated within 7 days of delivery</li>
+                    <li>Products must be unused and in original packaging</li>
+                    <li>All tags and labels must be intact</li>
+                    <li>Original invoice must be included</li>
+                </ul>
+                
+                <h3>Return Process</h3>
+                <ul>
+                    <li>Select a return reason and submit your request</li>
+                    <li>Our team will review your request within 24-48 hours</li>
+                    <li>Once approved, you'll receive a return shipping label</li>
+                    <li>Pack the item securely and ship it back</li>
+                    <li>Refund will be processed within 5-7 business days after we receive the item</li>
+                </ul>
+                
+                <h3>Non-Returnable Items</h3>
+                <ul>
+                    <li>Perishable goods (food, flowers, etc.)</li>
+                    <li>Personal care items (cosmetics, underwear, etc.)</li>
+                    <li>Digital products and gift cards</li>
+                    <li>Custom or personalized items</li>
+                </ul>
+                
+                <h3>Refund Method</h3>
+                <p>Refunds will be issued to the original payment method used during purchase.</p>
+                
+                <h3>Questions?</h3>
+                <p>Contact our customer support team at support@minishoppingcart.com or call 1-800-SHOP-HELP</p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -598,6 +1069,192 @@ UTF-8" pageEncoding="UTF-8"%>
 
         function messageDeliveryPerson() {
             alert('Messaging feature coming soon!');
+        }
+
+        function cancelOrder(orderId, userId) {
+            const reasonSelect = document.getElementById('cancelReason_' + orderId);
+            const commentsTextarea = document.getElementById('cancelComments_' + orderId);
+            
+            const reason = reasonSelect.value;
+            const comments = commentsTextarea.value.trim();
+            
+            if (!reason) {
+                alert('Please select a cancellation reason');
+                reasonSelect.focus();
+                return;
+            }
+            
+            const confirmMessage = 'Are you sure you want to cancel Order #' + orderId + '?\n\n' +
+                                  'Reason: ' + reasonSelect.options[reasonSelect.selectedIndex].text + '\n' +
+                                  (comments ? 'Comments: ' + comments : '') + '\n\n' +
+                                  'Your refund will be processed within 3-5 business days.';
+            
+            if (confirm(confirmMessage)) {
+                // Show loading state
+                const cancelBtn = event.target;
+                const originalText = cancelBtn.innerHTML;
+                cancelBtn.disabled = true;
+                cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                
+                // Simulate API call (replace with actual servlet call)
+                setTimeout(() => {
+                    // Success message
+                    showCancelSuccessMessage(orderId);
+                    
+                    // Reset form
+                    reasonSelect.value = '';
+                    commentsTextarea.value = '';
+                    cancelBtn.disabled = false;
+                    cancelBtn.innerHTML = originalText;
+                    
+                    // Optionally redirect after a delay
+                    setTimeout(() => {
+                        window.location.href = 'OrderHistory.jsp';
+                    }, 3000);
+                }, 1500);
+            }
+        }
+        
+        function showCancelSuccessMessage(orderId) {
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #f59e0b, #d97706);
+                color: white;
+                padding: 20px 25px;
+                border-radius: 12px;
+                box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+                z-index: 1001;
+                animation: slideInRight 0.5s ease-out;
+                font-weight: 600;
+                max-width: 400px;
+            `;
+            message.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <div style="font-size: 1.1rem; margin-bottom: 5px;">Order Cancelled Successfully!</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Order #${orderId} - Refund will be processed within 3-5 business days.</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(message);
+            
+            // Remove message after 5 seconds
+            setTimeout(() => {
+                message.style.animation = 'slideOutRight 0.5s ease-out';
+                setTimeout(() => {
+                    if (document.body.contains(message)) {
+                        document.body.removeChild(message);
+                    }
+                }, 500);
+            }, 5000);
+        }
+
+        function initiateReturn(orderId, userId) {
+            const reasonSelect = document.getElementById('returnReason_' + orderId);
+            const commentsTextarea = document.getElementById('returnComments_' + orderId);
+            
+            const reason = reasonSelect.value;
+            const comments = commentsTextarea.value.trim();
+            
+            if (!reason) {
+                alert('Please select a return reason');
+                reasonSelect.focus();
+                return;
+            }
+            
+            const confirmMessage = 'Are you sure you want to initiate a return for Order #' + orderId + '?\n\n' +
+                                  'Reason: ' + reasonSelect.options[reasonSelect.selectedIndex].text + '\n' +
+                                  (comments ? 'Comments: ' + comments : '');
+            
+            if (confirm(confirmMessage)) {
+                // Show loading state
+                const returnBtn = event.target;
+                const originalText = returnBtn.innerHTML;
+                returnBtn.disabled = true;
+                returnBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                
+                // Simulate API call (replace with actual servlet call)
+                setTimeout(() => {
+                    // Success message
+                    showReturnSuccessMessage(orderId);
+                    
+                    // Reset form
+                    reasonSelect.value = '';
+                    commentsTextarea.value = '';
+                    returnBtn.disabled = false;
+                    returnBtn.innerHTML = originalText;
+                    
+                    // Optionally redirect after a delay
+                    setTimeout(() => {
+                        // You can redirect to a returns page or order history
+                        // window.location.href = 'OrderHistory.jsp';
+                    }, 3000);
+                }, 1500);
+            }
+        }
+        
+        function showReturnSuccessMessage(orderId) {
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+                padding: 20px 25px;
+                border-radius: 12px;
+                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+                z-index: 1001;
+                animation: slideInRight 0.5s ease-out;
+                font-weight: 600;
+                max-width: 400px;
+            `;
+            message.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <div style="font-size: 1.1rem; margin-bottom: 5px;">Return Request Submitted!</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Order #${orderId} - We'll process your return within 24-48 hours.</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(message);
+            
+            // Remove message after 5 seconds
+            setTimeout(() => {
+                message.style.animation = 'slideOutRight 0.5s ease-out';
+                setTimeout(() => {
+                    if (document.body.contains(message)) {
+                        document.body.removeChild(message);
+                    }
+                }, 500);
+            }, 5000);
+        }
+        
+        function showReturnPolicy() {
+            const modal = document.getElementById('returnPolicyModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+        
+        function closeReturnPolicy() {
+            const modal = document.getElementById('returnPolicyModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('returnPolicyModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
         }
 
         // Automatic Timeline Animation

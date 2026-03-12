@@ -19,28 +19,67 @@ String phone = null;
 String address = null;
 String sellerId = null;
 String registrationDate = null;
+String dateOfBirth = null;
+String gender = null;
+String fullName = null;
 
 // Fetch user details from database
 try {
     Class.forName("com.mysql.cj.jdbc.Driver");
     Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mscart","root","123456");
     
-    PreparedStatement ps = con.prepareStatement("SELECT user_id, username, email, phone, address, role, seller_id, created_at FROM users WHERE username = ?");
-    ps.setString(1, username);
-    ResultSet rs = ps.executeQuery();
+    // Get user_id and basic info from users table
+    PreparedStatement userPs = con.prepareStatement("SELECT user_id, email, role, Seller_id FROM users WHERE username = ?");
+    userPs.setString(1, username);
+    ResultSet userRs = userPs.executeQuery();
     
-    if (rs.next()) {
-        userId = rs.getString("user_id");
-        email = rs.getString("email");
-        phone = rs.getString("phone");
-        address = rs.getString("address");
-        sellerId = rs.getString("seller_id");
-        registrationDate = rs.getString("created_at");
+    if (userRs.next()) {
+        userId = userRs.getString("user_id");
+        email = userRs.getString("email");
+        sellerId = userRs.getString("Seller_id");
     }
     
-    rs.close();
-    ps.close();
+    // Get profile details from users_profile table
+    if (userId != null) {
+        PreparedStatement profilePs = con.prepareStatement("SELECT full_name, mobile_number, email_address, date_of_birth, gender, address FROM users_profile WHERE user_id = ?");
+        profilePs.setString(1, userId);
+        ResultSet profileRs = profilePs.executeQuery();
+        
+        if (profileRs.next()) {
+            fullName = profileRs.getString("full_name");
+            phone = profileRs.getString("mobile_number");
+            email = profileRs.getString("email_address");
+            dateOfBirth = profileRs.getString("date_of_birth");
+            gender = profileRs.getString("gender");
+            address = profileRs.getString("address");
+        }
+        profileRs.close();
+        profilePs.close();
+    }
+    
+    // If no profile data exists, use users table data as fallback for email only
+    if ((email == null || email.isEmpty()) && userRs != null) {
+        email = userRs.getString("email"); // from users table
+    }
+    
+    if (userRs != null) {
+        userRs.close();
+    }
+    userPs.close();
     con.close();
+    
+    // Debug: Print retrieved data (remove in production)
+    System.out.println("DEBUG Profile Data:");
+    System.out.println("Username: " + username);
+    System.out.println("User ID: " + userId);
+    System.out.println("Full Name: " + fullName);
+    System.out.println("Email: " + email);
+    System.out.println("Phone: " + phone);
+    System.out.println("Address: " + address);
+    System.out.println("Date of Birth: " + dateOfBirth);
+    System.out.println("Gender: " + gender);
+    System.out.println("Seller ID: " + sellerId);
+    
 } catch (Exception e) {
     e.printStackTrace();
 }
@@ -53,32 +92,83 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
     String newEmail = request.getParameter("email");
     String newPhone = request.getParameter("phone");
     String newAddress = request.getParameter("address");
+    String newDateOfBirth = request.getParameter("date_of_birth");
+    String newGender = request.getParameter("gender");
+    String newFullName = request.getParameter("full_name");
     
     try {
         Class.forName("com.mysql.cj.jdbc.Driver");
         Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mscart","root","123456");
         
-        PreparedStatement updatePs = con.prepareStatement("UPDATE users SET email = ?, phone = ?, address = ? WHERE username = ?");
-        updatePs.setString(1, newEmail);
-        updatePs.setString(2, newPhone);
-        updatePs.setString(3, newAddress);
-        updatePs.setString(4, username);
+        // Get user_id if not already available
+        if (userId == null) {
+            PreparedStatement getUserIdPs = con.prepareStatement("SELECT user_id FROM users WHERE username = ?");
+            getUserIdPs.setString(1, username);
+            ResultSet userIdRs = getUserIdPs.executeQuery();
+            if (userIdRs.next()) {
+                userId = userIdRs.getString("user_id");
+            }
+            userIdRs.close();
+            getUserIdPs.close();
+        }
         
-        int result = updatePs.executeUpdate();
-        updatePs.close();
-        con.close();
-        
-        if (result > 0) {
-            updateMessage = "Profile updated successfully!";
-            messageType = "success";
-            // Update local variables
-            email = newEmail;
-            phone = newPhone;
-            address = newAddress;
+        if (userId != null) {
+            // Check if profile exists in users_profile table
+            PreparedStatement checkPs = con.prepareStatement("SELECT COUNT(*) FROM users_profile WHERE user_id = ?");
+            checkPs.setString(1, userId);
+            ResultSet checkRs = checkPs.executeQuery();
+            checkRs.next();
+            int profileCount = checkRs.getInt(1);
+            checkRs.close();
+            checkPs.close();
+            
+            int result = 0;
+            if (profileCount > 0) {
+                // Update existing profile
+                PreparedStatement updatePs = con.prepareStatement("UPDATE users_profile SET full_name = ?, email_address = ?, mobile_number = ?, address = ?, date_of_birth = ?, gender = ? WHERE user_id = ?");
+                updatePs.setString(1, newFullName);
+                updatePs.setString(2, newEmail);
+                updatePs.setString(3, newPhone);
+                updatePs.setString(4, newAddress);
+                updatePs.setString(5, newDateOfBirth);
+                updatePs.setString(6, newGender);
+                updatePs.setString(7, userId);
+                result = updatePs.executeUpdate();
+                updatePs.close();
+            } else {
+                // Insert new profile
+                PreparedStatement insertPs = con.prepareStatement("INSERT INTO users_profile (user_id, full_name, email_address, mobile_number, address, date_of_birth, gender) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                insertPs.setString(1, userId);
+                insertPs.setString(2, newFullName);
+                insertPs.setString(3, newEmail);
+                insertPs.setString(4, newPhone);
+                insertPs.setString(5, newAddress);
+                insertPs.setString(6, newDateOfBirth);
+                insertPs.setString(7, newGender);
+                result = insertPs.executeUpdate();
+                insertPs.close();
+            }
+            
+            if (result > 0) {
+                updateMessage = "Profile updated successfully!";
+                messageType = "success";
+                // Update local variables
+                fullName = newFullName;
+                email = newEmail;
+                phone = newPhone;
+                address = newAddress;
+                dateOfBirth = newDateOfBirth;
+                gender = newGender;
+            } else {
+                updateMessage = "Failed to update profile!";
+                messageType = "error";
+            }
         } else {
-            updateMessage = "Failed to update profile!";
+            updateMessage = "User ID not found!";
             messageType = "error";
         }
+        
+        con.close();
     } catch (Exception e) {
         updateMessage = "Error updating profile: " + e.getMessage();
         messageType = "error";
@@ -441,6 +531,21 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
             box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
         }
 
+        /* Style for select dropdown */
+        select.form-input {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 20px;
+            padding-right: 45px;
+        }
+
+        select.form-input:focus {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+        }
+
         .form-textarea {
             width: 100%;
             padding: 15px 20px;
@@ -585,12 +690,77 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                     </div>
                     
                     <div class="profile-info">
-                        <% if (sellerId != null) { %>
+                        <% 
+                        boolean hasProfileData = false;
+                        
+                        if (fullName != null && !fullName.isEmpty()) { hasProfileData = true; %>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-id-card"></i> Full Name
+                            </span>
+                            <span class="info-value"><%= fullName %></span>
+                        </div>
+                        <% } %>
+                        
+                        <% if (email != null && !email.isEmpty()) { hasProfileData = true; %>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-envelope"></i> Email Address
+                            </span>
+                            <span class="info-value"><%= email %></span>
+                        </div>
+                        <% } %>
+                        
+                        <% if (phone != null && !phone.isEmpty()) { hasProfileData = true; %>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-phone"></i> Phone Number
+                            </span>
+                            <span class="info-value"><%= phone %></span>
+                        </div>
+                        <% } %>
+                        
+                        <% if (address != null && !address.isEmpty()) { hasProfileData = true; %>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-map-marker-alt"></i> Address
+                            </span>
+                            <span class="info-value"><%= address %></span>
+                        </div>
+                        <% } %>
+                        
+                        <% if (sellerId != null) { hasProfileData = true; %>
                         <div class="info-item">
                             <span class="info-label">
                                 <i class="fas fa-store"></i> Seller ID
                             </span>
                             <span class="info-value"><%= sellerId %></span>
+                        </div>
+                        <% } %>
+                        
+                        <% if (dateOfBirth != null && !dateOfBirth.isEmpty()) { hasProfileData = true; %>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-calendar"></i> Date of Birth
+                            </span>
+                            <span class="info-value"><%= dateOfBirth %></span>
+                        </div>
+                        <% } %>
+                        
+                        <% if (gender != null && !gender.isEmpty()) { hasProfileData = true; %>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="fas fa-venus-mars"></i> Gender
+                            </span>
+                            <span class="info-value"><%= gender %></span>
+                        </div>
+                        <% } %>
+                        
+                        <% if (!hasProfileData) { %>
+                        <div class="info-item" style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 10px; margin: 10px 0;">
+                            <span style="color: #6b7280; font-style: italic;">
+                                <i class="fas fa-info-circle"></i> No profile information available. Please fill in your details below.
+                            </span>
                         </div>
                         <% } %>
                     </div>
@@ -612,6 +782,13 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                         </div>
                         
                         <div class="form-group">
+                            <label class="form-label" for="full_name">
+                                <i class="fas fa-id-card"></i> Full Name
+                            </label>
+                            <input type="text" id="full_name" name="full_name" class="form-input" value="<%= fullName != null ? fullName : "" %>" placeholder="Enter your full name">
+                        </div>
+                        
+                        <div class="form-group">
                             <label class="form-label" for="email">
                                 <i class="fas fa-envelope"></i> Email Address
                             </label>
@@ -623,6 +800,25 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                                 <i class="fas fa-phone"></i> Phone Number
                             </label>
                             <input type="tel" id="phone" name="phone" class="form-input" value="<%= phone != null ? phone : "" %>" placeholder="Enter your phone number">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="date_of_birth">
+                                <i class="fas fa-calendar"></i> Date of Birth
+                            </label>
+                            <input type="date" id="date_of_birth" name="date_of_birth" class="form-input" value="<%= dateOfBirth != null ? dateOfBirth : "" %>" max="<%= java.time.LocalDate.now().toString() %>">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="gender">
+                                <i class="fas fa-venus-mars"></i> Gender
+                            </label>
+                            <select id="gender" name="gender" class="form-input">
+                                <option value="">Select Gender</option>
+                                <option value="Male" <%= "Male".equals(gender) ? "selected" : "" %>>Male</option>
+                                <option value="Female" <%= "Female".equals(gender) ? "selected" : "" %>>Female</option>
+                                <option value="Other" <%= "Other".equals(gender) ? "selected" : "" %>>Other</option>
+                            </select>
                         </div>
                         
                         <div class="form-group">
