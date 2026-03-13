@@ -37,7 +37,12 @@ try {
         userId = userRs.getString("user_id");
         email = userRs.getString("email");
         sellerId = userRs.getString("Seller_id");
+        System.out.println("DEBUG: Found user - Username: " + username + ", UserId: " + userId + ", Role: " + userRs.getString("role"));
+    } else {
+        System.out.println("DEBUG: User not found in database - Username: " + username);
     }
+    userRs.close();
+    userPs.close();
     
     // Get profile details from users_profile table
     if (userId != null) {
@@ -102,17 +107,24 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
         
         // Get user_id if not already available
         if (userId == null) {
+            System.out.println("DEBUG: userId is null, trying to retrieve from database for username: " + username);
             PreparedStatement getUserIdPs = con.prepareStatement("SELECT user_id FROM users WHERE username = ?");
             getUserIdPs.setString(1, username);
             ResultSet userIdRs = getUserIdPs.executeQuery();
             if (userIdRs.next()) {
                 userId = userIdRs.getString("user_id");
+                System.out.println("DEBUG: Retrieved userId from database: " + userId);
+            } else {
+                System.out.println("DEBUG: Could not find userId for username: " + username);
             }
             userIdRs.close();
             getUserIdPs.close();
+        } else {
+            System.out.println("DEBUG: userId already exists: " + userId);
         }
         
         if (userId != null) {
+            System.out.println("DEBUG: Proceeding with profile update for userId: " + userId);
             // Check if profile exists in users_profile table
             PreparedStatement checkPs = con.prepareStatement("SELECT COUNT(*) FROM users_profile WHERE user_id = ?");
             checkPs.setString(1, userId);
@@ -164,7 +176,8 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
                 messageType = "error";
             }
         } else {
-            updateMessage = "User ID not found!";
+            System.out.println("DEBUG: userId is still null after all attempts - Username: " + username);
+            updateMessage = "User ID not found! Please contact administrator. (Username: " + username + ")";
             messageType = "error";
         }
         

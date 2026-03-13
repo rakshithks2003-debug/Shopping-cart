@@ -108,17 +108,14 @@ public class CartServlet extends HttpServlet {
                     checkStmt.setString(2, productId);
                     ResultSet checkRs = checkStmt.executeQuery();
                     
+                    System.out.println("DEBUG: Checking if product " + productId + " exists in cart for user " + username);
+                    
                     if (checkRs.next()) {
-                        // Update quantity if item exists
-                        int currentQty = checkRs.getInt("quantity");
-                        String updateSQL = "UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?";
-                        PreparedStatement updateStmt = con.prepareStatement(updateSQL);
-                        updateStmt.setInt(1, currentQty + 1);
-                        updateStmt.setString(2, username);
-                        updateStmt.setString(3, productId);
-                        updateStmt.executeUpdate();
-                        updateStmt.close();
+                        // Item already exists in cart
+                        System.out.println("DEBUG: Product already exists in cart - returning error message");
+                        out.print("{\"success\": false, \"message\": \"Product is already added to cart\"}");
                     } else {
+                        System.out.println("DEBUG: Product not in cart - adding new item");
                         // Insert new item with seller_id
                         String insertSQL = "INSERT INTO cart (user_id, product_id, product_name, price, quantity, image, seller_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
                         PreparedStatement insertStmt = con.prepareStatement(insertSQL);
@@ -131,12 +128,12 @@ public class CartServlet extends HttpServlet {
                         insertStmt.setString(7, sellerId);
                         insertStmt.executeUpdate();
                         insertStmt.close();
+                        
+                        out.print("{\"success\": true, \"message\": \"Product added to cart successfully!\"}");
                     }
                     
                     checkRs.close();
                     checkStmt.close();
-                    
-                    out.print("{\"success\": true, \"message\": \"Product added to cart successfully!\"}");
                 } else {
                     out.print("{\"success\": false, \"message\": \"Product ID is required\"}");
                 }

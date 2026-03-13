@@ -377,6 +377,56 @@
             font-style: italic;
         }
 
+        .password-strength {
+            margin-top: 8px;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .strength-weak { width: 33%; background: #e74c3c; }
+        .strength-medium { width: 66%; background: #f39c12; }
+        .strength-strong { width: 100%; background: #27ae60; }
+
+        .password-strength-text {
+            font-size: 0.75rem;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .username-status {
+            position: absolute;
+            right: 45px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            display: none;
+        }
+
+        .username-available { color: #27ae60; }
+        .username-unavailable { color: #e74c3c; }
+        .username-checking { color: #f39c12; }
+
+        .field-success {
+            border-color: #27ae60 !important;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+
+        .success-indicator {
+            color: #27ae60;
+            font-size: 0.8rem;
+            margin-top: 4px;
+            display: none;
+        }
+
         .loading {
             display: none;
             width: 20px;
@@ -459,9 +509,10 @@
                            onblur="validateUsername()" 
                            oninput="clearError('username')">
                     <span class="input-icon">👤</span>
+                    <span class="username-status" id="usernameStatus"></span>
                 </div>
                 <div class="error-message" id="usernameError"></div>
-                <div class="validation-info">3-20 characters, letters and numbers only</div>
+                <div class="validation-info">3-20 characters, alphabets only</div>
             </div>
 
             <div class="form-group">
@@ -488,6 +539,10 @@
                 </div>
                 <div class="error-message" id="passwordError"></div>
                 <div class="validation-info">6-20 characters, letters and numbers</div>
+                <div class="password-strength" id="passwordStrength">
+                    <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                </div>
+                <div class="password-strength-text" id="passwordStrengthText"></div>
             </div>
 
             <div class="form-group">
@@ -588,10 +643,10 @@ function validateUsername() {
         return false;
     }
     
-    // Allow letters, numbers, and underscores
-    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    // Allow letters only (alphabets)
+    const usernameRegex = /^[a-zA-Z]+$/;
     if (!usernameRegex.test(username)) {
-        showError('usernameError', 'Username can only contain letters, numbers, and underscores');
+        showError('usernameError', 'Username can only contain letters (alphabets only)');
         usernameInput.classList.add('input-error');
         return false;
     }
@@ -701,6 +756,152 @@ function clearError(inputId) {
     errorElement.style.display = 'none';
 }
 
+// Enhanced password validation with strength indicator
+function checkPasswordStrength(password) {
+    const strengthBar = document.getElementById('passwordStrengthBar');
+    const strengthText = document.getElementById('passwordStrengthText');
+    const strengthContainer = document.getElementById('passwordStrength');
+    
+    if (password.length === 0) {
+        strengthContainer.style.display = 'none';
+        return;
+    }
+    
+    strengthContainer.style.display = 'block';
+    
+    let strength = 0;
+    let strengthLevel = '';
+    let strengthColor = '';
+    
+    // Check strength criteria
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+    
+    // Determine strength level
+    if (strength <= 2) {
+        strengthLevel = 'Weak';
+        strengthColor = '#e74c3c';
+        strengthBar.className = 'password-strength-bar strength-weak';
+    } else if (strength <= 3) {
+        strengthLevel = 'Medium';
+        strengthColor = '#f39c12';
+        strengthBar.className = 'password-strength-bar strength-medium';
+    } else {
+        strengthLevel = 'Strong';
+        strengthColor = '#27ae60';
+        strengthBar.className = 'password-strength-bar strength-strong';
+    }
+    
+    strengthText.textContent = strengthLevel;
+    strengthText.style.color = strengthColor;
+}
+
+// Enhanced username validation with availability check
+function checkUsernameAvailability(username) {
+    const usernameStatus = document.getElementById('usernameStatus');
+    
+    if (username.length < 3) {
+        usernameStatus.style.display = 'none';
+        return;
+    }
+    
+    // Show checking status
+    usernameStatus.textContent = '⏳';
+    usernameStatus.className = 'username-status username-checking';
+    usernameStatus.style.display = 'block';
+    
+    // Simulate API call (replace with actual endpoint)
+    setTimeout(() => {
+        // For demo, assume usernames with 'admin' are unavailable
+        const isAvailable = !username.toLowerCase().includes('admin');
+        
+        if (isAvailable) {
+            usernameStatus.textContent = '✓';
+            usernameStatus.className = 'username-status username-available';
+        } else {
+            usernameStatus.textContent = '✗';
+            usernameStatus.className = 'username-status username-unavailable';
+        }
+    }, 500);
+}
+
+// Show success indicator for valid fields
+function showSuccess(inputId) {
+    const inputElement = document.getElementById(inputId);
+    const successElement = document.getElementById(inputId + 'Success');
+    
+    inputElement.classList.add('field-success');
+    if (successElement) {
+        successElement.textContent = '✓ Valid';
+        successElement.style.display = 'block';
+    }
+}
+
+// Enhanced validation functions with success indicators
+function validateUsernameEnhanced() {
+    const username = document.getElementById('username').value.trim();
+    const isValid = validateUsername();
+    
+    if (isValid) {
+        showSuccess('username');
+        checkUsernameAvailability(username);
+    }
+    
+    return isValid;
+}
+
+function validateEmailEnhanced() {
+    const email = document.getElementById('email').value.trim();
+    const isValid = validateEmail();
+    
+    if (isValid) {
+        showSuccess('email');
+    }
+    
+    return isValid;
+}
+
+function validatePasswordEnhanced() {
+    const password = document.getElementById('password').value;
+    const isValid = validatePassword();
+    
+    checkPasswordStrength(password);
+    
+    if (isValid) {
+        showSuccess('password');
+    }
+    
+    return isValid;
+}
+
+// Real-time validation on input
+function setupRealtimeValidation() {
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    
+    usernameInput.addEventListener('input', function() {
+        if (this.value.length >= 3) {
+            checkUsernameAvailability(this.value.trim());
+        } else {
+            document.getElementById('usernameStatus').style.display = 'none';
+        }
+    });
+    
+    emailInput.addEventListener('input', function() {
+        if (this.value.length > 0) {
+            validateEmailEnhanced();
+        }
+    });
+    
+    passwordInput.addEventListener('input', function() {
+        checkPasswordStrength(this.value);
+    });
+}
+
 // Add enter key support for form submission
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('signupForm');
@@ -713,6 +914,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Initialize real-time validation
+    setupRealtimeValidation();
+    
     // Hide loading on page load (in case of refresh)
     hideLoading();
 });

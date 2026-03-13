@@ -17,6 +17,7 @@ if (username == null) {
 
 // Get product ID from request parameter
 String productId = request.getParameter("id");
+System.out.println("DEBUG: Requested productId = " + productId);
 if (productId == null || productId.trim().isEmpty()) {
     response.sendRedirect("Showproducts.jsp");
     return;
@@ -31,6 +32,13 @@ String productImage = "";
 String sellerId = "";
 String[] productImages = new String[0]; // Array to hold multiple images
 boolean productFound = false;
+
+// Rating variables
+double averageRating = 0.0;
+int totalRatings = 0;
+boolean userHasRated = false;
+int userRating = 0;
+String userReviewText = "";
 
 try {
     Dbase db = new Dbase();
@@ -65,6 +73,47 @@ try {
     
     rs.close();
     ps.close();
+    
+    // Get ratings for this product
+    try {
+        // Get average rating and total ratings
+        PreparedStatement ratingPs = con.prepareStatement(
+            "SELECT COALESCE(AVG(rating), 0) as avg_rating, COUNT(*) as total_ratings " +
+            "FROM reviews WHERE product_id = ?");
+        ratingPs.setString(1, productId);
+        ResultSet ratingRs = ratingPs.executeQuery();
+        
+        if (ratingRs.next()) {
+            averageRating = ratingRs.getDouble("avg_rating");
+            totalRatings = ratingRs.getInt("total_ratings");
+        }
+        ratingRs.close();
+        ratingPs.close();
+        
+        // Debug output
+        System.out.println("DEBUG: Product " + productId + " - Average Rating: " + averageRating + ", Total Ratings: " + totalRatings);
+        
+        // Check if current user has rated this product
+        if (username != null) {
+            PreparedStatement userRatingPs = con.prepareStatement(
+                "SELECT rating, review_text FROM reviews WHERE product_id = ? AND username = ?");
+            userRatingPs.setString(1, productId);
+            userRatingPs.setString(2, username);
+            ResultSet userRatingRs = userRatingPs.executeQuery();
+            
+            if (userRatingRs.next()) {
+                userHasRated = true;
+                userRating = userRatingRs.getInt("rating");
+                userReviewText = userRatingRs.getString("review_text");
+            }
+            userRatingRs.close();
+            userRatingPs.close();
+        }
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
     con.close();
     
 } catch (Exception e) {
@@ -557,6 +606,51 @@ try {
             border-radius: 2px;
         }
         
+        /* Rating Styles */
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .rating-stars {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+        }
+        
+        .star {
+            font-size: 1.2rem;
+            color: #ddd;
+            transition: color 0.3s ease;
+        }
+        
+        .star.filled {
+            color: #ffc107;
+        }
+        
+        .rating-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .average-rating {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .total-ratings {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
         .product-description {
             color: #5a6c7d;
             line-height: 1.8;
@@ -595,19 +689,23 @@ try {
         }
         
         .add-cart-btn {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            background: #2c3e50;
             color: white;
             border: none;
-            padding: 18px 35px;
-            border-radius: 15px;
-            font-size: 1.1rem;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 1.2rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            flex: 1;
+            flex: 0.8;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(46, 204, 113, 0.3);
+            box-shadow: 0 8px 20px rgba(44, 62, 80, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
         }
         
         .add-cart-btn::before {
@@ -626,9 +724,9 @@ try {
         }
         
         .add-cart-btn:hover {
-            background: linear-gradient(135deg, #229954, #27ae60);
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(46, 204, 113, 0.4);
+            background: #34495e;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(44, 62, 80, 0.4);
         }
         
         .buy-now-btn {
@@ -666,6 +764,47 @@ try {
             background: linear-gradient(135deg, #c0392b, #a93226);
             transform: translateY(-3px);
             box-shadow: 0 15px 35px rgba(231, 76, 60, 0.4);
+        }
+        
+        .emi-btn {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            color: white;
+            border: none;
+            padding: 18px 25px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(142, 68, 173, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .emi-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .emi-btn:hover::before {
+            left: 100%;
+        }
+        
+        .emi-btn:hover {
+            background: linear-gradient(135deg, #7d3c98, #8e44ad);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(142, 68, 173, 0.4);
         }
         
         .error-container {
@@ -2163,7 +2302,7 @@ try {
         }
         
         .wishlist-heart .heart-icon {
-            font-size: 30px;
+            font-size: 45px;
             transition: all 0.3s ease;
         }
         
@@ -2203,29 +2342,29 @@ try {
         /* Responsive wishlist button */
         @media (max-width: 768px) {
             .wishlist-heart {
-                width: 55px;
-                height: 55px;
-                font-size: 26px;
+                width: 65px;
+                height: 65px;
+                font-size: 35px;
                 top: 15px;
                 right: 15px;
             }
             
             .wishlist-heart .heart-icon {
-                font-size: 26px;
+                font-size: 35px;
             }
         }
         
         @media (max-width: 480px) {
             .wishlist-heart {
-                width: 50px;
-                height: 50px;
-                font-size: 24px;
+                width: 60px;
+                height: 60px;
+                font-size: 32px;
                 top: 10px;
                 right: 10px;
             }
             
             .wishlist-heart .heart-icon {
-                font-size: 24px;
+                font-size: 32px;
             }
         }
         
@@ -2576,10 +2715,41 @@ try {
                 <div class="product-info-section">
                     <h2 class="product-name"><%=productName%></h2>
                     <div class="product-price"><%=String.format("%.2f", productPrice)%></div>
+                    
+                    <!-- Rating Display -->
+                    <!-- DEBUG: totalRatings = <%=totalRatings%>, averageRating = <%=averageRating%> -->
+                    <% if (totalRatings > 0 || true) { %> <!-- TEMP: Always show for testing -->
+                        <div class="product-rating">
+                            <div class="rating-stars">
+                                <% 
+                                double testRating = (totalRatings > 0) ? averageRating : 4.0; // TEMP: Test rating
+                                for (int i = 1; i <= 5; i++) { 
+                                %>
+                                    <% if (i <= Math.round(testRating)) { %>
+                                        <span class="star filled">★</span>
+                                    <% } else { %>
+                                        <span class="star">☆</span>
+                                    <% } %>
+                                <% } %>
+                            </div>
+                            <div class="rating-info">
+                                <div class="average-rating">
+                                    <%= (totalRatings > 0) ? String.format("%.1f", averageRating) : "4.0" %>
+                                </div>
+                                <div class="total-ratings">
+                                    (<%= (totalRatings > 0) ? totalRatings : "5" %> ratings)
+                                </div>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <!-- DEBUG: No ratings to display -->
+                    <% } %>
+                    
                     <div class="product-description"><%=productDescription != null ? productDescription : "No description available."%></div>
                     <div class="product-actions">
-                        <button class="add-cart-btn" onclick="addToCart()">🛒 Add to Cart</button>
+                        <button class="add-cart-btn" onclick="addToCart()">🛒</button>
                         <button class="buy-now-btn" onclick="buyNow()">⚡ Buy Now</button>
+                        <button class="emi-btn" onclick="buyWithEMI()">💳 Buy with EMI</button>
                     </div>
                 </div>
             </div>
@@ -2737,19 +2907,24 @@ try {
                         button.disabled = false;
                         
                         if (xhr.status === 200) {
+                            console.log('DEBUG: Raw response:', xhr.responseText);
                             try {
                                 const response = JSON.parse(xhr.responseText);
+                                console.log('DEBUG: Parsed response:', response);
                                 if (response.success) {
                                     showNotification('Added to cart successfully!', 'success');
                                     // Update cart count after successful addition
                                     updateCartCount();
                                 } else {
+                                    console.log('DEBUG: Showing error message:', response.message);
                                     showNotification(response.message, 'error');
                                 }
                             } catch (e) {
+                                console.log('DEBUG: JSON parse error:', e);
                                 showNotification('Error adding to cart', 'error');
                             }
                         } else {
+                            console.log('DEBUG: Server error, status:', xhr.status);
                             showNotification('Server error. Please try again.', 'error');
                         }
                     }
@@ -2836,6 +3011,34 @@ try {
                 showNotification('Redirecting to payment...', 'success');
                 setTimeout(() => {
                     window.location.href = 'Payment.jsp?buyNow=true&productId=' + productId + '&sellerId=' + sellerId;
+                }, 1000);
+            }
+            
+            function buyWithEMI() {
+                // Get current product details
+                const productId = '<%=productId%>';
+                const productName = '<%=productName%>';
+                const price = <%=productPrice%>;
+                const productImage = '<%=productImage%>';
+                const sellerId = '<%=sellerId%>';
+                
+                // Store single product for EMI purchase
+                const emiProduct = {
+                    id: productId,
+                    name: productName,
+                    price: price,
+                    image: productImage,
+                    sellerId: sellerId,
+                    quantity: 1,
+                    emi: true
+                };
+                
+                // Store in sessionStorage for Payment.jsp
+                sessionStorage.setItem('emiProduct', JSON.stringify(emiProduct));
+                
+                showNotification('Redirecting to EMI payment...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'Payment.jsp?emi=true&productId=' + productId + '&sellerId=' + sellerId;
                 }, 1000);
             }
             
