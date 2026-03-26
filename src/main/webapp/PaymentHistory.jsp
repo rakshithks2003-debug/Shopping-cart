@@ -783,9 +783,6 @@ try {
                 <a href="javascript:history.back()" class="btn btn-primary">
                     <i class="fas fa-arrow-left"></i> Back
                 </a>
-                <a href="Home.jsp" class="btn btn-primary">
-                    <i class="fas fa-home"></i> Home
-                </a>
             </div>
         </div>
     </div>

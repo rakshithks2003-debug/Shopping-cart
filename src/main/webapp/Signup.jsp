@@ -4,7 +4,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Sign Up - Mini Shopping Cart</title>
+    <title>Sign Up -  Shopping Cart</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -476,7 +476,7 @@
         <div class="logo-section">
             <div class="logo">🛍️</div>
             <h1>Join</h1>
-            <p class="subtitle">Mini Shopping Cart</p>
+            <p class="subtitle"> Shopping Cart</p>
         </div>
 
         <%

@@ -496,7 +496,7 @@ String successMessage = request.getParameter("success");
         <div class="logo-section">
             <div class="logo">🛍️</div>
             <h1>Welcome back</h1>
-            <p class="subtitle">to MSCart Shopping</p>
+            <p class="subtitle">to  Shopping Cart</p>
         </div>
 
         <% if (errorMessage != null && !errorMessage.trim().isEmpty()) { %>

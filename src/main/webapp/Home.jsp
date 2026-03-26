@@ -20,7 +20,7 @@ String username = (String) sessionObg.getAttribute("username");
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Mini Shopping Cart - Home</title>
+<title> Shopping Cart - Home</title>
 <style>
         * {
             margin: 0;
@@ -439,7 +439,7 @@ String username = (String) sessionObg.getAttribute("username");
         <div class="header-content">
             <div class="logo-section">
                 <h2 class="institution-name">Cauvery Polytechnic Gonikoppal</h2>
-                <h1 class="app-name">Mini Shopping Cart</h1>
+                <h1 class="app-name"> Shopping Cart</h1>
             </div>
             <div class="user-info">
                 <a href="Profile.jsp" style="text-decoration: none; color: inherit;">
@@ -520,7 +520,7 @@ String username = (String) sessionObg.getAttribute("username");
                 </a>
             </div>
             <div class="footer-divider"></div>
-            <p> 2026 Mini Shopping Cart - All Rights Reserved</p>
+            <p> 2026  Shopping Cart - All Rights Reserved</p>
             <p class="developers">Developed and Designed by Rakshith.k.S, Saajida.A.M, Prajwal.B.R, Mohammed Adil</p>
         </div>
     </footer>

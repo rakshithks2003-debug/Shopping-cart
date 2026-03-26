@@ -20,7 +20,7 @@ String username = (String) sessionObg.getAttribute("username");
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Show Products - Mini Shopping cart</title>
+<title>Show Products -  Shopping cart</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="css/back-button-styles.css">
 <style>
@@ -397,7 +397,7 @@ String username = (String) sessionObg.getAttribute("username");
     
     .product-image-nav {
         position: absolute;
-        top: 50%;
+        top: 100%;
         transform: translateY(-50%);
         background: rgba(255, 255, 255, 0.9);
         color: #333;
@@ -829,7 +829,7 @@ String username = (String) sessionObg.getAttribute("username");
 
     <div class="container">
         <header>
-            <h1>🛍️ Mini Shopping cart</h1>
+            <h1>🛍️  Shopping cart</h1>
         </header>
         
         <!-- Search Section with Cart -->
@@ -1027,7 +1027,8 @@ try {
         </main>
         
         <footer>
-            <p>&copy; 2026 Mini Shopping cart.</p>
+            <p>&copy; 2026 Shopping cart.</p>
+            <p class="developers">Developed and Designed by Rakshith.k.S, Saajida.A.M, Prajwal.B.R, Mohammed Adil</p>
         </footer>
     </div>
     

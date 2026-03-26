@@ -1022,7 +1022,7 @@ paymentJson.append("]");
         </div>
         
         <div class="footer-bottom">
-            <p>&copy; 2024 Mini Shopping Cart - Seller Dashboard</p>
+            <p>&copy; 2024  Shopping Cart - Seller Dashboard</p>
             <p>Developed with ❤️ for seamless seller experience</p>
         </div>
     </footer>
