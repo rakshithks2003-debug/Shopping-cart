@@ -152,6 +152,26 @@
             box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
         }
         
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 5px;
+        }
+        
+        .password-toggle:hover {
+            color: #4CAF50;
+        }
+        
         .form-group textarea {
             resize: vertical;
             min-height: 100px;
@@ -509,9 +529,14 @@
                 
                 <div class="form-group">
                     <label for="password">Password *</label>
-                    <input type="password" id="password" name="password" required 
-                           pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}" 
-                           title="Password should be 8-20 characters with at least one uppercase, one lowercase, one digit, and one special character">
+                    <div class="input-wrapper">
+                        <input type="password" id="password" name="password" required 
+                               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}" 
+                               title="Password should be 8-20 characters with at least one uppercase, one lowercase, one digit, and one special character">
+                        <span class="password-toggle" onclick="togglePassword('password', 'passwordIcon')">
+                            <i class="fas fa-eye" id="passwordIcon"></i>
+                        </span>
+                    </div>
                     <div class="password-strength">
                         <div class="password-strength-bar" id="passwordStrength"></div>
                     </div>
@@ -519,7 +544,12 @@
                 
                 <div class="form-group">
                     <label for="confirmPassword">Confirm Password *</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    <div class="input-wrapper">
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        <span class="password-toggle" onclick="togglePassword('confirmPassword', 'confirmPasswordIcon')">
+                            <i class="fas fa-eye" id="confirmPasswordIcon"></i>
+                        </span>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -659,6 +689,22 @@
                 showSuccess(decodeURIComponent(success));
             }
         });
+        
+        // Password toggle function
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const passwordIcon = document.getElementById(iconId);
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.classList.remove('fa-eye');
+                passwordIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.classList.remove('fa-eye-slash');
+                passwordIcon.classList.add('fa-eye');
+            }
+        }
     </script>
 </body>
 </html>

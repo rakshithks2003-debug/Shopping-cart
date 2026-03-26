@@ -253,6 +253,22 @@
             color: #667eea;
         }
 
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 5px;
+        }
+
+        .password-toggle:hover {
+            color: #667eea;
+        }
+
         button {
             width: 100%;
             padding: 18px;
@@ -536,6 +552,9 @@
                            onblur="validatePassword()" 
                            oninput="clearError('password')">
                     <span class="input-icon">🔒</span>
+                    <span class="password-toggle" onclick="togglePassword('password', 'passwordIcon')">
+                        <i class="fas fa-eye" id="passwordIcon"></i>
+                    </span>
                 </div>
                 <div class="error-message" id="passwordError"></div>
                 <div class="validation-info">6-20 characters, letters and numbers</div>
@@ -553,6 +572,9 @@
                            onblur="validateConfirmPassword()" 
                            oninput="clearError('confirmPassword')">
                     <span class="input-icon">🔐</span>
+                    <span class="password-toggle" onclick="togglePassword('confirmPassword', 'confirmPasswordIcon')">
+                        <i class="fas fa-eye" id="confirmPasswordIcon"></i>
+                    </span>
                 </div>
                 <div class="error-message" id="confirmPasswordError"></div>
                 <div class="validation-info">Must match password above</div>
@@ -754,6 +776,21 @@ function clearError(inputId) {
     
     inputElement.classList.remove('input-error');
     errorElement.style.display = 'none';
+}
+
+function togglePassword(inputId, iconId) {
+    const passwordInput = document.getElementById(inputId);
+    const passwordIcon = document.getElementById(iconId);
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        passwordIcon.classList.remove('fa-eye');
+        passwordIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        passwordIcon.classList.remove('fa-eye-slash');
+        passwordIcon.classList.add('fa-eye');
+    }
 }
 
 // Enhanced password validation with strength indicator

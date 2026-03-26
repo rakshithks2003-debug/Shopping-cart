@@ -265,6 +265,22 @@ String successMessage = request.getParameter("success");
         color: #667eea;
     }
 
+    .password-toggle {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 5px;
+    }
+
+    .password-toggle:hover {
+        color: #667eea;
+    }
+
     button {
         width: 100%;
         padding: 18px;
@@ -354,6 +370,26 @@ String successMessage = request.getParameter("success");
 
     .signup-link a:hover {
         color: #764ba2;
+    }
+
+    .forgot-password-link {
+        display: inline-block;
+        margin-top: 10px;
+        color: #667eea;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .forgot-password-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    .forgot-password-link i {
+        margin-right: 5px;
     }
 
     .error-message {
@@ -463,6 +499,101 @@ String successMessage = request.getParameter("success");
         box-shadow: none;
     }
 
+    /* Forgot Password Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal-content {
+        background: white;
+        margin: 10% auto;
+        padding: 0;
+        border-radius: 25px;
+        width: 90%;
+        max-width: 450px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.4s ease-out;
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 25px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 25px 25px 0 0;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .close-modal {
+        font-size: 2.5rem;
+        color: white;
+        cursor: pointer;
+        background: none;
+        border: none;
+        line-height: 1;
+        transition: all 0.3s ease;
+        width: auto;
+        height: auto;
+    }
+
+    .close-modal:hover {
+        transform: rotate(90deg) scale(1.1);
+    }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .modal-description {
+        color: #666;
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 25px;
+        text-align: center;
+    }
+
+    .reset-btn {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .reset-btn:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
     @media (max-width: 480px) {
         .container {
             width: 90%;
@@ -552,9 +683,15 @@ String successMessage = request.getParameter("success");
                            onblur="validatePassword()" 
                            oninput="clearError('password')">
                     <span class="input-icon"><i class="fas fa-lock"></i></span>
+                    <span class="password-toggle" onclick="togglePassword()">
+                        <i class="fas fa-eye" id="passwordIcon"></i>
+                    </span>
                 </div>
                 <div class="error-message" id="passwordError"></div>
                 <div class="validation-info" id="passwordInfo">6-20 characters, letters and numbers</div>
+                <a href="ResetPassword.jsp" class="forgot-password-link">
+                    <i class="fas fa-question-circle"></i> Forgot Password?
+                </a>
             </div>
 
             <input type="hidden" id="userRole" name="role" value="user">
@@ -567,6 +704,71 @@ String successMessage = request.getParameter("success");
 
         <div class="signup-link">
             <p>Don't have an account? <a href="Signup.jsp">Sign up here</a></p>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal" id="forgotPasswordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-key"></i> Reset Password</h2>
+                <button class="close-modal" onclick="closeForgotPasswordModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description" id="modalDescription">Enter your username to retrieve your password or reset it.</p>
+                <form id="forgotPasswordForm" onsubmit="submitForgotPassword(event)">
+                    <div class="form-group">
+                        <label for="resetUsername">Username</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="resetUsername" name="username" required 
+                                   placeholder="Enter your username" oninput="clearResetError()">
+                            <span class="input-icon"><i class="fas fa-user"></i></span>
+                        </div>
+                        <div class="error-message" id="resetUsernameError"></div>
+                    </div>
+                    
+                    <div class="form-group" id="passwordDisplayGroup" style="display: none;">
+                        <label for="resetPassword">Current Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="resetPassword" name="password" readonly 
+                                   placeholder="Your current password">
+                            <span class="input-icon"><i class="fas fa-lock"></i></span>
+                        </div>
+                        <div class="success-message" id="passwordSuccess">
+                            <i class="fas fa-check-circle"></i> Password retrieved successfully
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="changePasswordGroup" style="display: none;">
+                        <label for="newPassword">New Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="newPassword" name="newPassword" 
+                                   placeholder="Enter new password" oninput="validateNewPassword()">
+                            <span class="input-icon"><i class="fas fa-lock"></i></span>
+                        </div>
+                        <div class="error-message" id="newPasswordError"></div>
+                        <div class="validation-info" id="newPasswordInfo">6-20 characters, letters and numbers</div>
+                    </div>
+                    
+                    <div class="form-group" id="confirmPasswordGroup" style="display: none;">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="confirmPassword" name="confirmPassword" 
+                                   placeholder="Confirm new password">
+                            <span class="input-icon"><i class="fas fa-lock"></i></span>
+                        </div>
+                        <div class="error-message" id="confirmPasswordError"></div>
+                    </div>
+                    
+                    <button type="submit" class="reset-btn" id="forgotPasswordBtn">
+                        <i class="fas fa-paper-plane"></i> Get Password
+                    </button>
+                    
+                    <button type="button" class="reset-btn" id="changePasswordBtn" style="display: none;" onclick="changePassword()">
+                        <i class="fas fa-save"></i> Change Password
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -718,6 +920,26 @@ function clearError(inputId) {
     errorElement.style.display = 'none';
 }
 
+function clearResetError() {
+    const errorElement = document.getElementById('resetUsernameError');
+    errorElement.style.display = 'none';
+}
+
+function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const passwordIcon = document.getElementById('passwordIcon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        passwordIcon.classList.remove('fa-eye');
+        passwordIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        passwordIcon.classList.remove('fa-eye-slash');
+        passwordIcon.classList.add('fa-eye');
+    }
+}
+
 // Add enter key support for form submission
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('loginForm');
@@ -761,6 +983,206 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     <% } %>
 });
+
+// Forgot Password Modal Functions
+function showForgotPasswordModal() {
+    document.getElementById('forgotPasswordModal').style.display = 'block';
+    document.getElementById('resetUsername').focus();
+}
+
+function closeForgotPasswordModal() {
+    document.getElementById('forgotPasswordModal').style.display = 'none';
+    document.getElementById('resetUsername').value = '';
+    document.getElementById('resetUsernameError').style.display = 'none';
+    document.getElementById('resetPassword').value = '';
+    document.getElementById('passwordDisplayGroup').style.display = 'none';
+    document.getElementById('passwordSuccess').style.display = 'none';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('newPasswordError').style.display = 'none';
+    document.getElementById('confirmPassword').value = '';
+    document.getElementById('confirmPasswordError').style.display = 'none';
+    document.getElementById('changePasswordGroup').style.display = 'none';
+    document.getElementById('confirmPasswordGroup').style.display = 'none';
+    document.getElementById('forgotPasswordBtn').style.display = 'flex';
+    document.getElementById('changePasswordBtn').style.display = 'none';
+}
+
+function submitForgotPassword(event) {
+    event.preventDefault();
+    
+    const username = document.getElementById('resetUsername').value.trim();
+    const resetUsernameError = document.getElementById('resetUsernameError');
+    
+    if (!username) {
+        resetUsernameError.textContent = 'Please enter your username';
+        resetUsernameError.style.display = 'block';
+        return;
+    }
+    
+    // Show loading state
+    const resetBtn = document.getElementById('forgotPasswordBtn');
+    const originalText = resetBtn.innerHTML;
+    resetBtn.disabled = true;
+    resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Retrieving...';
+    
+    // Send AJAX request to servlet to get password
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'ChangePasswordServlet', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        // Show password field
+                        document.getElementById('passwordDisplayGroup').style.display = 'block';
+                        document.getElementById('resetPassword').value = response.message;
+                        
+                        // Show success message
+                        const successMessage = document.getElementById('passwordSuccess');
+                        successMessage.style.display = 'block';
+                        
+                        // Show change password fields
+                        document.getElementById('changePasswordGroup').style.display = 'block';
+                        document.getElementById('confirmPasswordGroup').style.display = 'block';
+                        
+                        // Change button
+                        document.getElementById('forgotPasswordBtn').style.display = 'none';
+                        document.getElementById('changePasswordBtn').style.display = 'flex';
+                        
+                        // Reset button
+                        resetBtn.disabled = false;
+                        resetBtn.innerHTML = originalText;
+                        
+                        // Scroll to password field
+                        setTimeout(() => {
+                            document.getElementById('newPassword').focus();
+                        }, 300);
+                    } else {
+                        // Show error
+                        alert('Error: ' + response.message);
+                        resetBtn.disabled = false;
+                        resetBtn.innerHTML = originalText;
+                    }
+                } catch (e) {
+                    alert('Error processing response. Please try again.');
+                    resetBtn.disabled = false;
+                    resetBtn.innerHTML = originalText;
+                }
+            } else {
+                alert('Server error. Please try again.');
+                resetBtn.disabled = false;
+                resetBtn.innerHTML = originalText;
+            }
+        }
+    };
+    
+    xhr.send('username=' + encodeURIComponent(username) + '&action=getPassword');
+}
+
+function changePassword() {
+    const username = document.getElementById('resetUsername').value.trim();
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const newPasswordError = document.getElementById('newPasswordError');
+    const confirmPasswordError = document.getElementById('confirmPasswordError');
+    
+    // Validate new password
+    if (!validateNewPassword()) {
+        return;
+    }
+    
+    // Check if passwords match
+    if (newPassword !== confirmPassword) {
+        confirmPasswordError.textContent = 'Passwords do not match';
+        confirmPasswordError.style.display = 'block';
+        return;
+    }
+    
+    // Show loading state
+    const changeBtn = document.getElementById('changePasswordBtn');
+    const originalText = changeBtn.innerHTML;
+    changeBtn.disabled = true;
+    changeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Changing...';
+    
+    // Send AJAX request to servlet
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'ChangePasswordServlet', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        // Close modal
+                        closeForgotPasswordModal();
+                        
+                        // Show success message
+                        alert('Password changed successfully! You can now login with your new password.');
+                    } else {
+                        // Show error
+                        alert('Error: ' + response.message);
+                        changeBtn.disabled = false;
+                        changeBtn.innerHTML = originalText;
+                    }
+                } catch (e) {
+                    alert('Error processing response. Please try again.');
+                    changeBtn.disabled = false;
+                    changeBtn.innerHTML = originalText;
+                }
+            } else {
+                alert('Server error. Please try again.');
+                changeBtn.disabled = false;
+                changeBtn.innerHTML = originalText;
+            }
+        }
+    };
+    
+    xhr.send('username=' + encodeURIComponent(username) + '&newPassword=' + encodeURIComponent(newPassword));
+}
+
+function validateNewPassword() {
+    const newPassword = document.getElementById('newPassword').value;
+    const newPasswordError = document.getElementById('newPasswordError');
+    
+    // Clear previous error
+    newPasswordError.style.display = 'none';
+    
+    // Validation rules
+    if (newPassword.length === 0) {
+        return true; // Allow empty for validation on blur
+    }
+    
+    if (newPassword.length < 6 || newPassword.length > 20) {
+        newPasswordError.textContent = 'Password must be 6-20 characters';
+        newPasswordError.style.display = 'block';
+        return false;
+    }
+    
+    // Check for at least one letter and one number
+    const hasLetter = /[a-zA-Z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    
+    if (!hasLetter || !hasNumber) {
+        newPasswordError.textContent = 'Password must contain at least one letter and one number';
+        newPasswordError.style.display = 'block';
+        return false;
+    }
+    
+    return true;
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('forgotPasswordModal');
+    if (event.target === modal) {
+        closeForgotPasswordModal();
+    }
+}
 </script>
 </body>
 </html>
