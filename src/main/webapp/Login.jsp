@@ -499,101 +499,6 @@ String successMessage = request.getParameter("success");
         box-shadow: none;
     }
 
-    /* Forgot Password Modal */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 2000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(5px);
-        animation: fadeIn 0.3s ease-out;
-    }
-
-    .modal-content {
-        background: white;
-        margin: 10% auto;
-        padding: 0;
-        border-radius: 25px;
-        width: 90%;
-        max-width: 450px;
-        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-        animation: slideUp 0.4s ease-out;
-    }
-
-    .modal-header {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        padding: 25px 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-radius: 25px 25px 0 0;
-    }
-
-    .modal-header h2 {
-        margin: 0;
-        font-size: 1.5rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .close-modal {
-        font-size: 2.5rem;
-        color: white;
-        cursor: pointer;
-        background: none;
-        border: none;
-        line-height: 1;
-        transition: all 0.3s ease;
-        width: auto;
-        height: auto;
-    }
-
-    .close-modal:hover {
-        transform: rotate(90deg) scale(1.1);
-    }
-
-    .modal-body {
-        padding: 30px;
-    }
-
-    .modal-description {
-        color: #666;
-        font-size: 1rem;
-        line-height: 1.6;
-        margin-bottom: 25px;
-        text-align: center;
-    }
-
-    .reset-btn {
-        width: 100%;
-        padding: 15px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border: none;
-        border-radius: 15px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
-
-    .reset-btn:hover {
-        background: linear-gradient(135deg, #5a6fd8, #6a4190);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-    }
-
     @media (max-width: 480px) {
         .container {
             width: 90%;
@@ -704,71 +609,6 @@ String successMessage = request.getParameter("success");
 
         <div class="signup-link">
             <p>Don't have an account? <a href="Signup.jsp">Sign up here</a></p>
-        </div>
-    </div>
-
-    <!-- Forgot Password Modal -->
-    <div class="modal" id="forgotPasswordModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fas fa-key"></i> Reset Password</h2>
-                <button class="close-modal" onclick="closeForgotPasswordModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p class="modal-description" id="modalDescription">Enter your username to retrieve your password or reset it.</p>
-                <form id="forgotPasswordForm" onsubmit="submitForgotPassword(event)">
-                    <div class="form-group">
-                        <label for="resetUsername">Username</label>
-                        <div class="input-wrapper">
-                            <input type="text" id="resetUsername" name="username" required 
-                                   placeholder="Enter your username" oninput="clearResetError()">
-                            <span class="input-icon"><i class="fas fa-user"></i></span>
-                        </div>
-                        <div class="error-message" id="resetUsernameError"></div>
-                    </div>
-                    
-                    <div class="form-group" id="passwordDisplayGroup" style="display: none;">
-                        <label for="resetPassword">Current Password</label>
-                        <div class="input-wrapper">
-                            <input type="password" id="resetPassword" name="password" readonly 
-                                   placeholder="Your current password">
-                            <span class="input-icon"><i class="fas fa-lock"></i></span>
-                        </div>
-                        <div class="success-message" id="passwordSuccess">
-                            <i class="fas fa-check-circle"></i> Password retrieved successfully
-                        </div>
-                    </div>
-                    
-                    <div class="form-group" id="changePasswordGroup" style="display: none;">
-                        <label for="newPassword">New Password</label>
-                        <div class="input-wrapper">
-                            <input type="password" id="newPassword" name="newPassword" 
-                                   placeholder="Enter new password" oninput="validateNewPassword()">
-                            <span class="input-icon"><i class="fas fa-lock"></i></span>
-                        </div>
-                        <div class="error-message" id="newPasswordError"></div>
-                        <div class="validation-info" id="newPasswordInfo">6-20 characters, letters and numbers</div>
-                    </div>
-                    
-                    <div class="form-group" id="confirmPasswordGroup" style="display: none;">
-                        <label for="confirmPassword">Confirm New Password</label>
-                        <div class="input-wrapper">
-                            <input type="password" id="confirmPassword" name="confirmPassword" 
-                                   placeholder="Confirm new password">
-                            <span class="input-icon"><i class="fas fa-lock"></i></span>
-                        </div>
-                        <div class="error-message" id="confirmPasswordError"></div>
-                    </div>
-                    
-                    <button type="submit" class="reset-btn" id="forgotPasswordBtn">
-                        <i class="fas fa-paper-plane"></i> Get Password
-                    </button>
-                    
-                    <button type="button" class="reset-btn" id="changePasswordBtn" style="display: none;" onclick="changePassword()">
-                        <i class="fas fa-save"></i> Change Password
-                    </button>
-                </form>
-            </div>
         </div>
     </div>
 
@@ -917,11 +757,6 @@ function clearError(inputId) {
     const errorElement = document.getElementById(inputId + 'Error');
     
     inputElement.classList.remove('input-error');
-    errorElement.style.display = 'none';
-}
-
-function clearResetError() {
-    const errorElement = document.getElementById('resetUsernameError');
     errorElement.style.display = 'none';
 }
 
